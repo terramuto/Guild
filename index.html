@@ -18,39 +18,6 @@
             margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none;
         }
 
-        /* 🔐 로그인 및 연동 화면 */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
-            background: radial-gradient(circle, rgba(0,0,0,0.8), #000); 
-            display: flex; justify-content: center; align-items: center;
-        }
-        .login-box {
-            background: var(--ui-bg); padding: 40px; border-radius: 8px; border: 2px solid var(--gold);
-            text-align: center; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            width: 350px;
-        }
-        .login-box h1 { margin: 0; color: var(--gold); font-size: 1.5rem; text-shadow: 2px 2px 0 #000; }
-        .login-box input { padding: 12px; font-size: 0.95rem; border: 1px solid var(--ui-border); background: #111; color: #fff; border-radius: 4px; outline: none; font-weight: bold;}
-        .login-box button { background: linear-gradient(to bottom, #d35400, #a04000); color: #fff; border: 1px solid #111; padding: 12px; font-weight: 900; font-size: 1.1rem; border-radius: 4px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
-        .login-box button:hover { background: linear-gradient(to bottom, #e67e22, #ba4a00); transform: translateY(-2px);}
-
-        /* 💾 데이터 연동 모달 창 */
-        #sync-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 950;
-            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
-        }
-        .sync-box {
-            background: var(--ui-bg); padding: 30px; border-radius: 8px; border: 2px solid #8e44ad;
-            width: 400px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .sync-box h2 { margin: 0; color: #9b59b6; text-align: center; }
-        .sync-box textarea { width: 100%; height: 80px; padding: 10px; background: #111; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 0.8rem; resize: none; box-sizing: border-box; }
-        .sync-row { display: flex; gap: 10px; }
-        .sync-row button { flex: 1; padding: 10px; font-weight: 900; border: none; border-radius: 4px; cursor: pointer; color: #fff;}
-        .btn-copy { background: #27ae60; } .btn-copy:hover { background: #2ecc71; }
-        .btn-apply { background: #d35400; } .btn-apply:hover { background: #e67e22; }
-        .btn-close { background: #555; } .btn-close:hover { background: #777; }
-
         /* 📖 직업 도감 모달 */
         #dict-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 900;
@@ -82,8 +49,6 @@
         .btn-speed:hover { background: #415b76; }
         .btn-dict { background: #27ae60; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
         .btn-dict:hover { background: #2ecc71; }
-        .btn-sync { background: #8e44ad; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
-        .btn-sync:hover { background: #9b59b6; }
 
         .time-bg { width: 220px; height: 6px; background: #000; border-radius: 3px; border: 1px solid #555;}
         .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22, #3498db); width: 0%; transition: width 0.1s linear;}
@@ -174,38 +139,6 @@
 </head>
 <body>
 
-    <!-- 🔐 로그인/데이터 로드 화면 -->
-    <div id="login-screen">
-        <div class="login-box">
-            <h1>🛡️ 판타지 용병 길드</h1>
-            <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">아이디를 입력해 접속하세요.<br>다른 기기에서 하던 게임이라면 세이브 코드를 함께 입력해 바로 연동할 수 있습니다.</div>
-            <input type="text" id="login-id" placeholder="길드장 아이디 (필수)" value="Master_1">
-            <input type="text" id="login-code" placeholder="세이브 코드 (선택사항)">
-            <button onclick="loginAndSync()">접속 및 연동</button>
-        </div>
-    </div>
-
-    <!-- 💾 인게임 데이터 연동 모달 -->
-    <div id="sync-modal">
-        <div class="sync-box">
-            <h2>💾 데이터 연동 관리</h2>
-            <div style="font-size:0.85rem; color:#ccc;">다른 기기에 입력할 내 세이브 코드:</div>
-            <textarea id="export-code" readonly></textarea>
-            <div class="sync-row">
-                <button class="btn-copy" onclick="copyCode()">코드 복사하기</button>
-            </div>
-            
-            <hr style="border: 1px solid #333; width:100%; margin: 10px 0;">
-            
-            <div style="font-size:0.85rem; color:#ccc;">다른 기기의 세이브 코드 불러오기:</div>
-            <textarea id="import-code" placeholder="여기에 세이브 코드를 붙여넣으세요..."></textarea>
-            <div class="sync-row">
-                <button class="btn-apply" onclick="applySyncCode()">코드 적용 (덮어쓰기)</button>
-                <button class="btn-close" onclick="document.getElementById('sync-modal').style.display='none'">닫기</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 📖 직업 도감 화면 -->
     <div id="dict-screen">
         <div class="dict-box">
@@ -221,10 +154,8 @@
             <div class="time-wrapper">
                 <div class="time-header">
                     <div class="time-text" id="ui-time">DAY 1 [ 08:00 ]</div>
-                    <!-- ⏩ 배속 및 메뉴 기능 -->
                     <button class="btn-speed" id="btn-speed" onclick="toggleSpeed()">▶ 1x</button>
                     <button class="btn-dict" onclick="openDict()">📖 도감</button>
-                    <button class="btn-sync" onclick="openSyncModal()">💾 연동</button>
                 </div>
                 <div class="time-bg"><div class="time-fill" id="ui-time-bar"></div></div>
             </div>
@@ -259,8 +190,36 @@
 
     <script>
         // ==========================================
-        // 1. 방대한 직업 트리 (35종) 및 시스템 변수
+        // 🌟 맞춤형 일러스트 DB
         // ==========================================
+        const IMAGE_DB = {
+            "W_0": [
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=W1", "https://api.dicebear.com/9.x/lorelei/svg?seed=W2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=W3", "https://api.dicebear.com/9.x/lorelei/svg?seed=W4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=W5"
+            ],
+            "A_0": [
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=A1", "https://api.dicebear.com/9.x/lorelei/svg?seed=A2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=A3", "https://api.dicebear.com/9.x/lorelei/svg?seed=A4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=A5"
+            ],
+            "R_0": [
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=R1", "https://api.dicebear.com/9.x/lorelei/svg?seed=R2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=R3", "https://api.dicebear.com/9.x/lorelei/svg?seed=R4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=R5"
+            ],
+            "M_0": [
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=M1", "https://api.dicebear.com/9.x/lorelei/svg?seed=M2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=M3", "https://api.dicebear.com/9.x/lorelei/svg?seed=M4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=M5"
+            ],
+            "C_0": [
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=C1", "https://api.dicebear.com/9.x/lorelei/svg?seed=C2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=C3", "https://api.dicebear.com/9.x/lorelei/svg?seed=C4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=C5"
+            ]
+        };
+
         const CLASS_DB = {
             "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextJobs: ["W_1"], req: 0, cost: 0 },
             "W_1": { tier: 1, name: "검사", color: "#c0392b", nextJobs: ["W_2A", "W_2B"], req: 5, cost: 500 },
@@ -324,20 +283,16 @@
             shop:  { name: "상점", x: 90, y: 35 }, board: { name: "게시판", x: 50, y: 15 }
         };
 
-        // ⏱️ 게임 전역 변수
         let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
         let gameSpeed = 1; 
-        let currentUserId = ""; 
-        let gameLoop; 
 
-        // 🌟 시간 헬퍼 함수
         function getDay() { return Math.floor(guild.timeMin / 1440) + 1; }
         function getHour() { return Math.floor(guild.timeMin / 60) % 24; }
         function getMin() { return Math.floor(guild.timeMin % 60); }
-        function isGuildOpen() { let h = getHour(); return h >= 7 && h < 18; } // 07:00 ~ 18:00
+        function isGuildOpen() { let h = getHour(); return h >= 7 && h < 18; } // 🌟 영업시간 07:00 ~ 18:00
 
         // ==========================================
-        // 2. 용병 및 퀘스트 클래스
+        // 2. 용병 AI 및 커스텀 일러스트 연결
         // ==========================================
         class Mercenary {
             constructor() {
@@ -346,7 +301,8 @@
                 
                 this.baseJobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
                 this.jobId = this.baseJobId; 
-                this.portraitSeed = Math.floor(Math.random() * 1000); // 일러스트 시드
+                let imgList = IMAGE_DB[this.baseJobId];
+                this.portraitUrl = imgList[Math.floor(Math.random() * imgList.length)];
                 
                 this.level = 1; this.exp = 0; this.equipTier = 0;
                 this.basePower = 15 + Math.floor(Math.random() * 10);
@@ -361,7 +317,6 @@
 
             get job() { return CLASS_DB[this.jobId]; }
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
-            get portraitUrl() { return `https://api.dicebear.com/9.x/lorelei/svg?seed=${this.baseJobId}_${this.portraitSeed}`; }
 
             setThought(text, durationGameMins = 30) {
                 this.thought = text; this.showBubble = true;
@@ -371,6 +326,7 @@
             think() {
                 if(this.status !== 'idle') return;
                 
+                // 가끔 배회
                 if(Math.random() < 0.1) { this.targetX = 20 + Math.random()*60; this.targetY = 30 + Math.random()*50; }
                 if(Math.random() > 0.3) return;
 
@@ -400,23 +356,25 @@
                     }
                 }
 
-                // 3. 휴식
-                if(this.stamina < 30) {
-                    if(this.money >= FACILITIES.sleep.cost) return this.useFacility('sleep');
+                let isNight = !isGuildOpen();
+
+                // 🌟 3. 야간 여가 시간 or 주간 피로 누적 시 시설 이용
+                if(this.stamina < 30 || (isNight && this.stamina < 90)) {
+                    if(this.money >= FACILITIES.sleep.cost && this.stamina < 60) return this.useFacility('sleep');
                     if(this.money >= FACILITIES.drink.cost) return this.useFacility('drink');
-                    return this.setThought("돈이 없어서 못 쉬어...", 40);
+                    
+                    if(isNight) return this.setThought("돈이 없어 강제 밤샘이네...", 40);
+                    else return this.setThought("피곤한데 쉴 돈이 없군...", 40);
                 }
-                
-                // 4. 훈련
-                if(this.stamina > 80 && this.money >= FACILITIES.train.cost + 100 && Math.random() < 0.3) return this.useFacility('train');
 
-                // 🌟 5. 의뢰 수주 (영업시간 체크)
-                if(this.stamina >= 20) {
-                    if(!isGuildOpen()) {
-                        if(Math.random() < 0.1) this.setThought("게시판이 닫혔군. 내일 하자.", 40);
-                        return;
-                    }
+                // 🌟 4. 훈련 (체력이 넉넉하고 돈이 있을 때, 밤에는 더 자주 훈련)
+                let trainChance = isNight ? 0.6 : 0.2;
+                if(this.stamina > 50 && this.money >= FACILITIES.train.cost + 50 && Math.random() < trainChance) {
+                    return this.useFacility('train');
+                }
 
+                // 🌟 5. 의뢰 수주 (낮에만 영업시간 체크)
+                if(!isNight && this.stamina >= 20) {
                     let avail = guild.quests.filter(q => !q.assignedMercId).sort((a,b) => b.reward - a.reward);
                     if(avail.length > 0) {
                         this.targetX = FACILITIES.board.x; this.targetY = FACILITIES.board.y + 10;
@@ -429,6 +387,8 @@
                             }
                         }
                     } else if(Math.random() < 0.1) this.setThought("의뢰가 없군...", 30);
+                } else if(isNight) {
+                    if(Math.random() < 0.1) this.setThought("영업 끝났네. 내일 봐야지.", 40);
                 }
             }
 
@@ -437,7 +397,7 @@
                 this.money -= fac.cost; guild.money += fac.cost; 
                 this.status = type === 'train' ? 'training' : 'resting';
                 this.currentAction = type; this.targetMin = guild.timeMin + fac.duration;
-                this.setThought(`[${fac.name}] 이용 중`, fac.duration);
+                this.setThought(`[${fac.name}] 간다`, fac.duration);
                 this.targetX = fac.x + (Math.random()*10 - 5); this.targetY = fac.y + (Math.random()*10 - 5);
             }
         }
@@ -454,95 +414,6 @@
             }
         }
 
-        // ==========================================
-        // 💾 로그인 및 데이터 연동 (ID + Code 결합)
-        // ==========================================
-        function loginAndSync() {
-            let idInput = document.getElementById('login-id').value.trim();
-            let codeInput = document.getElementById('login-code').value.trim();
-            
-            if(!idInput) return alert("아이디를 입력해주세요.");
-            currentUserId = idInput;
-
-            if(codeInput) {
-                // 코드가 입력된 경우: 즉시 데이터 덮어쓰기 연동
-                try {
-                    let parsed = JSON.parse(decodeURIComponent(atob(codeInput)));
-                    restoreData(parsed);
-                    saveGameLocally();
-                    showLog(`✅ 세이브 코드가 [${idInput}] 계정에 성공적으로 연동되었습니다!`);
-                } catch(e) {
-                    return alert("잘못된 세이브 코드입니다. 코드를 다시 확인해주세요.");
-                }
-            } else {
-                // 코드 없이 로그인: 로컬 데이터 불러오기 or 새 게임
-                let saveKey = "guildSave_" + idInput;
-                try {
-                    let savedData = localStorage.getItem(saveKey);
-                    if(savedData) {
-                        restoreData(JSON.parse(savedData));
-                        showLog(`✅ 기존 [${idInput}] 계정 데이터를 불러왔습니다.`);
-                    } else {
-                        initNewGame();
-                        saveGameLocally();
-                        showLog(`👋 새로운 길드를 설립했습니다. 환영합니다, ${idInput}님!`);
-                    }
-                } catch(e) {
-                    initNewGame();
-                    showLog(`⚠️ 로컬 스토리지 제한으로 휘발성 모드로 시작합니다.`);
-                }
-            }
-            
-            document.getElementById('login-screen').style.display = 'none';
-            startGameLoop(); 
-        }
-
-        function initNewGame() {
-            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
-            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
-        }
-
-        function saveGameLocally() {
-            if(!currentUserId) return;
-            try { localStorage.setItem("guildSave_" + currentUserId, JSON.stringify(guild)); } catch(e) {}
-        }
-
-        // 💾 인게임 데이터 연동 모달 컨트롤
-        function openSyncModal() {
-            document.getElementById('sync-modal').style.display = 'flex';
-            let code = btoa(encodeURIComponent(JSON.stringify(guild))); 
-            document.getElementById('export-code').value = code;
-        }
-
-        function copyCode() {
-            let copyText = document.getElementById("export-code");
-            copyText.select();
-            document.execCommand("copy");
-            alert("세이브 코드가 복사되었습니다!");
-        }
-
-        function applySyncCode() {
-            let code = document.getElementById('import-code').value.trim();
-            if(!code) return alert("코드를 입력해주세요.");
-            try {
-                let parsed = JSON.parse(decodeURIComponent(atob(code)));
-                restoreData(parsed);
-                saveGameLocally();
-                document.getElementById('sync-modal').style.display = 'none';
-                showLog(`✅ 성공적으로 데이터를 연동(덮어쓰기) 했습니다!`);
-                updateUI();
-            } catch (e) {
-                alert("잘못된 세이브 코드입니다.");
-            }
-        }
-
-        function restoreData(data) {
-            guild = data;
-            guild.roster = guild.roster.map(m => Object.assign(new Mercenary(), m));
-            guild.quests = guild.quests.map(q => Object.assign(new Quest(), q));
-        }
-
-        // ⏩ 배속 기능
         function toggleSpeed() {
             if(gameSpeed === 1) gameSpeed = 2;
             else if(gameSpeed === 2) gameSpeed = 5;
@@ -551,7 +422,6 @@
             document.getElementById('btn-speed').innerText = `▶ ${gameSpeed}x`;
         }
 
-        // 📖 도감 모달
         function openDict() {
             let grid = document.getElementById('dict-grid');
             grid.innerHTML = '';
@@ -576,7 +446,7 @@
             let h = getHour().toString().padStart(2, '0'), m = getMin().toString().padStart(2, '0');
             
             // 🌟 영업시간 뱃지
-            let statusBadge = isGuildOpen() ? '<span style="color:#2ecc71; font-size:0.9rem;">[영업중]</span>' : '<span style="color:#e74c3c; font-size:0.9rem;">[영업종료]</span>';
+            let statusBadge = isGuildOpen() ? '<span style="color:#2ecc71; font-size:0.9rem;">[영업중]</span>' : '<span style="color:#e74c3c; font-size:0.9rem;">[마감됨]</span>';
             document.getElementById('ui-time').innerHTML = `DAY ${getDay()} [ ${h}:${m} ] ${statusBadge}`;
             
             document.getElementById('ui-time-bar').style.width = `${((getHour() + getMin() / 60) / 24) * 100}%`;
@@ -587,7 +457,6 @@
             btn.innerText = `길드 증축 (인원 +2) : ${guild.upgradeCost}G`;
             btn.disabled = guild.money < guild.upgradeCost;
 
-            // 🌟 영업시간 외 게시판 시각적 오프
             let boardArea = document.getElementById('area-board');
             if(!isGuildOpen()) {
                 boardArea.innerText = "🔒 게시판 마감";
@@ -603,7 +472,7 @@
                     let m = guild.roster.find(m => m.id === q.assignedMercId);
                     ratio = Math.max(0, (q.targetMin - guild.timeMin) / q.durationMin);
                     status = `<div style="font-size:0.75rem; color:#e74c3c;">[진행 중] ${m ? m.name : '?'}</div><div class="prog-bg-side"><div class="prog-fill-side" style="width:${(1 - ratio)*100}%"></div></div>`;
-                } else status = `<div style="font-size:0.75rem; color:#2ecc71;">[모집 중] ${Math.floor(q.durationMin/60)}시간 소요</div>`;
+                } else status = `<div style="font-size:0.75rem; color:#2ecc71;">[모집 중] ${Math.floor(q.durationMin/60)}시간</div>`;
                 return `<div class="list-item"><div class="list-title"><span>${q.title}</span><span style="color:var(--gold)">🪙${q.reward}G</span></div><div class="list-desc"><span>⚔️${q.reqPower} | ⚡${q.reqStamina}</span></div>${status}</div>`;
             }).join('');
 
@@ -675,11 +544,13 @@
         // 4. 메인 루프 실행
         // ==========================================
         function startGameLoop() {
-            if(gameLoop) clearInterval(gameLoop);
+            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
+            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
+            
             updateUI(); 
             
             let frame = 0;
-            gameLoop = setInterval(() => {
+            setInterval(() => {
                 frame++; renderFloor();
                 
                 let prevHour = getHour();
@@ -687,8 +558,6 @@
                 let currHour = getHour();
 
                 if(currHour !== prevHour) {
-                    saveGameLocally(); // 💾 게임이 진행됨에 따라 자동 저장
-
                     if (currHour === 0) {
                         let cost = guild.roster.length * 50; guild.money -= cost;
                         showLog(`🌙 자정 일일 유지비 -${cost}G 납부`);
@@ -706,7 +575,6 @@
                     guild.roster.forEach(m => m.think());
                 }
 
-                // 🌟 영업시간 중에만 의뢰 생성
                 if(isGuildOpen() && Math.random() < (0.005 * gameSpeed) && guild.quests.length < 5) {
                     guild.quests.push(new Quest());
                 }
@@ -742,8 +610,11 @@
                 });
 
                 if(frame % 10 === 0) updateUI();
-            }, 100); // 100ms당 1프레임
+            }, 100); 
         }
+
+        // 페이지 로드 시 게임 자동 시작
+        window.onload = startGameLoop;
 
     </script>
 </body>
