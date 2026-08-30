@@ -61,14 +61,13 @@
         .time-header { display: flex; gap: 10px; align-items: center;}
         .time-text { font-weight: 900; font-family: monospace; font-size: 1.2rem; }
         
-        /* ⏩ 배속 버튼 */
         .btn-speed { background: #34495e; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
         .btn-speed:hover { background: #415b76; }
         
         .btn-dict { background: #27ae60; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
         .btn-dict:hover { background: #2ecc71; }
 
-        .time-bg { width: 200px; height: 6px; background: #000; border-radius: 3px; border: 1px solid #555;}
+        .time-bg { width: 220px; height: 6px; background: #000; border-radius: 3px; border: 1px solid #555;}
         .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22, #3498db); width: 0%; transition: width 0.1s linear;}
         
         .money-text { color: var(--gold); font-size: 1.3rem; }
@@ -89,6 +88,7 @@
         .facility-area {
             position: absolute; padding: 15px 25px; border-radius: 8px; font-weight: 900; 
             background: rgba(0,0,0,0.7); border: 2px solid; pointer-events: none; text-shadow: 1px 1px 2px #000;
+            transition: 0.5s;
         }
 
         /* 🚶 용병 아바타 */
@@ -105,7 +105,6 @@
         }
         .floor-bubble.show { opacity: 1; }
 
-        /* 🖼️ 오타쿠풍 애니메이션 일러스트 */
         .merc-emblem {
             width: 48px; height: 48px; border-radius: 50%; border: 3px solid; 
             overflow: hidden; background: #fff; 
@@ -161,10 +160,10 @@
     <div id="login-screen">
         <div class="login-box">
             <h1>🛡️ 판타지 용병 길드</h1>
-            <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">아이디 생성 및 접속을 진행하세요.</div>
-            <input type="text" id="login-id" placeholder="길드장 아이디" value="Master_1">
-            <input type="password" id="login-pw" placeholder="비밀번호" value="1234">
-            <button onclick="login()">게임 시작</button>
+            <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">아이디와 비밀번호로 안전하게 저장됩니다.</div>
+            <input type="text" id="login-id" placeholder="길드장 아이디">
+            <input type="password" id="login-pw" placeholder="비밀번호">
+            <button onclick="login()">게임 접속</button>
             <button class="cloud-btn" onclick="importData()">☁️ 다른 기기에서 불러오기(코드)</button>
         </div>
     </div>
@@ -191,13 +190,13 @@
             </div>
             <div class="capacity-text">👥 인원: <span id="ui-cap">0 / 5</span></div>
             <div class="money-text">자금 🪙 <span id="ui-money">500</span> G</div>
-            <button class="btn-speed" style="background:#8e44ad;" onclick="exportData()">💾 코드 복사</button>
+            <button class="btn-speed" style="background:#8e44ad;" onclick="exportData()">💾 코드 백업</button>
         </div>
     </header>
 
     <main>
         <div id="floor-container">
-            <div class="facility-area" style="top:15%; left:50%; transform:translateX(-50%); border-color:#f1c40f; color:#fdf5e6;">📜 의뢰 게시판</div>
+            <div class="facility-area" id="area-board" style="top:15%; left:50%; transform:translateX(-50%); border-color:#f1c40f; color:#fdf5e6;">📜 의뢰 게시판</div>
             <div class="facility-area" style="bottom:10%; left:10%; border-color:#e67e22; color:#fdf5e6;">🍺 길드 주점</div>
             <div class="facility-area" style="top:15%; left:10%; border-color:#3498db; color:#fdf5e6;">🛏️ 길드 여관</div>
             <div class="facility-area" style="bottom:10%; right:10%; border-color:#e74c3c; color:#fdf5e6;">🎯 훈련장</div>
@@ -221,7 +220,7 @@
 
     <script>
         // ==========================================
-        // 🌟 맞춤형 일러스트 DB (애니메이션풍 API)
+        // 🌟 맞춤형 일러스트 DB
         // ==========================================
         const IMAGE_DB = {
             "W_0": [
@@ -251,9 +250,6 @@
             ]
         };
 
-        // ==========================================
-        // 1. 방대한 35종 전직 트리
-        // ==========================================
         const CLASS_DB = {
             "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextJobs: ["W_1"], req: 0, cost: 0 },
             "W_1": { tier: 1, name: "검사", color: "#c0392b", nextJobs: ["W_2A", "W_2B"], req: 5, cost: 500 },
@@ -300,13 +296,14 @@
             "C_3B1": { tier: 3, name: "팔라딘", color: "#873600", nextJobs: [], req: 30, cost: 8000 },
             "C_3B2": { tier: 3, name: "다크프리스트", color: "#421a00", nextJobs: [], req: 30, cost: 8000 }
         };
+
         const BASE_CLASSES = ["W_0", "A_0", "R_0", "M_0", "C_0"];
         const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드"];
 
         const EQUIP_SHOP = [
             { name: "강철 장비", cost: 300, powerUp: 20 },
             { name: "미스릴 무기", cost: 1000, powerUp: 50 },
-            { name: "전설의 무구", cost: 4000, powerUp: 150 }
+            { name: "전설의 장비", cost: 4000, powerUp: 150 }
         ];
 
         const FACILITIES = {
@@ -320,11 +317,13 @@
         let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
         let gameSpeed = 1; 
         let currentUserId = ""; 
-        let gameLoop; // 안전한 루프 제어
+        let currentUserPw = "";
+        let gameLoop; 
 
         function getDay() { return Math.floor(guild.timeMin / 1440) + 1; }
         function getHour() { return Math.floor(guild.timeMin / 60) % 24; }
         function getMin() { return Math.floor(guild.timeMin % 60); }
+        function isGuildOpen() { let h = getHour(); return h >= 7 && h < 18; } // 🌟 영업시간 (07:00 ~ 18:00)
 
         class Mercenary {
             constructor() {
@@ -392,7 +391,13 @@
                 }
                 if(this.stamina > 80 && this.money >= FACILITIES.train.cost + 100 && Math.random() < 0.3) return this.useFacility('train');
 
+                // 🌟 영업시간 외에는 의뢰 수주 불가
                 if(this.stamina >= 20) {
+                    if(!isGuildOpen()) {
+                        if(Math.random() < 0.1) this.setThought("게시판이 닫혔어. 내일 봐야지.", 40);
+                        return;
+                    }
+
                     let avail = guild.quests.filter(q => !q.assignedMercId).sort((a,b) => b.reward - a.reward);
                     if(avail.length > 0) {
                         this.targetX = FACILITIES.board.x; this.targetY = FACILITIES.board.y + 10;
@@ -431,34 +436,38 @@
         }
 
         // ==========================================
-        // 💾 로그인 및 시스템 초기화
+        // 💾 강력해진 로그인 및 세이브 시스템
         // ==========================================
         function login() {
             let id = document.getElementById('login-id').value;
             let pw = document.getElementById('login-pw').value;
-            if(id === "" || pw === "") return alert("아이디와 비밀번호를 입력해주세요.");
+            if(id === "" || pw === "") return alert("아이디와 비밀번호를 모두 입력해주세요.");
             
-            currentUserId = id;
-            let saveKey = "guildSave_" + id;
-            
-            // 로컬 스토리지가 막힌 환경(일부 프리뷰어)을 위한 예외처리
+            let saveKey = "guildUser_" + id;
             try {
                 let savedData = localStorage.getItem(saveKey);
                 if(savedData) {
-                    restoreData(JSON.parse(savedData));
-                    showLog(`✅ 기존 데이터를 불러왔습니다. 환영합니다, ${id}님!`);
+                    let parsedUser = JSON.parse(savedData);
+                    if(parsedUser.pw !== pw) return alert("비밀번호가 틀렸습니다!");
+                    
+                    currentUserId = id; currentUserPw = pw;
+                    restoreData(parsedUser.save);
+                    showLog(`✅ 기존 데이터를 성공적으로 불러왔습니다. 환영합니다, ${id}님!`);
                 } else {
+                    currentUserId = id; currentUserPw = pw;
                     initNewGame();
+                    saveGameLocally(); // 비밀번호 포함하여 즉시 저장
                     showLog(`👋 새로운 길드를 설립했습니다. 환영합니다, ${id}님!`);
                 }
             } catch(e) {
-                // 스토리지 접근 불가 시 메모리에서 새 게임 실행
+                // 스토리지 제한 시 휘발성 메모리로 실행
+                currentUserId = id; currentUserPw = pw;
                 initNewGame();
-                showLog(`⚠️ 로컬 스토리지 접근 불가: 휘발성 모드로 시작합니다.`);
+                showLog(`⚠️ 보안/환경 문제로 데이터가 기기에 저장되지 않는 휘발성 모드로 시작합니다.`);
             }
             
             document.getElementById('login-screen').style.display = 'none';
-            startGameLoop(); // 로그인 이후에만 안전하게 루프 시작
+            startGameLoop(); 
         }
 
         function initNewGame() {
@@ -468,12 +477,14 @@
 
         function saveGameLocally() {
             if(!currentUserId) return;
-            try { localStorage.setItem("guildSave_" + currentUserId, JSON.stringify(guild)); } catch(e) {}
+            let saveObj = { pw: currentUserPw, save: guild };
+            try { localStorage.setItem("guildUser_" + currentUserId, JSON.stringify(saveObj)); } catch(e) {}
         }
 
         function exportData() {
-            let code = btoa(encodeURIComponent(JSON.stringify(guild))); 
-            prompt("아래 문자열을 복사하여 다른 기기에서 불러오기 하세요.", code);
+            let exportObj = { id: currentUserId, data: guild };
+            let code = btoa(encodeURIComponent(JSON.stringify(exportObj))); 
+            prompt("아래 문자열을 복사하여 다른 기기에서 [코드 복사]를 통해 불러오세요.", code);
         }
 
         function importData() {
@@ -481,9 +492,15 @@
             if(!code) return;
             try {
                 let parsed = JSON.parse(decodeURIComponent(atob(code)));
-                restoreData(parsed);
+                if(parsed.id && parsed.data) {
+                    currentUserId = parsed.id;
+                    currentUserPw = "imported"; // 임시 비밀번호 통과
+                    restoreData(parsed.data);
+                } else {
+                    restoreData(parsed); // 구버전 호환
+                }
                 document.getElementById('login-screen').style.display = 'none';
-                showLog("✅ 클라우드 데이터를 성공적으로 불러왔습니다!");
+                showLog(`✅ [${currentUserId}] 클라우드 데이터를 성공적으로 불러왔습니다!`);
                 startGameLoop();
             } catch (e) {
                 alert("잘못된 세이브 코드입니다.");
@@ -504,7 +521,7 @@
             document.getElementById('btn-speed').innerText = `▶ ${gameSpeed}x`;
         }
 
-        // 📖 도감 열기/닫기
+        // 📖 도감 모달
         function openDict() {
             let grid = document.getElementById('dict-grid');
             grid.innerHTML = '';
@@ -514,8 +531,8 @@
                 grid.innerHTML += `
                     <div class="dict-item" style="border-color:${c.color}">
                         <div style="font-weight:900; color:${c.color}">${c.tier}차: ${c.name}</div>
-                        <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">다음: ${nextStr}</div>
-                        <div style="font-size:0.75rem; color:var(--gold); margin-top:2px;">승급비용: ${c.cost}G</div>
+                        <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">다음 전직: ${nextStr}</div>
+                        <div style="font-size:0.75rem; color:var(--gold); margin-top:2px;">승급 심사비: ${c.cost}G</div>
                     </div>
                 `;
             }
@@ -527,7 +544,11 @@
         // ==========================================
         function updateUI() {
             let h = getHour().toString().padStart(2, '0'), m = getMin().toString().padStart(2, '0');
-            document.getElementById('ui-time').innerText = `DAY ${getDay()} [ ${h}:${m} ]`;
+            
+            // 🌟 영업시간 뱃지 추가
+            let statusBadge = isGuildOpen() ? '<span style="color:#2ecc71;">[영업중]</span>' : '<span style="color:#e74c3c;">[영업종료]</span>';
+            document.getElementById('ui-time').innerHTML = `DAY ${getDay()} [ ${h}:${m} ] ${statusBadge}`;
+            
             document.getElementById('ui-time-bar').style.width = `${((getHour() + getMin() / 60) / 24) * 100}%`;
             document.getElementById('ui-money').innerText = Math.floor(guild.money).toLocaleString();
             document.getElementById('ui-cap').innerText = `${guild.roster.length} / ${guild.capacity}`;
@@ -535,6 +556,16 @@
             let btn = document.getElementById('btn-upgrade');
             btn.innerText = `길드 증축 (인원 +2) : ${guild.upgradeCost}G`;
             btn.disabled = guild.money < guild.upgradeCost;
+
+            // 게시판 시각적 효과 (닫혔을 때)
+            let boardArea = document.getElementById('area-board');
+            if(!isGuildOpen()) {
+                boardArea.innerText = "🔒 게시판 마감";
+                boardArea.style.borderColor = "#555"; boardArea.style.color = "#888";
+            } else {
+                boardArea.innerText = "📜 의뢰 게시판";
+                boardArea.style.borderColor = "#f1c40f"; boardArea.style.color = "#fdf5e6";
+            }
 
             document.getElementById('quest-list').innerHTML = guild.quests.map(q => {
                 let status = "", ratio = 0;
@@ -611,11 +642,11 @@
         }
 
         // ==========================================
-        // 4. 메인 루프 실행 (로그인 후 호출)
+        // 4. 메인 루프 실행
         // ==========================================
         function startGameLoop() {
             if(gameLoop) clearInterval(gameLoop);
-            updateUI(); // 초기 렌더링
+            updateUI(); 
             
             let frame = 0;
             gameLoop = setInterval(() => {
@@ -626,7 +657,7 @@
                 let currHour = getHour();
 
                 if(currHour !== prevHour) {
-                    saveGameLocally();
+                    saveGameLocally(); // 시간마다 자동 저장
 
                     if (currHour === 0) {
                         let cost = guild.roster.length * 50; guild.money -= cost;
@@ -635,6 +666,9 @@
                     if (currHour === 8 && guild.roster.length < guild.capacity && Math.random() < 0.8) {
                         guild.roster.push(new Mercenary()); showLog(`🚪 새로운 프리랜서 용병이 길드에 합류했습니다.`);
                     }
+                    if (currHour === 18) { showLog(`🔒 길드 의뢰 게시판이 마감되었습니다.`); }
+                    if (currHour === 7) { showLog(`🔓 길드 의뢰 게시판이 오픈되었습니다.`); }
+
                     guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + 5); });
                 }
 
