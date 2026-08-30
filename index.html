@@ -29,8 +29,17 @@
         }
 
         .guild-title { font-family: var(--font-title); font-size: 1.6rem; color: var(--border-gold); text-shadow: 2px 2px 4px #000; letter-spacing: 2px; }
-        .guild-stats { display: flex; gap: 40px; font-size: 1.2rem; font-weight: 700; font-family: var(--font-title); text-shadow: 1px 1px 2px #000;}
         
+        .guild-stats { display: flex; gap: 40px; align-items: center; font-family: var(--font-title); text-shadow: 1px 1px 2px #000; }
+        
+        /* ⏳ 시간 진행 UI 스타일 */
+        .time-container { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 200px; }
+        .time-text { font-size: 1.1rem; font-weight: 700; color: #f4e8d3; }
+        .time-bg { width: 100%; height: 8px; background: #111; border: 1px solid var(--border-gold); border-radius: 4px; overflow: hidden; }
+        .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #d35400, #2c3e50); width: 0%; transition: width 1s linear; }
+        
+        .money-text { font-size: 1.3rem; font-weight: 700; color: var(--border-gold); }
+
         main { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 20px; flex: 1; overflow: hidden; }
 
         .panel { 
@@ -51,29 +60,18 @@
             display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
         }
         
-        .card-info-wrapper { display: flex; gap: 12px; align-items: flex-start; }
-        
-        /* 🖼️ 초상화 프레임 설정 */
-        .portrait-box { 
-            width: 60px; height: 60px; background: #d7c9b1; border: 3px solid var(--border-dark); border-radius: 50%; 
-            overflow: hidden; flex-shrink: 0; box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.4);
-            display: flex; justify-content: center; align-items: center;
-        }
-        /* image-rendering 속성을 지우고 부드럽게 출력 */
-        .portrait-box img { width: 100%; height: 100%; object-fit: cover; } 
-        
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-bottom: 1px solid #c9b18c; padding-bottom: 4px;}
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; border-bottom: 1px solid #c9b18c; padding-bottom: 6px;}
         .merc-name { font-weight: 900; font-size: 1.15rem; color: #2e1b0f; }
         .merc-class { font-size: 0.75rem; padding: 4px 8px; border-radius: 3px; font-weight: bold; color: #fff; box-shadow: 1px 1px 2px rgba(0,0,0,0.5);}
         
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 0.85rem; color: var(--text-light); row-gap: 4px; font-weight: 700; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; font-size: 0.9rem; color: var(--text-light); row-gap: 6px; font-weight: 700; margin-top: 4px; }
         .stat-highlight { color: #8a2be2; }
         .status-badge { padding: 2px 6px; border-radius: 4px; color: #fff; font-size: 0.7rem; text-shadow: 1px 1px 0 #000;}
         
         button { 
             background: linear-gradient(to bottom, #5c3a21, #3a1f0f); color: #f4e8d3; border: 2px solid #1a0b05; 
-            padding: 6px 10px; border-radius: 3px; font-weight: 700; cursor: pointer; transition: 0.1s; font-family: var(--font-main);
-            box-shadow: 0 3px 0 #1a0b05, 0 3px 4px rgba(0,0,0,0.5); text-shadow: 1px 1px 2px #000; font-size: 0.8rem;
+            padding: 8px 12px; border-radius: 3px; font-weight: 700; cursor: pointer; transition: 0.1s; font-family: var(--font-main);
+            box-shadow: 0 3px 0 #1a0b05, 0 3px 4px rgba(0,0,0,0.5); text-shadow: 1px 1px 2px #000; font-size: 0.85rem;
         }
         button:hover:not(:disabled) { background: linear-gradient(to bottom, #6e462a, #4a2e1b); transform: translateY(1px); box-shadow: 0 2px 0 #1a0b05; }
         button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 #1a0b05; }
@@ -83,12 +81,12 @@
         button.action-dispatch { background: linear-gradient(to bottom, #b9770e, #935116); border-color: #4a2205; box-shadow: 0 3px 0 #4a2205; }
         
         .btn-group { display: flex; gap: 4px; margin-top: 6px; }
-        .btn-group button { flex: 1; padding: 5px; font-size: 0.75rem; }
+        .btn-group button { flex: 1; padding: 6px; font-size: 0.8rem; }
         .btn-drink { background: linear-gradient(to bottom, #27ae60, #145a32) !important; border-color: #0e3e23 !important; box-shadow: 0 3px 0 #0e3e23 !important;}
         .btn-sleep { background: linear-gradient(to bottom, #2980b9, #154360) !important; border-color: #0b2331 !important; box-shadow: 0 3px 0 #0b2331 !important;}
         .btn-train { background: linear-gradient(to bottom, #c0392b, #78281f) !important; border-color: #4a1111 !important; box-shadow: 0 3px 0 #4a1111 !important;}
 
-        .progress-bg { background: #3e2723; height: 8px; border-radius: 4px; border: 1px solid #1a0b05; overflow: hidden; margin-top: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);}
+        .progress-bg { background: #3e2723; height: 10px; border-radius: 5px; border: 1px solid #1a0b05; overflow: hidden; margin-top: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);}
         .fill-exp { background: linear-gradient(90deg, #2ecc71, #f1c40f); height: 100%; width: 0%; transition: width 0.3s; }
         .fill-stamina { background: linear-gradient(90deg, #3498db, #00ffff); height: 100%; width: 0%; transition: width 0.3s; }
         .fill-action { background: linear-gradient(90deg, #f39c12, #e67e22); height: 100%; width: 0%; transition: width 1s linear; }
@@ -101,7 +99,7 @@
         }
         #log-text { color: #f4e8d3; font-weight: 700; font-size: 1.1rem; text-shadow: 1px 1px 3px #000; }
 
-        select { padding: 4px; background: #e6d3b3; color: #3e2723; border: 2px solid #8b5a2b; border-radius: 3px; font-family: inherit; font-weight: bold; outline: none; font-size: 0.8rem; }
+        select { padding: 6px; background: #e6d3b3; color: #3e2723; border: 2px solid #8b5a2b; border-radius: 3px; font-family: inherit; font-weight: bold; outline: none; font-size: 0.9rem; }
         
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--parchment); border-left: 1px solid var(--border-dark); }
@@ -113,8 +111,12 @@
     <header>
         <div class="guild-title">⚔️ 픽셀 용병 길드</div>
         <div class="guild-stats">
-            <div>DAY <span id="ui-day">1</span></div>
-            <div style="color:var(--border-gold);">🪙 <span id="ui-money">2,000</span> G</div>
+            <!-- ⏳ 시각적 시간 흐름 UI -->
+            <div class="time-container">
+                <div class="time-text" id="ui-time">DAY 1 [ 08:00 ]</div>
+                <div class="time-bg"><div class="time-fill" id="ui-time-bar"></div></div>
+            </div>
+            <div class="money-text">🪙 <span id="ui-money">2,000</span> G</div>
         </div>
     </header>
 
@@ -183,7 +185,8 @@
         const BASE_CLASSES = ["W_0", "A_0", "R_0", "M_0", "C_0"];
         const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", "로웬", "미아"];
 
-        let guild = { day: 1, money: 2000, autoDispatch: false, roster: [], tavern: [], quests: [] };
+        // ⏳ 시간 관련 상태 추가 (hour)
+        let guild = { day: 1, hour: 8, money: 2000, autoDispatch: false, roster: [], tavern: [], quests: [] };
 
         const FACILITIES = {
             drink: { name: "🍺 선술집", cost: 50, time: 5, stamRecover: 40, desc: "활력 +40" },
@@ -201,14 +204,9 @@
                 this.basePower = 15 + Math.floor(Math.random() * 10);
                 this.baseWage = 10 + Math.floor(Math.random() * 5); 
                 
-                this.stamina = 100;
-                this.maxStamina = 100;
-                
+                this.stamina = 100; this.maxStamina = 100;
                 this.status = 'idle'; 
-                this.actionTimeLeft = 0;
-                this.actionTotalTime = 0;
-                this.currentAction = null; 
-
+                this.actionTimeLeft = 0; this.actionTotalTime = 0; this.currentAction = null; 
                 this.hireCost = 150 + Math.floor(Math.random() * 50);
             }
 
@@ -216,11 +214,6 @@
             get maxExp() { return this.level * 100; }
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
             get currentWage() { return Math.floor(this.baseWage * Math.pow(1.2, this.level - 1) * Math.pow(2, this.job.tier)); }
-            
-            // 🎨 [핵심 변경] Lorelei 스타일 (판타지/애니메이션 느낌의 고퀄리티 부드러운 일러스트)
-            get portraitUrl() { 
-                return `https://api.dicebear.com/9.x/lorelei/svg?seed=${this.id}&backgroundColor=transparent`; 
-            }
 
             addExp(amount) {
                 this.exp += amount;
@@ -257,7 +250,6 @@
                 
                 let baseReq = 15 + (guild.day * 1.5);
                 this.reqPower = Math.floor(baseReq * (0.8 + Math.random() * 0.6));
-                
                 this.reqStamina = 20 + Math.floor(Math.random() * 15); 
                 
                 this.reward = this.reqPower * (2 + Math.floor(Math.random() * 3));
@@ -267,7 +259,14 @@
         }
 
         function updateHeader() {
-            document.getElementById('ui-day').innerText = guild.day;
+            // ⏳ 시간 UI 업데이트 (08:00 형식)
+            let timeStr = `DAY ${guild.day} [ ${guild.hour.toString().padStart(2, '0')}:00 ]`;
+            document.getElementById('ui-time').innerText = timeStr;
+            
+            // 하루 24시간 비례 바
+            let timeRatio = (guild.hour / 24) * 100;
+            document.getElementById('ui-time-bar').style.width = `${timeRatio}%`;
+
             document.getElementById('ui-money').innerText = guild.money.toLocaleString();
         }
 
@@ -277,21 +276,16 @@
             guild.tavern.forEach((merc, index) => {
                 let div = document.createElement('div'); div.className = 'card';
                 div.innerHTML = `
-                    <div class="card-info-wrapper">
-                        <div class="portrait-box"><img src="${merc.portraitUrl}"></div>
-                        <div style="flex:1;">
-                            <div class="card-top">
-                                <span class="merc-name">${merc.name}</span>
-                                <span class="merc-class" style="background:${merc.job.color}">${merc.job.name}</span>
-                            </div>
-                            <div class="stat-grid">
-                                <span>기본 전투력: ⚔️${merc.power}</span>
-                                <span>요구 주급: 🪙${merc.currentWage}</span>
-                            </div>
-                        </div>
+                    <div class="card-top">
+                        <span class="merc-name">${merc.name}</span>
+                        <span class="merc-class" style="background:${merc.job.color}">${merc.job.name}</span>
                     </div>
-                    <button onclick="hireMerc(${index})" ${guild.money < merc.hireCost ? 'disabled' : ''}>
-                        서명 및 고용 (-${merc.hireCost} G)
+                    <div class="stat-grid">
+                        <span>기본 전투력: ⚔️${merc.power}</span>
+                        <span>요구 일급: 🪙${merc.currentWage}</span>
+                    </div>
+                    <button style="margin-top:6px;" onclick="hireMerc(${index})" ${guild.money < merc.hireCost ? 'disabled' : ''}>
+                        계약서 서명 (-${merc.hireCost} G)
                     </button>
                 `;
                 container.appendChild(div);
@@ -324,28 +318,26 @@
                     let fac = FACILITIES[merc.currentAction];
                     actionUI = `
                         <div style="font-size:0.8rem; font-weight:bold; color:var(--text-light); text-align:center; margin-top:5px;">
-                            ${fac.name} 진행 중... (⏳${merc.actionTimeLeft}초)
+                            ${fac.name} 진행 중... (⏳${merc.actionTimeLeft}시간)
                         </div>
                         <div class="progress-bg"><div class="fill-action" style="width: ${((merc.actionTotalTime - merc.actionTimeLeft)/merc.actionTotalTime)*100}%;"></div></div>
                     `;
                 }
 
                 div.innerHTML = `
-                    <div class="card-info-wrapper">
-                        <div class="portrait-box"><img src="${merc.portraitUrl}"></div>
-                        <div style="flex:1;">
-                            <div class="card-top">
-                                <span class="merc-name">${merc.name} <span style="font-size:0.85rem; color:var(--text-light);">Lv.${merc.level}</span></span>
-                                ${getStatusBadge(merc.status)}
-                            </div>
-                            <div class="stat-grid">
-                                <span>직업: <span style="color:${merc.job.color}">${merc.job.name}</span></span>
-                                <span>전투력: ⚔️<span class="stat-highlight">${merc.power}</span></span>
-                            </div>
+                    <div class="card-top">
+                        <span class="merc-name">${merc.name} <span style="font-size:0.85rem; color:var(--text-light);">Lv.${merc.level}</span></span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <span class="merc-class" style="background:${merc.job.color}">${merc.job.name}</span>
+                            ${getStatusBadge(merc.status)}
                         </div>
                     </div>
+                    <div class="stat-grid">
+                        <span>전투력: ⚔️<span class="stat-highlight">${merc.power}</span></span>
+                        <span>현재 일급: 🪙${merc.currentWage}</span>
+                    </div>
                     
-                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold; margin-top:4px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:bold; margin-top:6px;">
                         <span style="color:#1e8449;">경험치</span>
                         <span style="color:#2980b9;">활력 ⚡${merc.stamina}/${merc.maxStamina}</span>
                     </div>
@@ -357,7 +349,7 @@
                     ${actionUI}
                     
                     ${merc.status === 'idle' && merc.job.nextJobs.length > 0 ? `
-                        <button class="action-promote" style="margin-top:6px;" onclick="promoteMerc(${index})">
+                        <button class="action-promote" style="margin-top:8px;" onclick="promoteMerc(${index})">
                             승급 심사 (${CLASS_DB[merc.job.nextJobs[0]].cost}G)
                         </button>
                     ` : ''}
@@ -390,12 +382,9 @@
                     let assignedMerc = guild.roster.find(m => m.id === q.assignedMercId);
                     div.innerHTML = `
                         <div class="card-top"><span class="merc-name">${q.title}</span></div>
-                        <div class="card-info-wrapper" style="margin-top:5px;">
-                            <div class="portrait-box" style="width:40px; height:40px;"><img src="${assignedMerc.portraitUrl}"></div>
-                            <div class="stat-grid" style="flex:1;">
-                                <span>파견: ${assignedMerc.name}</span>
-                                <span>남은 시간: ⏳${q.timeLeft}초</span>
-                            </div>
+                        <div class="stat-grid" style="margin-top:5px;">
+                            <span>파견: 🏃${assignedMerc.name}</span>
+                            <span>남은 시간: ⏳${q.timeLeft}시간</span>
                         </div>
                         <div class="progress-bg"><div class="fill-action" style="width: ${((q.timeTotal - q.timeLeft)/q.timeTotal)*100}%"></div></div>
                     `;
@@ -408,7 +397,7 @@
                         <div class="stat-grid">
                             <span style="color:#c0392b;">권장 전투력: ⚔️${q.reqPower}</span>
                             <span>보상: 🪙<span style="color:#b8860b">${q.reward}</span></span>
-                            <span style="color:#2980b9;">필요 활력: ⚡${q.reqStamina}</span>
+                            <span style="color:#2980b9; grid-column: span 2;">소모 활력: ⚡${q.reqStamina} | 소요 시간: ⏳${q.timeTotal}시간</span>
                         </div>
                         <div style="display:flex; gap:5px; margin-top:5px;">
                             <select id="select-merc-${index}" style="flex:1;" ${guild.autoDispatch ? 'disabled' : ''}>
@@ -500,29 +489,56 @@
         function toggleAutoDispatch() { guild.autoDispatch = !guild.autoDispatch; updateAll(); }
         function updateAll() { updateHeader(); renderTavern(); renderRoster(); renderQuests(); }
 
+        // ==========================================
+        // 5. ⏳ 정교해진 시간의 흐름 (1초 = 1시간)
+        // ==========================================
         setInterval(() => {
             let updated = false;
 
+            // 1. 시계 깍깍 진행 (매초마다 1시간 흐름)
+            guild.hour++;
+            
+            // 2. 자정 (00:00) - 일급 정산 및 날짜 변경
+            if (guild.hour >= 24) {
+                guild.hour = 0;
+                guild.day++;
+                
+                let totalWage = 0;
+                guild.roster.forEach(m => totalWage += m.currentWage);
+                guild.money -= totalWage;
+                
+                showLog(`🌙 하루가 저물었습니다. 용병 일급 -${totalWage} G 일괄 지급`);
+                updated = true;
+            }
+
+            // 3. 아침 (06:00) - 새로운 용병 및 퀘스트 출현
+            if (guild.hour === 6) {
+                refreshTavern();
+                refreshQuests();
+                showLog(`☀️ 아침이 밝았습니다. 주점에 새로운 소문이 돕니다.`);
+                updated = true;
+            }
+
+            // 4. 시설 이용 시간 감소
             guild.roster.forEach(merc => {
                 if(merc.status === 'resting' || merc.status === 'training') {
                     merc.actionTimeLeft--;
                     updated = true;
                     if(merc.actionTimeLeft <= 0) {
                         let fac = FACILITIES[merc.currentAction];
-                        
                         if(merc.currentAction === 'train') {
                             merc.basePower += fac.powerUp;
                             showLog(`🎯 ${merc.name} 훈련 완료! (전투력 영구 상승)`);
                         } else {
                             merc.stamina = Math.min(merc.maxStamina, merc.stamina + fac.stamRecover);
                         }
-
                         merc.status = 'idle';
                         merc.currentAction = null;
                     }
                 }
             });
 
+            // 5. 자동 파견 매칭
             if (guild.autoDispatch) {
                 let availableQuests = guild.quests.filter(q => !q.assignedMercId);
                 availableQuests.sort((a, b) => b.reqPower - a.reqPower);
@@ -541,13 +557,13 @@
                 });
             }
 
+            // 6. 퀘스트 시간 감소 및 성공/실패 판정
             guild.quests.forEach((q, idx) => {
                 if (q.assignedMercId) {
                     q.timeLeft--;
                     updated = true;
                     if (q.timeLeft <= 0) {
                         let merc = guild.roster.find(m => m.id === q.assignedMercId);
-                        
                         if(merc) {
                             merc.status = 'idle';
                             let winChance = Math.floor((merc.power / q.reqPower) * 70);
@@ -563,24 +579,16 @@
                             }
                         }
                         guild.quests.splice(idx, 1);
-                        refreshQuests();
+                        if (guild.quests.length < 3) refreshQuests(); // 퀘스트가 너무 없으면 하나 보충
                     }
                 }
             });
 
-            if(Math.random() < 0.1) {
-                guild.day++;
-                let totalWage = 0;
-                guild.roster.forEach(m => totalWage += m.currentWage);
-                guild.money -= totalWage;
-                
-                if (guild.day % 3 === 0) refreshTavern(); 
-                updated = true;
-            }
+            // 매초마다 화면 갱신 (시간 바 움직임 등)
+            updateAll();
+        }, 1000); // 현실 1초 = 게임 1시간
 
-            if (updated) updateAll();
-        }, 1000);
-
+        // 초기화 세팅
         refreshTavern();
         for(let i=0;i<3;i++) refreshQuests();
         updateAll();
