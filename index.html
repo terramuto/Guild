@@ -18,10 +18,11 @@
             margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none;
         }
 
-        /* 🔐 로그인 오버레이 */
+        /* 🔐 로그인 화면 */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
-            background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle, rgba(0,0,0,0.8), #000); 
+            display: flex; justify-content: center; align-items: center;
         }
         .login-box {
             background: var(--ui-bg); padding: 40px; border-radius: 8px; border: 2px solid var(--gold);
@@ -29,9 +30,23 @@
             width: 300px;
         }
         .login-box h1 { margin: 0; color: var(--gold); font-size: 1.5rem; text-shadow: 2px 2px 0 #000; }
-        .login-box input { padding: 10px; font-size: 1rem; border: 1px solid var(--ui-border); background: #111; color: #fff; border-radius: 4px; outline: none;}
-        .login-box button { background: linear-gradient(to bottom, #d35400, #a04000); color: #fff; border: 1px solid #111; padding: 12px; font-weight: 900; font-size: 1rem; border-radius: 4px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
+        .login-box input { padding: 12px; font-size: 1rem; border: 1px solid var(--ui-border); background: #111; color: #fff; border-radius: 4px; outline: none; font-weight: bold;}
+        .login-box button { background: linear-gradient(to bottom, #d35400, #a04000); color: #fff; border: 1px solid #111; padding: 12px; font-weight: 900; font-size: 1.1rem; border-radius: 4px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.5);}
         .login-box button:hover { background: linear-gradient(to bottom, #e67e22, #ba4a00); transform: translateY(-2px);}
+        .cloud-btn { background: #8e44ad !important; font-size: 0.9rem !important; padding: 10px !important;}
+
+        /* 📖 직업 도감 모달 */
+        #dict-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 900;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
+        }
+        .dict-box {
+            background: var(--ui-bg); padding: 25px; border-radius: 8px; border: 2px solid #3498db;
+            width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .dict-title { color: #3498db; font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #3498db; padding-bottom: 10px;}
+        .dict-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .dict-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border-left: 4px solid; }
 
         /* 🏰 상단 길드 정보창 */
         header {
@@ -39,26 +54,25 @@
             background: var(--ui-bg); padding: 12px 30px; border-radius: 8px; border: 2px solid var(--ui-border);
             display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 20px rgba(0,0,0,0.8);
         }
-
         .guild-title { font-size: 1.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
-        .guild-stats { display: flex; gap: 30px; align-items: center; font-weight: 700; font-size: 1.1rem;}
+        .guild-stats { display: flex; gap: 20px; align-items: center; font-weight: 700; font-size: 1rem;}
         
         .time-wrapper { display: flex; flex-direction: column; gap: 4px; align-items: center;}
         .time-header { display: flex; gap: 10px; align-items: center;}
         .time-text { font-weight: 900; font-family: monospace; font-size: 1.2rem; }
         
         /* ⏩ 배속 버튼 */
-        .btn-speed { background: #34495e; color: #fff; border: 1px solid #2c3e50; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.8rem;}
+        .btn-speed { background: #34495e; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
         .btn-speed:hover { background: #415b76; }
+        
+        .btn-dict { background: #27ae60; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
+        .btn-dict:hover { background: #2ecc71; }
 
-        .time-bg { width: 180px; height: 6px; background: #000; border-radius: 3px; border: 1px solid #555;}
+        .time-bg { width: 200px; height: 6px; background: #000; border-radius: 3px; border: 1px solid #555;}
         .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22, #3498db); width: 0%; transition: width 0.1s linear;}
         
         .money-text { color: var(--gold); font-size: 1.3rem; }
         .capacity-text { color: #2ecc71; }
-
-        .btn-save { background: #8e44ad; color: #fff; border: 1px solid #111; padding: 6px 12px; border-radius: 4px; font-weight: 900; cursor: pointer;}
-        .btn-save:hover { background: #9b59b6; }
 
         /* ================== 메인 화면: 바닥 ================== */
         main { position: relative; width: 100%; height: 100%; display: flex; }
@@ -80,7 +94,7 @@
         /* 🚶 용병 아바타 */
         .merc-sprite {
             position: absolute; transform: translate(-50%, -50%);
-            transition: top 0.5s linear, left 0.5s linear; 
+            transition: top 0.3s linear, left 0.3s linear; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
         
@@ -91,6 +105,7 @@
         }
         .floor-bubble.show { opacity: 1; }
 
+        /* 🖼️ 오타쿠풍 애니메이션 일러스트 */
         .merc-emblem {
             width: 48px; height: 48px; border-radius: 50%; border: 3px solid; 
             overflow: hidden; background: #fff; 
@@ -118,13 +133,10 @@
         .side-content { padding: 10px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; }
 
         .list-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border: 1px solid #444; display: flex; flex-direction: column; gap: 4px; }
-        
         .side-merc-info { display: flex; gap: 10px; align-items: center; }
         .mini-portrait { width: 42px; height: 42px; border-radius: 50%; border: 2px solid; object-fit: cover; background: #fff;}
-
         .list-title { display: flex; justify-content: space-between; font-weight: 900; font-size: 0.85rem; color: #fff;}
         .list-desc { font-size: 0.75rem; color: #ccc; display: flex; justify-content: space-between;}
-        
         .prog-bg-side { width: 100%; height: 6px; background: #111; border-radius: 3px; overflow: hidden; margin-top: 2px;}
         .prog-fill-side { height: 100%; background: #e67e22; width: 0%; }
 
@@ -148,12 +160,21 @@
     <!-- 🔐 로그인/데이터 로드 화면 -->
     <div id="login-screen">
         <div class="login-box">
-            <h1>🛡️ 용병 길드 로그인</h1>
-            <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">기존 아이디 입력 시 데이터를 불러옵니다.</div>
-            <input type="text" id="login-id" placeholder="아이디" value="guildMaster">
+            <h1>🛡️ 판타지 용병 길드</h1>
+            <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">아이디 생성 및 접속을 진행하세요.</div>
+            <input type="text" id="login-id" placeholder="길드장 아이디" value="Master_1">
             <input type="password" id="login-pw" placeholder="비밀번호" value="1234">
-            <button onclick="login()">접속하기</button>
-            <div style="font-size:0.75rem; color:#888; margin-top:10px; text-decoration:underline; cursor:pointer;" onclick="importData()">다른 기기에서 데이터 불러오기(코드 입력)</div>
+            <button onclick="login()">게임 시작</button>
+            <button class="cloud-btn" onclick="importData()">☁️ 다른 기기에서 불러오기(코드)</button>
+        </div>
+    </div>
+
+    <!-- 📖 직업 도감 화면 -->
+    <div id="dict-screen">
+        <div class="dict-box">
+            <div class="dict-title">📖 길드 직업 트리 (총 35종)</div>
+            <div class="dict-grid" id="dict-grid"></div>
+            <button class="upgrade-btn" style="width:100%; margin: 20px 0 0 0;" onclick="document.getElementById('dict-screen').style.display='none'">닫기</button>
         </div>
     </div>
 
@@ -163,14 +184,14 @@
             <div class="time-wrapper">
                 <div class="time-header">
                     <div class="time-text" id="ui-time">DAY 1 [ 08:00 ]</div>
-                    <!-- ⏩ 배속 기능 -->
                     <button class="btn-speed" id="btn-speed" onclick="toggleSpeed()">▶ 1x</button>
+                    <button class="btn-dict" onclick="openDict()">📖 도감</button>
                 </div>
                 <div class="time-bg"><div class="time-fill" id="ui-time-bar"></div></div>
             </div>
             <div class="capacity-text">👥 인원: <span id="ui-cap">0 / 5</span></div>
             <div class="money-text">자금 🪙 <span id="ui-money">500</span> G</div>
-            <button class="btn-save" onclick="exportData()">💾 클라우드 연동</button>
+            <button class="btn-speed" style="background:#8e44ad;" onclick="exportData()">💾 코드 복사</button>
         </div>
     </header>
 
@@ -200,36 +221,39 @@
 
     <script>
         // ==========================================
-        // 🌟 맞춤형 일러스트 DB
+        // 🌟 맞춤형 일러스트 DB (애니메이션풍 API)
         // ==========================================
         const IMAGE_DB = {
             "W_0": [
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Warrior1", "https://api.dicebear.com/9.x/lorelei/svg?seed=Warrior2",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Warrior3", "https://api.dicebear.com/9.x/lorelei/svg?seed=Warrior4",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Warrior5"
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=W1", "https://api.dicebear.com/9.x/lorelei/svg?seed=W2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=W3", "https://api.dicebear.com/9.x/lorelei/svg?seed=W4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=W5"
             ],
             "A_0": [
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Archer1", "https://api.dicebear.com/9.x/lorelei/svg?seed=Archer2",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Archer3", "https://api.dicebear.com/9.x/lorelei/svg?seed=Archer4",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Archer5"
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=A1", "https://api.dicebear.com/9.x/lorelei/svg?seed=A2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=A3", "https://api.dicebear.com/9.x/lorelei/svg?seed=A4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=A5"
             ],
             "R_0": [
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Rogue1", "https://api.dicebear.com/9.x/lorelei/svg?seed=Rogue2",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Rogue3", "https://api.dicebear.com/9.x/lorelei/svg?seed=Rogue4",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Rogue5"
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=R1", "https://api.dicebear.com/9.x/lorelei/svg?seed=R2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=R3", "https://api.dicebear.com/9.x/lorelei/svg?seed=R4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=R5"
             ],
             "M_0": [
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Mage1", "https://api.dicebear.com/9.x/lorelei/svg?seed=Mage2",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Mage3", "https://api.dicebear.com/9.x/lorelei/svg?seed=Mage4",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Mage5"
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=M1", "https://api.dicebear.com/9.x/lorelei/svg?seed=M2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=M3", "https://api.dicebear.com/9.x/lorelei/svg?seed=M4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=M5"
             ],
             "C_0": [
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Cleric1", "https://api.dicebear.com/9.x/lorelei/svg?seed=Cleric2",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Cleric3", "https://api.dicebear.com/9.x/lorelei/svg?seed=Cleric4",
-                "https://api.dicebear.com/9.x/lorelei/svg?seed=Cleric5"
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=C1", "https://api.dicebear.com/9.x/lorelei/svg?seed=C2",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=C3", "https://api.dicebear.com/9.x/lorelei/svg?seed=C4",
+                "https://api.dicebear.com/9.x/lorelei/svg?seed=C5"
             ]
         };
 
+        // ==========================================
+        // 1. 방대한 35종 전직 트리
+        // ==========================================
         const CLASS_DB = {
             "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextJobs: ["W_1"], req: 0, cost: 0 },
             "W_1": { tier: 1, name: "검사", color: "#c0392b", nextJobs: ["W_2A", "W_2B"], req: 5, cost: 500 },
@@ -276,14 +300,13 @@
             "C_3B1": { tier: 3, name: "팔라딘", color: "#873600", nextJobs: [], req: 30, cost: 8000 },
             "C_3B2": { tier: 3, name: "다크프리스트", color: "#421a00", nextJobs: [], req: 30, cost: 8000 }
         };
-
         const BASE_CLASSES = ["W_0", "A_0", "R_0", "M_0", "C_0"];
-        const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", "로웬", "미아"];
+        const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드"];
 
         const EQUIP_SHOP = [
             { name: "강철 장비", cost: 300, powerUp: 20 },
             { name: "미스릴 무기", cost: 1000, powerUp: 50 },
-            { name: "전설의 장비", cost: 4000, powerUp: 150 }
+            { name: "전설의 무구", cost: 4000, powerUp: 150 }
         ];
 
         const FACILITIES = {
@@ -295,8 +318,9 @@
 
         // ⏱️ 상태 변수
         let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
-        let gameSpeed = 1; // 배속 변수
-        let currentUserId = "guildMaster"; // 현재 로그인 ID
+        let gameSpeed = 1; 
+        let currentUserId = ""; 
+        let gameLoop; // 안전한 루프 제어
 
         function getDay() { return Math.floor(guild.timeMin / 1440) + 1; }
         function getHour() { return Math.floor(guild.timeMin / 60) % 24; }
@@ -306,6 +330,7 @@
             constructor() {
                 this.id = 'M_' + Date.now() + Math.floor(Math.random() * 1000);
                 this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
+                
                 this.baseJobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
                 this.jobId = this.baseJobId; 
                 let imgList = IMAGE_DB[this.baseJobId];
@@ -406,7 +431,7 @@
         }
 
         // ==========================================
-        // 💾 로그인 및 클라우드 연동 (Save/Load)
+        // 💾 로그인 및 시스템 초기화
         // ==========================================
         function login() {
             let id = document.getElementById('login-id').value;
@@ -415,29 +440,40 @@
             
             currentUserId = id;
             let saveKey = "guildSave_" + id;
-            let savedData = localStorage.getItem(saveKey);
             
-            if(savedData) {
-                restoreData(JSON.parse(savedData));
-                showLog(`✅ 기존 데이터를 불러왔습니다. 환영합니다, ${id}님!`);
-            } else {
-                // 새 게임 초기화
-                guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
-                for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
-                showLog(`👋 새로운 길드를 설립했습니다. 환영합니다, ${id}님!`);
+            // 로컬 스토리지가 막힌 환경(일부 프리뷰어)을 위한 예외처리
+            try {
+                let savedData = localStorage.getItem(saveKey);
+                if(savedData) {
+                    restoreData(JSON.parse(savedData));
+                    showLog(`✅ 기존 데이터를 불러왔습니다. 환영합니다, ${id}님!`);
+                } else {
+                    initNewGame();
+                    showLog(`👋 새로운 길드를 설립했습니다. 환영합니다, ${id}님!`);
+                }
+            } catch(e) {
+                // 스토리지 접근 불가 시 메모리에서 새 게임 실행
+                initNewGame();
+                showLog(`⚠️ 로컬 스토리지 접근 불가: 휘발성 모드로 시작합니다.`);
             }
+            
             document.getElementById('login-screen').style.display = 'none';
-            updateUI();
+            startGameLoop(); // 로그인 이후에만 안전하게 루프 시작
+        }
+
+        function initNewGame() {
+            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
+            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
         }
 
         function saveGameLocally() {
             if(!currentUserId) return;
-            localStorage.setItem("guildSave_" + currentUserId, JSON.stringify(guild));
+            try { localStorage.setItem("guildSave_" + currentUserId, JSON.stringify(guild)); } catch(e) {}
         }
 
         function exportData() {
-            let code = btoa(encodeURIComponent(JSON.stringify(guild))); // Base64 인코딩
-            let output = prompt("아래 문자열을 복사하여 다른 기기에서 불러오기 하세요.\n(PC ↔ 모바일 간 이동 시 유용합니다.)", code);
+            let code = btoa(encodeURIComponent(JSON.stringify(guild))); 
+            prompt("아래 문자열을 복사하여 다른 기기에서 불러오기 하세요.", code);
         }
 
         function importData() {
@@ -448,7 +484,7 @@
                 restoreData(parsed);
                 document.getElementById('login-screen').style.display = 'none';
                 showLog("✅ 클라우드 데이터를 성공적으로 불러왔습니다!");
-                updateUI();
+                startGameLoop();
             } catch (e) {
                 alert("잘못된 세이브 코드입니다.");
             }
@@ -456,18 +492,34 @@
 
         function restoreData(data) {
             guild = data;
-            // 인스턴스(클래스 프로토타입) 복구
             guild.roster = guild.roster.map(m => Object.assign(new Mercenary(), m));
             guild.quests = guild.quests.map(q => Object.assign(new Quest(), q));
         }
 
-        // ⏩ 배속 기능
         function toggleSpeed() {
             if(gameSpeed === 1) gameSpeed = 2;
             else if(gameSpeed === 2) gameSpeed = 5;
             else if(gameSpeed === 5) gameSpeed = 10;
             else gameSpeed = 1;
             document.getElementById('btn-speed').innerText = `▶ ${gameSpeed}x`;
+        }
+
+        // 📖 도감 열기/닫기
+        function openDict() {
+            let grid = document.getElementById('dict-grid');
+            grid.innerHTML = '';
+            for(let key in CLASS_DB) {
+                let c = CLASS_DB[key];
+                let nextStr = c.nextJobs && c.nextJobs.length > 0 ? c.nextJobs.map(k=>CLASS_DB[k].name).join(', ') : '최고 랭크';
+                grid.innerHTML += `
+                    <div class="dict-item" style="border-color:${c.color}">
+                        <div style="font-weight:900; color:${c.color}">${c.tier}차: ${c.name}</div>
+                        <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">다음: ${nextStr}</div>
+                        <div style="font-size:0.75rem; color:var(--gold); margin-top:2px;">승급비용: ${c.cost}G</div>
+                    </div>
+                `;
+            }
+            document.getElementById('dict-screen').style.display = 'flex';
         }
 
         // ==========================================
@@ -533,7 +585,7 @@
                     container.appendChild(el);
                 } else el.style.display = 'flex';
                 
-                let spd = 0.1 * gameSpeed; // 배속에 맞춰 이동속도도 빠르게 보정
+                let spd = 0.1 * gameSpeed; 
                 merc.tx += (merc.targetX - merc.tx) * Math.min(1, spd); 
                 merc.ty += (merc.targetY - merc.ty) * Math.min(1, spd);
                 el.style.left = merc.tx + '%'; el.style.top = merc.ty + '%';
@@ -559,68 +611,72 @@
         }
 
         // ==========================================
-        // 4. 메인 루프 (배속 적용)
+        // 4. 메인 루프 실행 (로그인 후 호출)
         // ==========================================
-        let frame = 0;
-        setInterval(() => {
-            frame++; renderFloor();
+        function startGameLoop() {
+            if(gameLoop) clearInterval(gameLoop);
+            updateUI(); // 초기 렌더링
             
-            let prevHour = getHour();
-            // ⏩ 1프레임당 0.24분 * 배속(gameSpeed)
-            guild.timeMin += (0.24 * gameSpeed); 
-            let currHour = getHour();
+            let frame = 0;
+            gameLoop = setInterval(() => {
+                frame++; renderFloor();
+                
+                let prevHour = getHour();
+                guild.timeMin += (0.24 * gameSpeed); 
+                let currHour = getHour();
 
-            if(currHour !== prevHour) {
-                saveGameLocally(); // 💾 매 시간 자동 저장
+                if(currHour !== prevHour) {
+                    saveGameLocally();
 
-                if (currHour === 0) {
-                    let cost = guild.roster.length * 50; guild.money -= cost;
-                    showLog(`🌙 자정 일일 유지비 -${cost}G 납부`);
-                }
-                if (currHour === 8 && guild.roster.length < guild.capacity && Math.random() < 0.8) {
-                    guild.roster.push(new Mercenary()); showLog(`🚪 새로운 프리랜서 용병이 길드에 합류했습니다.`);
-                }
-                guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + 5); });
-            }
-
-            if(frame % Math.max(2, Math.floor(20 / gameSpeed)) === 0) {
-                guild.roster.forEach(m => m.think());
-            }
-
-            if(Math.random() < (0.005 * gameSpeed) && guild.quests.length < 5) guild.quests.push(new Quest());
-
-            guild.roster.forEach(merc => {
-                if(merc.status === 'resting' || merc.status === 'training') {
-                    if(guild.timeMin >= merc.targetMin) {
-                        if(merc.currentAction === 'train') { merc.basePower += FACILITIES.train.pwr; merc.setThought("수련 성과가 확실해!", 60); } 
-                        else { merc.stamina = Math.min(100, merc.stamina + FACILITIES[merc.currentAction].stam); merc.setThought("몸이 가볍군.", 60); }
-                        merc.status = 'idle'; merc.currentAction = null;
+                    if (currHour === 0) {
+                        let cost = guild.roster.length * 50; guild.money -= cost;
+                        showLog(`🌙 자정 일일 유지비 -${cost}G 납부`);
                     }
+                    if (currHour === 8 && guild.roster.length < guild.capacity && Math.random() < 0.8) {
+                        guild.roster.push(new Mercenary()); showLog(`🚪 새로운 프리랜서 용병이 길드에 합류했습니다.`);
+                    }
+                    guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + 5); });
                 }
-            });
 
-            guild.quests.forEach((q, idx) => {
-                if (q.assignedMercId && guild.timeMin >= q.targetMin) {
-                    let merc = guild.roster.find(m => m.id === q.assignedMercId);
-                    if(merc) {
-                        merc.status = 'idle'; merc.targetX = 50; merc.targetY = 85; 
-                        let win = Math.min(95, Math.max(10, Math.floor((merc.power / q.reqPower) * 70))); 
-                        if(Math.random() * 100 <= win) {
-                            let gCut = Math.floor(q.reward * 0.2); 
-                            guild.money += gCut; merc.money += (q.reward - gCut); merc.exp += q.reqPower * 2;
-                            merc.setThought(`의뢰 성공! 돈 벌었다.`, 120);
-                            showLog(`📜 ${merc.name} 의뢰 성공! (길드 수수료: +${gCut} G)`);
-                            if(merc.exp >= merc.level * 100) { merc.exp -= merc.level*100; merc.level++; }
-                        } else {
-                            merc.exp += q.reqPower; merc.setThought("실패다... 아파...", 120);
+                if(frame % Math.max(2, Math.floor(20 / gameSpeed)) === 0) {
+                    guild.roster.forEach(m => m.think());
+                }
+
+                if(Math.random() < (0.005 * gameSpeed) && guild.quests.length < 5) guild.quests.push(new Quest());
+
+                guild.roster.forEach(merc => {
+                    if(merc.status === 'resting' || merc.status === 'training') {
+                        if(guild.timeMin >= merc.targetMin) {
+                            if(merc.currentAction === 'train') { merc.basePower += FACILITIES.train.pwr; merc.setThought("수련 성과가 확실해!", 60); } 
+                            else { merc.stamina = Math.min(100, merc.stamina + FACILITIES[merc.currentAction].stam); merc.setThought("몸이 가볍군.", 60); }
+                            merc.status = 'idle'; merc.currentAction = null;
                         }
                     }
-                    guild.quests.splice(idx, 1);
-                }
-            });
+                });
 
-            if(frame % 10 === 0) updateUI();
-        }, 100);
+                guild.quests.forEach((q, idx) => {
+                    if (q.assignedMercId && guild.timeMin >= q.targetMin) {
+                        let merc = guild.roster.find(m => m.id === q.assignedMercId);
+                        if(merc) {
+                            merc.status = 'idle'; merc.targetX = 50; merc.targetY = 85; 
+                            let win = Math.min(95, Math.max(10, Math.floor((merc.power / q.reqPower) * 70))); 
+                            if(Math.random() * 100 <= win) {
+                                let gCut = Math.floor(q.reward * 0.2); 
+                                guild.money += gCut; merc.money += (q.reward - gCut); merc.exp += q.reqPower * 2;
+                                merc.setThought(`의뢰 성공! 돈 벌었다.`, 120);
+                                showLog(`📜 ${merc.name} 의뢰 성공! (길드 수수료: +${gCut} G)`);
+                                if(merc.exp >= merc.level * 100) { merc.exp -= merc.level*100; merc.level++; }
+                            } else {
+                                merc.exp += q.reqPower; merc.setThought("실패다... 아파...", 120);
+                            }
+                        }
+                        guild.quests.splice(idx, 1);
+                    }
+                });
+
+                if(frame % 10 === 0) updateUI();
+            }, 100);
+        }
 
     </script>
 </body>
