@@ -23,7 +23,7 @@
         header {
             background: linear-gradient(135deg, #1f1209, #3a2416); padding: 12px 40px;
             border-radius: 4px; border: 3px solid var(--border-gold);
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
             box-shadow: 0 8px 15px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.5); color: #fff;
         }
 
@@ -35,6 +35,15 @@
         .time-bg { width: 100%; height: 8px; background: #111; border: 1px solid var(--border-gold); border-radius: 4px; overflow: hidden; }
         .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #d35400, #2c3e50); width: 0%; transition: width 1s linear; }
         .money-text { font-size: 1.4rem; font-weight: 900; color: var(--border-gold); }
+
+        /* 👁️ 시점 전환 버튼 구역 */
+        .view-toggle { display: flex; gap: 10px; margin-bottom: 15px; justify-content: flex-start; }
+        .view-btn { 
+            background: linear-gradient(to bottom, #5c3a21, #3a1f0f); color: var(--border-gold); 
+            border: 2px solid var(--border-gold); padding: 10px 20px; border-radius: 4px; 
+            font-family: var(--font-title); font-weight: 900; font-size: 1rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        .view-btn.active { background: var(--border-gold); color: #111; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5); }
 
         main { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; flex: 1; overflow: hidden; }
 
@@ -51,17 +60,16 @@
         .ledger-title { font-family: var(--font-title); font-size: 1.5rem; font-weight: 900; color: var(--ink); letter-spacing: 2px; }
         .ledger-content { padding: 15px 25px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; }
 
-        .ledger-row {
-            display: flex; gap: 15px; padding: 18px 0; border-bottom: 2px dotted #c5a059; align-items: center;
-        }
+        .ledger-row { display: flex; gap: 15px; padding: 15px 0; border-bottom: 2px dotted #c5a059; align-items: center; }
         .ledger-row:last-child { border-bottom: none; }
 
+        /* 🖼️ 픽셀 아트 초상화 */
         .portrait-box { 
-            width: 70px; height: 70px; background: var(--parchment-dark); border: 2px solid var(--ink); border-radius: 50%; 
-            overflow: hidden; flex-shrink: 0; box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 3px 6px rgba(0,0,0,0.2);
+            width: 70px; height: 70px; background: #a68b6c; border: 3px solid #3e2415; border-radius: 6px; 
+            overflow: hidden; flex-shrink: 0; box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 2px 2px 4px rgba(0,0,0,0.3);
             display: flex; justify-content: center; align-items: center;
         }
-        .portrait-box img { width: 100%; height: 100%; object-fit: cover; } 
+        .portrait-box img { width: 100%; height: 100%; image-rendering: pixelated; object-fit: contain; } 
 
         .info-col { flex: 1.2; display: flex; flex-direction: column; gap: 6px; }
         .merc-name { font-weight: 900; font-size: 1.2rem; color: var(--ink); }
@@ -72,24 +80,60 @@
 
         /* 💬 용병 생각(말풍선) UI */
         .thought-bubble {
-            background: #fff; border: 2px solid #a68b6c; border-radius: 8px; padding: 8px 12px;
-            font-size: 0.85rem; font-weight: 700; color: #3e2723; position: relative;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1); font-style: italic;
+            background: #fff; border: 2px solid #a68b6c; border-radius: 8px; padding: 6px 10px;
+            font-size: 0.8rem; font-weight: 700; color: #3e2723; position: relative;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1); font-style: italic; line-height: 1.3;
         }
-        .thought-bubble::before {
-            content: ''; position: absolute; left: -8px; top: 12px;
-            border-width: 6px 8px 6px 0; border-style: solid; border-color: transparent #a68b6c transparent transparent;
-        }
-        .thought-bubble::after {
-            content: ''; position: absolute; left: -5px; top: 12px;
-            border-width: 6px 8px 6px 0; border-style: solid; border-color: transparent #fff transparent transparent;
-        }
+        .thought-bubble::before { content: ''; position: absolute; left: -8px; top: 10px; border-width: 6px 8px 6px 0; border-style: solid; border-color: transparent #a68b6c transparent transparent; }
+        .thought-bubble::after { content: ''; position: absolute; left: -5px; top: 10px; border-width: 6px 8px 6px 0; border-style: solid; border-color: transparent #fff transparent transparent; }
 
         .bar-wrap { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: bold; }
         .progress-bg { flex: 1; background: #d7c9b1; height: 8px; border-radius: 4px; border: 1px solid #8b5a2b; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);}
         .fill-exp { background: linear-gradient(90deg, #2ecc71, #27ae60); height: 100%; width: 0%; transition: width 0.3s; }
         .fill-stamina { background: linear-gradient(90deg, #3498db, #2980b9); height: 100%; width: 0%; transition: width 0.3s; }
         .fill-action { background: linear-gradient(90deg, #e67e22, #d35400); height: 100%; width: 0%; transition: width 1s linear; }
+
+        /* ================== 좌측: 길드 내부 시점 (돌바닥 뷰) ================== */
+        #floor-container {
+            position: relative; width: 100%; height: 100%;
+            /* 길드 바닥 돌 타일 패턴 */
+            background: linear-gradient(135deg, #4a3b32 25%, transparent 25%) -50px 0,
+                        linear-gradient(225deg, #4a3b32 25%, transparent 25%) -50px 0,
+                        linear-gradient(315deg, #4a3b32 25%, transparent 25%),
+                        linear-gradient(45deg, #4a3b32 25%, transparent 25%);
+            background-size: 100px 100px; background-color: #3e2f26;
+            overflow: hidden; border-radius: 4px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            border: 4px solid #1a0b05;
+        }
+
+        /* 길드 시설 마커 */
+        .facility-marker { position: absolute; padding: 10px 20px; border-radius: 8px; color: #fff; font-weight: 900; text-shadow: 2px 2px 0 #000; border: 2px dashed rgba(255,255,255,0.3); background: rgba(0,0,0,0.4); }
+        .fac-bar { top: 5%; left: 5%; color: #f1c40f; }
+        .fac-train { bottom: 5%; right: 5%; color: #e74c3c; }
+        .fac-sleep { top: 5%; right: 5%; color: #3498db; }
+
+        /* 돌아다니는 용병 스프라이트 */
+        .merc-sprite {
+            position: absolute; width: 50px; height: 50px;
+            transform: translate(-50%, -50%);
+            transition: top 2s ease-in-out, left 2s ease-in-out; /* 🚶 부드러운 걷기 애니메이션 */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: none; z-index: 10;
+        }
+        .merc-sprite img {
+            width: 50px; height: 50px; background: #a68b6c; border: 2px solid var(--border-gold);
+            border-radius: 6px; box-shadow: 3px 3px 6px rgba(0,0,0,0.7); image-rendering: pixelated;
+        }
+        .floor-name { font-size: 0.7rem; font-weight: 900; color: #fff; padding: 2px 6px; border-radius: 4px; margin-top: -8px; z-index: 2; border: 1px solid #111; box-shadow: 1px 1px 2px rgba(0,0,0,0.5);}
+        .floor-bubble {
+            position: absolute; bottom: 65px; background: #fff; color: #111; font-size: 0.75rem; font-weight: 900; 
+            padding: 5px 8px; border-radius: 6px; width: max-content; max-width: 150px; text-align: center; 
+            border: 2px solid #8b5a2b; box-shadow: 2px 2px 4px rgba(0,0,0,0.3); z-index: 10;
+        }
+        .floor-bubble::after {
+            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+            border-width: 6px 6px 0; border-style: solid; border-color: #8b5a2b transparent transparent transparent;
+        }
 
         /* ================== 우측: 서브 보드 ================== */
         .sidebar { display: flex; flex-direction: column; gap: 20px; overflow-y: auto; padding-right: 5px; }
@@ -114,7 +158,6 @@
         button:disabled { background: #c5a059; color: #fff; box-shadow: 0 2px 0 #8b5a2b; cursor: not-allowed; border-color: #8b5a2b; transform: translateY(1px); text-shadow: none;}
         
         .btn-dispatch { background: linear-gradient(to bottom, #900c3f, #581845); border-color: #2c0808; box-shadow: 0 3px 0 #2c0808; padding: 4px 8px; font-size:0.75rem;}
-        
         select { padding: 4px; background: #fff; color: #2e1b0f; border: 1px solid #a68b6c; border-radius: 3px; font-family: inherit; font-weight: bold; outline: none; font-size: 0.75rem; flex: 1;}
         
         #log-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: linear-gradient(to bottom, rgba(46, 29, 21, 0.95), rgba(28, 16, 11, 0.95)); padding: 15px 30px; border-radius: 4px; border: 2px solid var(--border-gold); display: none; z-index: 100; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
@@ -138,27 +181,37 @@
         </div>
     </header>
 
+    <div class="view-toggle">
+        <button class="view-btn active" id="btn-view-ledger" onclick="switchView('ledger')">📝 서류 명부 보기</button>
+        <button class="view-btn" id="btn-view-floor" onclick="switchView('floor')">👀 길드 내부 시점</button>
+    </div>
+
     <main>
-        <!-- 📜 좌측: 길드 명부 (거대 양피지) -->
-        <section class="ledger">
+        <!-- 📜 뷰 1: 거대 양피지 명부 -->
+        <section class="ledger" id="view-ledger">
             <div class="ledger-header">
                 <div class="ledger-title">🖋️ 길드 소속 용병 관리부</div>
-                <div style="font-size:0.85rem; font-weight:bold; color:#5d4037;">* 용병들은 자율적으로 행동하며, 길드는 수수료와 시설 이용료를 징수합니다.</div>
+                <div style="font-size:0.85rem; font-weight:bold; color:#5d4037;">* 용병들은 스스로 의뢰를 판단하고 수락합니다.</div>
             </div>
-            <div class="ledger-content" id="roster-list">
-                <!-- 용병 리스트 렌더링 영역 -->
+            <div class="ledger-content" id="roster-list"></div>
+        </section>
+
+        <!-- 🍻 뷰 2: 길드 바닥 (애니메이션) -->
+        <section id="view-floor" style="display: none;">
+            <div id="floor-container">
+                <div class="facility-marker fac-bar">🍺 주점 구역</div>
+                <div class="facility-marker fac-sleep">🛏️ 여관 구역</div>
+                <div class="facility-marker fac-train">🎯 훈련장</div>
+                <!-- 용병 픽셀 아바타들이 돌아다니는 곳 -->
             </div>
         </section>
 
         <!-- 📌 우측: 사이드 보드 -->
         <aside class="sidebar">
-            <!-- 주점 지원서 -->
             <div class="board">
                 <div class="board-header">🍺 선술집 가입 지원서</div>
                 <div class="board-content" id="tavern-list"></div>
             </div>
-
-            <!-- 의뢰 게시판 -->
             <div class="board">
                 <div class="board-header">📜 현재 접수된 의뢰</div>
                 <div class="board-content" id="quest-list"></div>
@@ -211,9 +264,8 @@
         const BASE_CLASSES = ["W_0", "A_0", "R_0", "M_0", "C_0"];
         const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", "로웬", "미아"];
 
-        let guild = { day: 1, hour: 8, money: 1000, roster: [], tavern: [], quests: [] };
+        let guild = { day: 1, hour: 8, money: 1000, currentView: 'ledger', roster: [], tavern: [], quests: [] };
 
-        // 🌟 길드가 운영하는 시설 (용병들이 소지금을 내고 이용 -> 길드 수입)
         const FACILITIES = {
             drink: { name: "주점", cost: 50, time: 3, stamRecover: 30 },
             sleep: { name: "여관", cost: 150, time: 10, stamRecover: 100 },
@@ -228,21 +280,28 @@
                 
                 this.level = 1; this.exp = 0;
                 this.basePower = 15 + Math.floor(Math.random() * 10);
-                
-                // 🌟 개인 재산 (가입 축하금으로 시작)
                 this.money = 100 + Math.floor(Math.random() * 50); 
-                this.hireBonus = this.money; // 길드가 지불해야 할 영입 비용
+                this.hireBonus = this.money; 
                 
                 this.stamina = 100; this.maxStamina = 100;
                 this.status = 'idle'; 
                 this.actionTimeLeft = 0; this.actionTotalTime = 0; this.currentAction = null; 
-                this.thought = "대기 중..."; // 현재 생각/행태
+                this.thought = "의뢰를 찾아볼까..."; 
+                
+                // 🚶 이동 애니메이션을 위한 좌표
+                this.tx = 30 + Math.random() * 40;
+                this.ty = 30 + Math.random() * 40;
             }
 
             get job() { return CLASS_DB[this.jobId]; }
             get maxExp() { return this.level * 100; }
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
-            get portraitUrl() { return `https://api.dicebear.com/9.x/adventurer/svg?seed=${this.id}&backgroundColor=transparent`; }
+            get currentWage() { return Math.floor(10 * Math.pow(1.2, this.level - 1) * Math.pow(2, this.job.tier)); }
+            
+            // 🎨 [복구됨] 정통 레트로 픽셀 아트 API (주점 감성에 완벽 매칭)
+            get portraitUrl() { 
+                return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${this.id}`; 
+            }
 
             addExp(amount) {
                 this.exp += amount;
@@ -252,74 +311,64 @@
                 }
             }
 
-            // 🧠 인공지능: 용병이 스스로 판단하여 행동함
             think() {
                 if(this.status !== 'idle') return;
-                if(Math.random() > 0.4) return; // 1초마다 40% 확률로 생각 (자연스러운 딜레이)
+                
+                // 위치 무작위 배회 로직
+                if(Math.random() < 0.3) {
+                    this.tx = 15 + Math.random() * 70; // 바닥 안에서 랜덤 배회
+                    this.ty = 15 + Math.random() * 70;
+                }
 
-                // 1. 승급 확인 (가장 높은 우선순위)
+                if(Math.random() > 0.4) return; // 1초마다 40% 확률로 생각 행동
+
                 if(this.job.nextJobs.length > 0) {
                     let nextJob = CLASS_DB[this.job.nextJobs[0]];
                     if(this.level >= nextJob.reqLevel && this.money >= nextJob.promoteCost) {
-                        this.money -= nextJob.promoteCost;
-                        guild.money += nextJob.promoteCost; // 승급 심사비는 길드의 수익!
+                        this.money -= nextJob.promoteCost; guild.money += nextJob.promoteCost; 
                         this.jobId = this.job.nextJobs[Math.floor(Math.random() * this.job.nextJobs.length)];
-                        showLog(`📜 ${this.name} ✨ [${this.job.name}](으)로 전직! (심사비 수입 +${nextJob.promoteCost}G)`);
+                        showLog(`📜 ${this.name} ✨ [${this.job.name}](으)로 전직! (수입 +${nextJob.promoteCost}G)`);
                         return;
                     }
                 }
 
-                // 2. 피로도 회복 (여관 or 주점)
                 if(this.stamina < 40) {
-                    if(this.money >= FACILITIES.sleep.cost) {
-                        this.useFacility('sleep'); return;
-                    } else if (this.money >= FACILITIES.drink.cost) {
-                        this.useFacility('drink'); return;
-                    } else {
-                        this.thought = "돈이 없어서 쉴 수가 없어...";
-                        return;
-                    }
+                    if(this.money >= FACILITIES.sleep.cost) { this.useFacility('sleep'); return; } 
+                    else if (this.money >= FACILITIES.drink.cost) { this.useFacility('drink'); return; } 
+                    else { this.thought = "돈이 없어 노숙해야겠군..."; return; }
                 }
 
-                // 3. 자기계발 (돈과 체력이 넘칠 때 훈련)
-                if(this.stamina > 70 && this.money >= FACILITIES.train.cost + 200) {
-                    if(Math.random() < 0.3) { this.useFacility('train'); return; }
+                if(this.stamina > 70 && this.money >= FACILITIES.train.cost + 200 && Math.random() < 0.3) { 
+                    this.useFacility('train'); return; 
                 }
 
-                // 4. 돈 벌기 (의뢰 탐색)
                 if(this.stamina >= 20) {
                     let available = guild.quests.filter(q => !q.assignedMercId);
                     if(available.length > 0) {
-                        this.thought = "게시판을 기웃거리는 중...";
-                        // 보상이 높은 순으로 탐색
                         available.sort((a,b) => b.reward - a.reward);
                         for(let q of available) {
-                            if(this.stamina >= q.reqStamina) {
-                                let winChance = Math.floor((this.power / q.reqPower) * 70);
-                                if(winChance >= 40) { // 승산이 40% 이상이면 수락
-                                    this.stamina -= q.reqStamina;
-                                    this.status = 'questing';
-                                    q.assignedMercId = this.id;
-                                    this.thought = `[${q.title}] 의뢰 하러 가는 중...`;
-                                    return;
-                                }
+                            if(this.stamina >= q.reqStamina && Math.floor((this.power / q.reqPower) * 70) >= 40) {
+                                this.stamina -= q.reqStamina; this.status = 'questing';
+                                q.assignedMercId = this.id; this.thought = `[${q.title}] 다녀오겠습니다!`; return;
                             }
                         }
-                        this.thought = "나한테 맞는 의뢰가 없네...";
-                    } else {
-                        this.thought = "할 일이 없군. 대기 중.";
-                    }
+                        this.thought = "딱히 마음에 드는 의뢰가 없네.";
+                    } else { this.thought = "의뢰 게시판이 텅 비었군."; }
                 }
             }
 
             useFacility(type) {
                 let fac = FACILITIES[type];
-                this.money -= fac.cost;
-                guild.money += fac.cost; // 시설 이용료는 길드의 수익!
+                this.money -= fac.cost; guild.money += fac.cost; 
                 this.status = type === 'train' ? 'training' : 'resting';
                 this.currentAction = type;
                 this.actionTotalTime = fac.time; this.actionTimeLeft = fac.time;
                 this.thought = `[${fac.name}] 이용 중...`;
+                
+                // 🏃 시설 위치로 이동
+                if(type === 'drink') { this.tx = 10 + Math.random()*15; this.ty = 10 + Math.random()*15; }
+                else if(type === 'sleep') { this.tx = 75 + Math.random()*15; this.ty = 10 + Math.random()*15; }
+                else if(type === 'train') { this.tx = 75 + Math.random()*15; this.ty = 75 + Math.random()*15; }
             }
         }
 
@@ -329,30 +378,38 @@
                 this.title = ["고블린 토벌", "상단 호위", "도적단 추적", "묘지 탐색", "마수 정찰", "약초 채집"][Math.floor(Math.random()*6)];
                 this.timeTotal = 6 + Math.floor(Math.random() * 10);
                 this.timeLeft = this.timeTotal;
-                
                 let baseReq = 15 + (guild.day * 2);
                 this.reqPower = Math.floor(baseReq * (0.7 + Math.random() * 0.6));
                 this.reqStamina = 20 + Math.floor(Math.random() * 20); 
-                
-                // 🌟 의뢰 보상 상향 조정 (용병들이 자급자족해야 하므로)
                 this.reward = this.reqPower * (5 + Math.floor(Math.random() * 5)); 
                 this.expReward = this.reqPower * 2;
                 this.assignedMercId = null;
             }
         }
 
+        // ==========================================
+        // 👁️ 시점 컨트롤 함수
+        // ==========================================
+        function switchView(viewName) {
+            guild.currentView = viewName;
+            document.getElementById('view-ledger').style.display = viewName === 'ledger' ? 'flex' : 'none';
+            document.getElementById('view-floor').style.display = viewName === 'floor' ? 'block' : 'none';
+            
+            document.getElementById('btn-view-ledger').className = viewName === 'ledger' ? 'view-btn active' : 'view-btn';
+            document.getElementById('btn-view-floor').className = viewName === 'floor' ? 'view-btn active' : 'view-btn';
+            
+            updateAll();
+        }
+
         function updateHeader() {
-            let timeStr = `DAY ${guild.day} [ ${guild.hour.toString().padStart(2, '0')}:00 ]`;
-            document.getElementById('ui-time').innerText = timeStr;
-            let timeRatio = (guild.hour / 24) * 100;
-            document.getElementById('ui-time-bar').style.width = `${timeRatio}%`;
+            document.getElementById('ui-time').innerText = `DAY ${guild.day} [ ${guild.hour.toString().padStart(2, '0')}:00 ]`;
+            document.getElementById('ui-time-bar').style.width = `${(guild.hour / 24) * 100}%`;
             document.getElementById('ui-money').innerText = guild.money.toLocaleString();
         }
 
         function renderLedger() {
             const container = document.getElementById('roster-list');
             container.innerHTML = '';
-            
             let availableQuests = guild.quests.filter(q => !q.assignedMercId);
 
             guild.roster.forEach((merc) => {
@@ -379,15 +436,10 @@
                 `;
 
                 let actionHTML = `<div class="action-col">`;
-                
-                // 자율 행동 상태 말풍선
                 actionHTML += `<div class="thought-bubble">💬 "${merc.thought}"</div>`;
 
                 if(merc.status === 'idle') {
-                    let questOptions = availableQuests.map(q => 
-                        `<option value="${q.id}">[${q.reqPower}⚔️] ${q.title}</option>`
-                    ).join('');
-                    
+                    let questOptions = availableQuests.map(q => `<option value="${q.id}">[${q.reqPower}⚔️] ${q.title}</option>`).join('');
                     actionHTML += `
                         <div style="display:flex; gap:5px; margin-top:8px;">
                             <select id="select-quest-${merc.id}">
@@ -415,6 +467,38 @@
             });
         }
 
+        // 👁️ [신규] 길드 바닥 애니메이션 렌더링
+        function renderFloor() {
+            const container = document.getElementById('floor-container');
+            
+            guild.roster.forEach(merc => {
+                let el = document.getElementById('sprite-' + merc.id);
+                
+                if(merc.status === 'questing') {
+                    if(el) el.remove(); // 파견 나갔으므로 화면에서 숨김
+                    return;
+                }
+                
+                if(!el) {
+                    el = document.createElement('div');
+                    el.id = 'sprite-' + merc.id;
+                    el.className = 'merc-sprite';
+                    el.innerHTML = `
+                        <div class="floor-bubble" id="bubble-${merc.id}"></div>
+                        <img src="${merc.portraitUrl}" alt="portrait">
+                        <div class="floor-name" style="background:${merc.job.color}">${merc.name}</div>
+                    `;
+                    container.appendChild(el);
+                }
+                
+                // CSS 트랜지션을 이용해 자연스럽게 좌표로 이동
+                el.style.left = merc.tx + '%';
+                el.style.top = merc.ty + '%';
+                
+                document.getElementById('bubble-' + merc.id).innerText = merc.thought;
+            });
+        }
+
         function renderSidebar() {
             const tavernCont = document.getElementById('tavern-list');
             tavernCont.innerHTML = '';
@@ -423,8 +507,8 @@
                     <div class="slip">
                         <div class="slip-title">지원자: ${merc.name} <span class="merc-class" style="background:${merc.job.color}; font-size:0.6rem;">${merc.job.name}</span></div>
                         <div class="slip-desc">
-                            <span>초기 전투력: ⚔️${merc.power}</span>
-                            <button onclick="hireMerc(${index})" style="margin-top:4px;" ${guild.money < merc.hireBonus ? 'disabled' : ''}>지원금 ${merc.hireBonus}G 지급 (고용)</button>
+                            <span>전투력: ⚔️${merc.power} | 희망 계약금: 🪙${merc.hireBonus}G</span>
+                            <button onclick="hireMerc(${index})" style="margin-top:4px;" ${guild.money < merc.hireBonus ? 'disabled' : ''}>지원금 지불 및 고용</button>
                         </div>
                     </div>
                 `;
@@ -446,9 +530,6 @@
             });
         }
 
-        // ==========================================
-        // 4. 액션 로직 (길드장 개입)
-        // ==========================================
         function showLog(msg, isFail = false) {
             const logBox = document.getElementById('log-container');
             const logText = document.getElementById('log-text');
@@ -470,55 +551,40 @@
             }
         }
 
-        // 🌟 길드장의 수동 퀘스트 제안 (용병이 거절할 수 있음)
         function suggestQuest(mercId) {
             let selectBox = document.getElementById(`select-quest-${mercId}`);
             if(!selectBox || !selectBox.value) return;
-            
             let questId = selectBox.value;
             let merc = guild.roster.find(m => m.id === mercId);
             let quest = guild.quests.find(q => q.id === questId);
 
-            if(merc.stamina < quest.reqStamina) {
-                merc.thought = "길드장님... 너무 피곤해서 못 갑니다.";
-                updateAll();
-                return;
-            }
+            if(merc.stamina < quest.reqStamina) { merc.thought = "피곤해서 못 갑니다."; updateAll(); return; }
+            if(Math.floor((merc.power / quest.reqPower) * 70) < 25) { merc.thought = "죽으라는 겁니까? 거절합니다."; updateAll(); return; }
 
-            let winChance = Math.floor((merc.power / quest.reqPower) * 70);
-            if(winChance < 25) {
-                merc.thought = "죽으라는 겁니까? 거절하겠습니다.";
-                updateAll();
-                return;
-            }
-
-            // 수락
-            merc.stamina -= quest.reqStamina;
-            merc.status = 'questing';
-            quest.assignedMercId = mercId;
-            merc.thought = `길드장님의 추천으로 [${quest.title}] 출발!`;
+            merc.stamina -= quest.reqStamina; merc.status = 'questing';
+            quest.assignedMercId = mercId; merc.thought = `길드장님의 추천으로 출발!`;
             updateAll();
         }
 
-        function updateAll() { updateHeader(); renderLedger(); renderSidebar(); }
+        function updateAll() { 
+            updateHeader(); 
+            if(guild.currentView === 'ledger') renderLedger(); 
+            if(guild.currentView === 'floor') renderFloor();
+            renderSidebar(); 
+        }
 
         // ==========================================
-        // 5. ⏳ 시간 흐름 및 AI 루프
+        // ⏳ 시간 흐름 및 AI 루프
         // ==========================================
         setInterval(() => {
             let updated = false;
 
             guild.hour++;
-            // 매 시각마다 자연 회복 (노숙 방지용)
-            guild.roster.forEach(m => { 
-                if(m.status === 'idle') m.stamina = Math.min(m.maxStamina, m.stamina + 2); 
-            });
+            guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(m.maxStamina, m.stamina + 2); });
 
             if (guild.hour >= 24) {
                 guild.hour = 0; guild.day++;
-                // 🌟 [경제 패치] 일급 대신 "길드 유지비"가 빠져나감 (용병 수 * 30G)
-                let maintenance = guild.roster.length * 30;
-                guild.money -= maintenance;
+                let maintenance = guild.roster.length * 30; guild.money -= maintenance;
                 showLog(`🌙 자정입니다. 길드 시설 유지비 -${maintenance} G 납부됨`);
                 updated = true;
             }
@@ -528,27 +594,21 @@
                 updated = true;
             }
 
-            // 🧠 용병 자율 행동 AI 실행
+            // 🧠 용병 행동 AI 및 위치 갱신
             guild.roster.forEach(merc => merc.think());
 
-            // 시설 이용 시간 처리
             guild.roster.forEach(merc => {
                 if(merc.status === 'resting' || merc.status === 'training') {
                     merc.actionTimeLeft--; updated = true;
                     if(merc.actionTimeLeft <= 0) {
                         let fac = FACILITIES[merc.currentAction];
-                        if(merc.currentAction === 'train') { 
-                            merc.basePower += fac.powerUp; merc.thought = "훈련을 마쳐서 강해진 기분이다!"; 
-                        } else { 
-                            merc.stamina = Math.min(merc.maxStamina, merc.stamina + fac.stamRecover); 
-                            merc.thought = "푹 쉬었으니 일해볼까.";
-                        }
+                        if(merc.currentAction === 'train') { merc.basePower += fac.powerUp; merc.thought = "훈련 완료! 강해졌다!"; } 
+                        else { merc.stamina = Math.min(merc.maxStamina, merc.stamina + fac.stamRecover); merc.thought = "푹 쉬었군."; }
                         merc.status = 'idle'; merc.currentAction = null;
                     }
                 }
             });
 
-            // 퀘스트 시간 및 판정 (🌟 길드 수수료 20% 징수 로직)
             guild.quests.forEach((q, idx) => {
                 if (q.assignedMercId) {
                     q.timeLeft--; updated = true;
@@ -556,20 +616,16 @@
                         let merc = guild.roster.find(m => m.id === q.assignedMercId);
                         if(merc) {
                             merc.status = 'idle';
-                            let winChance = Math.min(95, Math.max(10, Math.floor((merc.power / q.reqPower) * 70))); 
+                            merc.tx = 50; merc.ty = 80; // 퀘스트 복귀 시 입구(아래쪽)로 등장
                             
+                            let winChance = Math.min(95, Math.max(10, Math.floor((merc.power / q.reqPower) * 70))); 
                             if(Math.random() * 100 <= winChance) {
-                                // 성공 시 분배 (길드 20% / 용병 80%)
-                                let guildCut = Math.floor(q.reward * 0.2);
-                                let mercCut = q.reward - guildCut;
-                                guild.money += guildCut;
-                                merc.money += mercCut;
-                                merc.addExp(q.expReward);
-                                merc.thought = "의뢰를 깔끔하게 끝냈다!";
+                                let guildCut = Math.floor(q.reward * 0.2); let mercCut = q.reward - guildCut;
+                                guild.money += guildCut; merc.money += mercCut; merc.addExp(q.expReward);
+                                merc.thought = "의뢰 성공! 돈 벌었다!";
                                 showLog(`💰 ${merc.name} 의뢰 성공! (수수료 수입: +${guildCut} G)`);
                             } else {
-                                merc.addExp(Math.floor(q.expReward / 2));
-                                merc.thought = "너무 아팠다... 당분간 쉬고 싶다.";
+                                merc.addExp(Math.floor(q.expReward / 2)); merc.thought = "너무 아팠다... 실패함.";
                                 showLog(`🩸 [실패] ${merc.name} 의뢰 실패...`, true);
                             }
                         }
@@ -582,7 +638,6 @@
             updateAll();
         }, 1000);
 
-        // 초기화
         guild.tavern = [new Mercenary(), new Mercenary(), new Mercenary()];
         for(let i=0;i<4;i++) guild.quests.push(new Quest());
         updateAll();
