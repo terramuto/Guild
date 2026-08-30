@@ -7,9 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* 따뜻한 나무 재질과 다크 판타지 컬러 */
             --bg-dark: #110a05; 
-            --wood-floor: #3e2723; /* 메인 나무 바닥 색상 */
+            --wood-floor: #3e2723;
             --gold: #f1c40f; --text-light: #fdf5e6;
             --font-main: 'Noto Sans KR', sans-serif;
             --ui-bg: rgba(25, 18, 12, 0.9); --ui-border: #8b5a2b;
@@ -44,7 +43,6 @@
         #floor-container {
             flex: 1; position: relative; 
             background-color: var(--wood-floor);
-            /* 🪵 고급스러운 나무 판자(Wood Plank) 패턴 구현 */
             background-image: 
                 linear-gradient(90deg, rgba(0,0,0,0.8) 0px, transparent 4px, transparent 96px, rgba(0,0,0,0.8) 100px),
                 linear-gradient(0deg, rgba(0,0,0,0.3) 0px, transparent 2px, transparent 18px, rgba(0,0,0,0.3) 20px);
@@ -57,7 +55,7 @@
             background: rgba(0,0,0,0.7); border: 2px solid; pointer-events: none; text-shadow: 1px 1px 2px #000;
         }
 
-        /* ================== 🚶 용병 아바타 (애니메이션풍 일러스트) ================== */
+        /* ================== 🚶 용병 아바타 ================== */
         .merc-sprite {
             position: absolute; transform: translate(-50%, -50%);
             transition: top 1s linear, left 1s linear; 
@@ -71,14 +69,15 @@
         }
         .floor-bubble.show { opacity: 1; }
 
-        /* 🖼️ 애니메이션풍 일러스트 액자 */
-        .anime-portrait {
+        /* 🖼️ 애니메이션풍 일러스트가 이식된 엠블럼 */
+        .merc-emblem {
             width: 48px; height: 48px; border-radius: 50%; border: 3px solid; 
-            overflow: hidden; background: #fdf5e6; display: flex; justify-content: center; align-items: flex-end;
+            overflow: hidden; background: #fff; /* API 배경 보호 */
+            display: flex; justify-content: center; align-items: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.8), inset 0 0 5px rgba(0,0,0,0.3);
         }
-        .anime-portrait img {
-            width: 100%; height: 100%; object-fit: cover; margin-bottom: -2px;
+        .merc-emblem img {
+            width: 110%; height: 110%; object-fit: cover;
         }
 
         .nameplate {
@@ -91,7 +90,7 @@
 
         /* ================== 우측: 사이드바 ================== */
         .sidebar {
-            width: 320px; background: var(--ui-bg); border-left: 2px solid var(--ui-border);
+            width: 330px; background: var(--ui-bg); border-left: 2px solid var(--ui-border);
             display: flex; flex-direction: column; z-index: 50; padding-top: 85px; box-shadow: -5px 0 15px rgba(0,0,0,0.7);
         }
         
@@ -101,12 +100,7 @@
 
         .list-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border: 1px solid #444; display: flex; flex-direction: column; gap: 4px; }
         
-        /* 사이드바 미니 초상화 */
         .side-merc-info { display: flex; gap: 10px; align-items: center; }
-        .mini-portrait { 
-            width: 38px; height: 38px; border-radius: 50%; border: 2px solid; 
-            object-fit: cover; background: #fdf5e6; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
 
         .list-title { display: flex; justify-content: space-between; font-weight: 900; font-size: 0.85rem; color: #fff;}
         .list-desc { font-size: 0.75rem; color: #ccc; display: flex; justify-content: space-between;}
@@ -168,9 +162,6 @@
     <div id="log-container"><span id="log-text"></span></div>
 
     <script>
-        // ==========================================
-        // 1. 간결화된 데이터 베이스
-        // ==========================================
         const CLASS_DB = {
             "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextId: "W_1", req: 0, cost: 0 },
             "W_1": { tier: 1, name: "검사", color: "#c0392b", nextId: "W_2", req: 5, cost: 500 },
@@ -188,7 +179,7 @@
             "M_3": { tier: 3, name: "그랜드마거스", color: "#4a235a", nextId: null, req: 30, cost: 8000 }
         };
         const BASE_CLASSES = ["W_0", "A_0", "M_0"];
-        const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론"];
+        const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", "로웬", "미아"];
 
         const EQUIP_SHOP = [
             { name: "강철 장비", cost: 300, powerUp: 20 },
@@ -196,7 +187,6 @@
             { name: "전설의 검", cost: 4000, powerUp: 150 }
         ];
 
-        // 시설 좌표 및 정보 (시간 단위: 게임 속 '분')
         const FACILITIES = {
             drink: { name: "주점", cost: 30, duration: 60, stam: 40, x: 10, y: 90 },
             sleep: { name: "여관", cost: 100, duration: 480, stam: 100, x: 10, y: 15 },
@@ -210,9 +200,6 @@
         function getHour() { return Math.floor(guild.timeMin / 60) % 24; }
         function getMin() { return Math.floor(guild.timeMin % 60); }
 
-        // ==========================================
-        // 2. 용병 AI 및 시스템
-        // ==========================================
         class Mercenary {
             constructor() {
                 this.id = 'M_' + Date.now() + Math.floor(Math.random() * 1000);
@@ -233,8 +220,8 @@
             get job() { return CLASS_DB[this.jobId]; }
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
             
-            // 🎨 애니메이션/웹툰 화풍의 일러스트 API (Lorelei)
-            get portraitUrl() { return `https://api.dicebear.com/9.x/lorelei/svg?seed=${this.id}&backgroundColor=transparent`; }
+            // 🎨 완벽하게 작동하는 애니메이션(Lorelei) 일러스트 API
+            get portraitUrl() { return `https://api.dicebear.com/9.x/lorelei/svg?seed=${this.id}`; }
 
             setThought(text, durationGameMins = 30) {
                 this.thought = text; this.showBubble = true;
@@ -247,7 +234,6 @@
                 if(Math.random() < 0.1) { this.targetX = 20 + Math.random()*60; this.targetY = 30 + Math.random()*50; }
                 if(Math.random() > 0.3) return;
 
-                // 1. 전직 심사
                 if(this.job.nextId) {
                     let nextJob = CLASS_DB[this.job.nextId];
                     if(this.level >= nextJob.req && this.money >= nextJob.cost) {
@@ -259,7 +245,6 @@
                     }
                 }
 
-                // 2. 장비 구매
                 if(this.equipTier < EQUIP_SHOP.length) {
                     let eq = EQUIP_SHOP[this.equipTier];
                     if(this.money >= eq.cost + 50) { 
@@ -272,17 +257,14 @@
                     }
                 }
 
-                // 3. 휴식
                 if(this.stamina < 30) {
                     if(this.money >= FACILITIES.sleep.cost) return this.useFacility('sleep');
                     if(this.money >= FACILITIES.drink.cost) return this.useFacility('drink');
                     return this.setThought("돈이 없어서 못 쉬어...", 40);
                 }
 
-                // 4. 훈련
                 if(this.stamina > 80 && this.money >= FACILITIES.train.cost + 100 && Math.random() < 0.3) return this.useFacility('train');
 
-                // 5. 퀘스트 수락
                 if(this.stamina >= 20) {
                     let avail = guild.quests.filter(q => !q.assignedMercId).sort((a,b) => b.reward - a.reward);
                     if(avail.length > 0) {
@@ -321,9 +303,6 @@
             }
         }
 
-        // ==========================================
-        // 3. 간결해진 렌더링
-        // ==========================================
         function updateUI() {
             let h = getHour().toString().padStart(2, '0'), m = getMin().toString().padStart(2, '0');
             document.getElementById('ui-time').innerText = `DAY ${getDay()} [ ${h}:${m} ]`;
@@ -354,8 +333,12 @@
                     ext = `<div class="prog-bg-side"><div class="prog-fill-side" style="background:#3498db; width:${(1 - ratio)*100}%"></div></div>`;
                 }
                 
-                // 사이드바 미니 애니메이션 초상화
-                let emblem = `<img src="${merc.portraitUrl}" class="mini-portrait" style="border-color:${merc.job.color};">`;
+                // 사이드바에 들어가는 미니 엠블럼 + 애니메이션 일러스트
+                let emblem = `
+                    <div class="merc-emblem" style="width: 38px; height: 38px; border-width: 2px; border-color:${merc.job.color}; flex-shrink:0;">
+                        <img src="${merc.portraitUrl}" alt="img">
+                    </div>
+                `;
                 
                 return `<div class="list-item" style="border-left: 3px solid ${merc.job.color}">
                     <div class="side-merc-info">${emblem}<div style="flex:1;">
@@ -375,9 +358,11 @@
                 
                 if(!el) {
                     el = document.createElement('div'); el.id = 'sprite-' + merc.id; el.className = 'merc-sprite';
+                    
+                    // 길드 바닥에 돌아다니는 엠블럼 + 애니메이션 일러스트
                     el.innerHTML = `
                         <div class="floor-bubble" id="bubble-${merc.id}"></div>
-                        <div class="anime-portrait" style="border-color: ${merc.job.color}">
+                        <div class="merc-emblem" style="border-color: ${merc.job.color}">
                             <img src="${merc.portraitUrl}" alt="portrait">
                         </div>
                         <div class="nameplate"><span class="name-text" style="color:${merc.job.color}">${merc.name}</span>
@@ -422,7 +407,6 @@
             guild.timeMin += 0.24; 
             let currHour = getHour();
 
-            // 1시간 마다 실행
             if(currHour !== prevHour) {
                 if (currHour === 0) {
                     let cost = guild.roster.length * 50; guild.money -= cost;
@@ -437,7 +421,6 @@
             if(frame % 20 === 0) guild.roster.forEach(m => m.think());
             if(Math.random() < 0.005 && guild.quests.length < 5) guild.quests.push(new Quest());
 
-            // 시설 및 퀘스트 완료 처리 로직 통합
             guild.roster.forEach(merc => {
                 if(merc.status === 'resting' || merc.status === 'training') {
                     if(guild.timeMin >= merc.targetMin) {
