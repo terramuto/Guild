@@ -31,7 +31,7 @@
         main { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 20px; flex: 1; overflow: hidden; }
 
         .panel { background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; }
-        .panel-header { background: #111; padding: 12px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid var(--border-color); }
+        .panel-header { background: #111; padding: 12px; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .panel-content { padding: 15px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px; }
 
         .card { background: #2a2a35; border: 1px solid #444; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
@@ -87,19 +87,23 @@
     <main>
         <!-- 1. 용병 주점 -->
         <section class="panel">
-            <div class="panel-header">🍺 용병 주점 (고용)</div>
+            <div class="panel-header" style="justify-content: center;">🍺 용병 주점 (고용)</div>
             <div class="panel-content" id="tavern-list"></div>
         </section>
 
         <!-- 2. 내 길드 로스터 -->
         <section class="panel" style="border-color: #3498db;">
-            <div class="panel-header" style="background: #152b3c;">🛡️ 소속 용병 관리</div>
+            <div class="panel-header" style="background: #152b3c; justify-content: center;">🛡️ 소속 용병 관리</div>
             <div class="panel-content" id="roster-list"></div>
         </section>
 
         <!-- 3. 의뢰 게시판 -->
         <section class="panel" style="border-color: #e67e22;">
-            <div class="panel-header" style="background: #3c2415;">📜 의뢰 게시판</div>
+            <div class="panel-header" style="background: #3c2415;">
+                <span>📜 의뢰 게시판</span>
+                <!-- 🚀 자동 파견 토글 버튼 -->
+                <button id="btn-auto-dispatch" onclick="toggleAutoDispatch()" style="font-size:0.75rem; padding:6px 10px; background:#7f8c8d;">자동 파견 OFF</button>
+            </div>
             <div class="panel-content" id="quest-list"></div>
         </section>
     </main>
@@ -159,6 +163,7 @@
         let guild = {
             day: 1,
             money: 2000,
+            autoDispatch: false, // 🚀 자동 파견 상태 추가
             roster: [],
             tavern: [],
             quests: []
@@ -184,9 +189,8 @@
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.1) * (this.job.tier + 1)); }
             get currentWage() { return Math.floor(this.baseWage * Math.pow(1.2, this.level - 1) * Math.pow(2, this.job.tier)); }
             
-            // 🖼️ 고유 픽셀 아트 초상화 생성 (DiceBear API 활용)
+            // 🖼️ 고유 픽셀 아트 초상화 (DiceBear API)
             get portraitUrl() {
-                // 씨앗(seed)값으로 고유 ID를 주면 항상 동일한 초상화가 고정됨
                 return `https://api.dicebear.com/9.x/pixel-art/svg?seed=${this.id}`;
             }
 
@@ -308,6 +312,16 @@
             let idleMercs = guild.roster.filter(m => m.status === 'idle');
             let optionsHTML = idleMercs.map(m => `<option value="${m.id}">${m.name} (Lv.${m.level})</option>`).join('');
 
+            // 자동 파견 버튼 UI 갱신
+            let btnAuto = document.getElementById('btn-auto-dispatch');
+            if(guild.autoDispatch) {
+                btnAuto.innerText = "자동 파견 ON";
+                btnAuto.style.background = "#27ae60";
+            } else {
+                btnAuto.innerText = "자동 파견 OFF";
+                btnAuto.style.background = "#7f8c8d";
+            }
+
             guild.quests.forEach((q, index) => {
                 let div = document.createElement('div'); div.className = 'card'; div.style.borderColor = "#e67e22";
                 
@@ -315,7 +329,6 @@
                     let assignedMerc = guild.roster.find(m => m.id === q.assignedMercId);
                     div.innerHTML = `
                         <div class="card-top"><span class="merc-name">${q.title}</span></div>
-                        
                         <div class="card-info-wrapper" style="margin-top:5px;">
                             <div class="portrait-box" style="width:40px; height:40px; border-color:${assignedMerc.job.color};"><img src="${assignedMerc.portraitUrl}"></div>
                             <div class="stat-grid" style="flex:1;">
@@ -333,10 +346,12 @@
                             <span>보상: <span style="color:var(--gold)">${q.reward} G</span></span>
                         </div>
                         <div style="display:flex; gap:5px; margin-top:5px;">
-                            <select id="select-merc-${index}" style="flex:1;">
+                            <select id="select-merc-${index}" style="flex:1;" ${guild.autoDispatch ? 'disabled' : ''}>
                                 ${idleMercs.length > 0 ? optionsHTML : '<option disabled selected>대기중인 용병 없음</option>'}
                             </select>
-                            <button class="action-dispatch" onclick="startQuest(${index})" ${idleMercs.length === 0 ? 'disabled' : ''}>파견</button>
+                            <button class="action-dispatch" onclick="startQuest(${index})" ${(idleMercs.length === 0 || guild.autoDispatch) ? 'disabled' : ''}>
+                                파견
+                            </button>
                         </div>
                     `;
                 }
@@ -386,6 +401,7 @@
         }
 
         function startQuest(qIndex) {
+            if(guild.autoDispatch) return; // 자동모드일땐 수동 클릭 방지
             let selectBox = document.getElementById(`select-merc-${qIndex}`);
             let mercId = selectBox.value;
             if(!mercId) return;
@@ -395,6 +411,12 @@
 
             merc.status = 'questing';
             quest.assignedMercId = mercId;
+            updateAll();
+        }
+
+        // 🚀 자동 파견 토글 함수
+        function toggleAutoDispatch() {
+            guild.autoDispatch = !guild.autoDispatch;
             updateAll();
         }
 
@@ -411,6 +433,22 @@
         setInterval(() => {
             let updated = false;
 
+            // 🚀 [추가] 자동 파견 로직 (Auto Dispatch)
+            if (guild.autoDispatch) {
+                let idleMercs = guild.roster.filter(m => m.status === 'idle');
+                let availableQuests = guild.quests.filter(q => !q.assignedMercId);
+                
+                // 대기중인 용병과 비어있는 퀘스트가 둘 다 있다면 짝지어 파견
+                while(idleMercs.length > 0 && availableQuests.length > 0) {
+                    let merc = idleMercs.shift(); // 첫 번째 대기 용병
+                    let quest = availableQuests.shift(); // 첫 번째 빈 퀘스트
+                    merc.status = 'questing';
+                    quest.assignedMercId = merc.id;
+                    updated = true;
+                }
+            }
+
+            // 1. 퀘스트 진행
             guild.quests.forEach((q, idx) => {
                 if (q.assignedMercId) {
                     q.timeLeft--;
@@ -429,6 +467,7 @@
                 }
             });
 
+            // 2. 날짜 변경 및 주급 정산
             if(Math.random() < 0.1) {
                 guild.day++;
                 let totalWage = 0;
