@@ -18,7 +18,7 @@
             margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none;
         }
 
-        /* 💾 초압축 데이터 연동 모달 창 */
+        /* 💾 데이터 관리 모달 창 */
         #sync-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
             background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center;
@@ -28,7 +28,7 @@
             width: 400px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.9);
         }
         .sync-box h2 { margin: 0; color: #9b59b6; text-align: center; text-shadow: 1px 1px 0 #000; }
-        .sync-box textarea { width: 100%; height: 70px; padding: 10px; background: #111; color: var(--gold); border: 1px solid #555; border-radius: 4px; font-size: 0.8rem; resize: none; box-sizing: border-box; word-break: break-all; }
+        .sync-box textarea { width: 100%; height: 60px; padding: 10px; background: #111; color: var(--gold); border: 1px solid #555; border-radius: 4px; font-size: 0.8rem; resize: none; box-sizing: border-box; word-break: break-all; }
         .sync-row { display: flex; gap: 10px; }
         .sync-row button { flex: 1; padding: 10px; font-weight: 900; border: none; border-radius: 4px; cursor: pointer; color: #fff; font-size: 0.95rem; box-shadow: 0 3px 5px rgba(0,0,0,0.5);}
         .btn-copy { background: #27ae60; } .btn-copy:hover { background: #2ecc71; transform: translateY(-2px);}
@@ -61,7 +61,6 @@
         .time-header { display: flex; gap: 10px; align-items: center;}
         .time-text { font-weight: 900; font-family: monospace; font-size: 1.2rem; }
         
-        /* ⏩ 메뉴 버튼들 */
         .btn-speed { background: #34495e; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
         .btn-speed:hover { background: #415b76; }
         .btn-dict { background: #27ae60; color: #fff; border: 1px solid #111; padding: 4px 10px; border-radius: 4px; font-weight: 900; cursor: pointer; font-size: 0.9rem;}
@@ -158,21 +157,30 @@
 </head>
 <body>
 
-    <!-- 💾 데이터 연동 모달 -->
+    <!-- 💾 데이터 연동/저장 모달 -->
     <div id="sync-modal">
         <div class="sync-box">
-            <h2>💾 데이터 연동 시스템</h2>
-            <div style="font-size:0.8rem; color:#aaa; text-align:center;">압축된 짧은 코드로 기기 간 연동이 가능합니다.</div>
-            <div style="font-size:0.85rem; color:#f1c40f; margin-top:10px;">내 길드 세이브 코드 (복사용):</div>
+            <h2>💾 데이터 관리 센터</h2>
+            
+            <div class="sync-row" style="margin-bottom: 5px;">
+                <button style="background:#2980b9;" onclick="saveAndNotify()">💾 현재 기기에 수동 저장</button>
+                <button style="background:#c0392b;" onclick="resetGame()">🔄 처음부터 다시하기</button>
+            </div>
+            
+            <hr style="border: 1px solid #333; width:100%; margin: 5px 0;">
+            
+            <div style="font-size:0.85rem; color:#f1c40f;">타 기기 연동용 내 세이브 코드:</div>
             <textarea id="export-code" readonly></textarea>
             <div class="sync-row">
                 <button class="btn-copy" onclick="copyCode()">코드 복사하기</button>
             </div>
+            
             <hr style="border: 1px solid #333; width:100%; margin: 5px 0;">
-            <div style="font-size:0.85rem; color:#3498db;">다른 기기 코드 불러오기 (붙여넣기):</div>
+            
+            <div style="font-size:0.85rem; color:#3498db;">다른 기기 코드 불러오기 (덮어쓰기):</div>
             <textarea id="import-code" placeholder="여기에 코드를 붙여넣으세요..."></textarea>
             <div class="sync-row">
-                <button class="btn-apply" onclick="applySyncCode()">코드 적용 (덮어쓰기)</button>
+                <button class="btn-apply" onclick="applySyncCode()">코드 적용</button>
                 <button class="btn-close" onclick="closeSyncModal()">닫기</button>
             </div>
         </div>
@@ -195,7 +203,7 @@
                     <div class="time-text" id="ui-time">DAY 1 [ 08:00 ]</div>
                     <button class="btn-speed" id="btn-speed" onclick="toggleSpeed()">▶ 1x</button>
                     <button class="btn-dict" onclick="openDict()">📖 도감</button>
-                    <button class="btn-sync" onclick="openSyncModal()">💾 데이터 연동</button>
+                    <button class="btn-sync" onclick="openSyncModal()">💾 저장/연동</button>
                 </div>
                 <div class="time-bg"><div class="time-fill" id="ui-time-bar"></div></div>
             </div>
@@ -230,7 +238,7 @@
 
     <script>
         // ==========================================
-        // 🌟 1. 50종 이상의 다채로운 이름 DB
+        // 🌟 1. 이름 DB 및 직업/이미지 시스템
         // ==========================================
         const NAMES = [
             "아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", 
@@ -310,21 +318,20 @@
             shop:  { name: "상점", x: 90, y: 35 }, board: { name: "게시판", x: 50, y: 15 }
         };
 
-        // ⏱️ 게임 변수
         let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
         let gameSpeed = 1; 
 
         function getDay() { return Math.floor(guild.timeMin / 1440) + 1; }
         function getHour() { return Math.floor(guild.timeMin / 60) % 24; }
         function getMin() { return Math.floor(guild.timeMin % 60); }
-        function isGuildOpen() { let h = getHour(); return h >= 7 && h < 18; } // 07:00 ~ 18:00
+        function isGuildOpen() { let h = getHour(); return h >= 7 && h < 18; }
 
         // ==========================================
         // 🌟 2. 파티 시스템을 갖춘 클래스
         // ==========================================
         class Mercenary {
             constructor() {
-                this.id = 'M_' + Date.now() + Math.floor(Math.random() * 1000);
+                this.id = 'M_' + Date.now() + Math.floor(Math.random() * 10000);
                 this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
                 
                 this.baseJobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
@@ -353,9 +360,7 @@
 
             think() {
                 if(this.status !== 'idle') {
-                    if(this.status === 'gathering') {
-                        if(Math.random()<0.2) this.setThought("파티원 기다리는 중...", 30);
-                    }
+                    if(this.status === 'gathering' && Math.random()<0.2) this.setThought("파티원 기다리는 중...", 30);
                     return;
                 }
                 
@@ -368,8 +373,7 @@
                     if(this.level >= nextJob.req && this.money >= nextJob.cost) {
                         this.money -= nextJob.cost; guild.money += nextJob.cost; 
                         this.jobId = nextJobId;
-                        this.setThought(`✨ [${nextJob.name}] 전직!`, 60);
-                        showLog(`📜 ${this.name} 전직 완료!`); return;
+                        this.setThought(`✨ [${nextJob.name}] 전직!`, 60); showLog(`📜 ${this.name} 전직 완료!`); return;
                     }
                 }
 
@@ -399,27 +403,25 @@
                     return this.useFacility('train');
                 }
 
-                // 🌟 의뢰 수주 (파티 시스템 적용)
+                // 🌟 파티 & 솔로 의뢰 수주
                 if(!isNight && this.stamina >= 20) {
-                    // 수주 가능한 퀘스트 목록 (출발하지 않았고 빈자리가 있는 것)
                     let avail = guild.quests.filter(q => !q.departed && (!q.isParty ? !q.assignedMercId : q.partyIds.length < q.maxParty)).sort((a,b) => b.reward - a.reward);
                     
                     if(avail.length > 0) {
                         for(let q of avail) {
                             if(this.stamina >= q.reqStamina) {
-                                if(!q.isParty) { // 솔로 의뢰
+                                if(!q.isParty) { 
                                     if(Math.floor((this.power / q.reqPower) * 70) >= 30) { 
                                         this.stamina -= q.reqStamina; this.status = 'questing';
                                         q.assignedMercId = this.id; q.departed = true;
                                         q.targetMin = guild.timeMin + q.durationMin; this.targetMin = q.targetMin;
                                         return this.setThought(`[${q.title}] 솔로 출격!`, 60);
                                     }
-                                } else { // 🌟 파티 의뢰 합류
+                                } else { 
                                     this.stamina -= q.reqStamina; this.status = 'gathering';
                                     q.partyIds.push(this.id);
                                     if(q.partyIds.length === 1) q.gatherStartMin = guild.timeMin;
                                     
-                                    // 게시판 앞으로 이동하여 대기
                                     this.targetX = FACILITIES.board.x + (Math.random()*20 - 10);
                                     this.targetY = FACILITIES.board.y + 10 + (Math.random()*10);
                                     return this.setThought(`[파티 합류] 인원을 기다린다.`, 60);
@@ -445,11 +447,11 @@
         class Quest {
             constructor() {
                 this.id = 'Q_' + Date.now() + Math.floor(Math.random()*100);
-                this.isParty = Math.random() < 0.35; // 35% 확률로 파티 의뢰
+                this.isParty = Math.random() < 0.35; 
                 
                 if(this.isParty) {
                     this.title = ["드래곤 수색(파티)", "산적단 소탕(파티)", "오크 군락지(파티)", "저주받은 저택(파티)", "지하 던전 심층(파티)"][Math.floor(Math.random()*5)];
-                    this.maxParty = 2 + Math.floor(Math.random() * 2); // 2~3명
+                    this.maxParty = 2 + Math.floor(Math.random() * 2); 
                     this.partyIds = [];
                     this.gatherStartMin = null;
                 } else {
@@ -461,7 +463,7 @@
                 this.durationMin = (2 + Math.floor(Math.random() * 6)) * 60; 
                 
                 let baseReq = 15 + (getDay() * 3);
-                if(this.isParty) baseReq *= 2.5; // 파티의뢰는 난이도 대폭 상승
+                if(this.isParty) baseReq *= 2.5; 
                 
                 this.reqPower = Math.floor(baseReq * (0.6 + Math.random() * 0.8));
                 this.reqStamina = 20 + Math.floor(Math.random() * 20); 
@@ -471,8 +473,10 @@
         }
 
         // ==========================================
-        // 💾 초압축 세이브/로드 기능
+        // 💾 초압축 및 안정적인 로컬 세이브 시스템 (충돌 방지 v3)
         // ==========================================
+        const SAVE_KEY = "fantasyGuild_SaveData_v3";
+
         function getCompressedSave() {
             let data = {
                 t: guild.timeMin, m: guild.money, c: guild.capacity, u: guild.upgradeCost,
@@ -487,28 +491,59 @@
             let d = JSON.parse(jsonStr);
             
             guild.timeMin = d.t; guild.money = d.m; guild.capacity = d.c; guild.upgradeCost = d.u;
-            guild.roster = d.r.map(arr => {
+            
+            guild.roster = [];
+            for(let arr of d.r) {
                 let m = new Mercenary();
                 m.id=arr[0]; m.name=arr[1]; m.baseJobId=arr[2]; m.jobId=arr[3]; m.portraitUrl=arr[4];
                 m.level=arr[5]; m.exp=arr[6]; m.equipTier=arr[7]; m.basePower=arr[8]; m.money=arr[9];
                 m.stamina=arr[10]; m.status=arr[11]; m.currentAction=arr[12]; m.targetMin=arr[13];
-                return m;
-            });
-            guild.quests = d.q.map(arr => {
+                m.showBubble = false;
+                guild.roster.push(m);
+            }
+            
+            guild.quests = [];
+            for(let arr of d.q) {
                 let q = new Quest();
                 q.id=arr[0]; q.title=arr[1]; q.durationMin=arr[2]; q.reqPower=arr[3]; q.reqStamina=arr[4];
-                q.reward=arr[5]; q.assignedMercId=arr[6]; q.targetMin=arr[7]; 
-                q.isParty=!!arr[8]; q.partyIds=arr[9]; q.maxParty=arr[10]; q.departed=!!arr[11]; q.gatherStartMin=arr[12];
-                return q;
-            });
+                q.reward=arr[5]; q.assignedMercId=arr[6]; q.targetMin=arr[7];
+                q.isParty=!!arr[8]; q.partyIds=arr[9]||[]; q.maxParty=arr[10]||0; q.departed=!!arr[11]; q.gatherStartMin=arr[12]||0;
+                guild.quests.push(q);
+            }
         }
 
+        function saveGameLocally() {
+            try { localStorage.setItem(SAVE_KEY, getCompressedSave()); } catch(e){}
+        }
+
+        function initNewGame() {
+            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
+            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
+        }
+
+        // 🌟 모달 관련 UI 함수
         function openSyncModal() {
             document.getElementById('sync-modal').style.display = 'flex';
             document.getElementById('export-code').value = getCompressedSave();
         }
 
         function closeSyncModal() { document.getElementById('sync-modal').style.display = 'none'; }
+
+        function saveAndNotify() {
+            saveGameLocally();
+            showLog("💾 현재 진행 상황이 기기에 안전하게 저장되었습니다.");
+            closeSyncModal();
+        }
+
+        function resetGame() {
+            if(confirm("정말 모든 데이터를 삭제하고 처음부터 다시 시작하시겠습니까?")) {
+                initNewGame();
+                saveGameLocally();
+                closeSyncModal();
+                showLog("🔄 길드가 초기화 되었습니다.");
+                updateUI();
+            }
+        }
 
         function copyCode() {
             let copyText = document.getElementById("export-code");
@@ -521,8 +556,11 @@
             if(!code) return alert("코드를 입력해주세요.");
             try {
                 restoreFromCompressed(code);
-                closeSyncModal(); showLog(`✅ 성공적으로 코드를 불러왔습니다!`); updateUI();
-            } catch (e) { alert("잘못된 세이브 코드입니다."); }
+                saveGameLocally();
+                closeSyncModal(); 
+                showLog(`✅ 성공적으로 코드를 덮어쓰기 했습니다!`); 
+                updateUI();
+            } catch (e) { alert("잘못된 세이브 코드이거나 이전 버전의 데이터입니다."); }
         }
 
         function toggleSpeed() {
@@ -645,18 +683,34 @@
         }
 
         // ==========================================
-        // 🌟 메인 루프 (파티 결성 및 의뢰 완료 처리)
+        // 🌟 메인 루프 (자동 저장 추가)
         // ==========================================
         window.onload = () => {
-            // 로컬 데이터 자동 로드 (아이디 없이 기기 귀속)
-            let saved = localStorage.getItem("myGuildSaveData");
+            // 새로고침, 창 닫기 시 무조건 저장
+            window.addEventListener('beforeunload', saveGameLocally);
+
+            // 로컬 데이터 로드 시도
+            let saved = localStorage.getItem(SAVE_KEY);
             if(saved) {
-                try { restoreFromCompressed(saved); showLog("✅ 기존 길드 데이터를 불러왔습니다."); } 
-                catch(e) { initNewGame(); }
-            } else { initNewGame(); }
+                try { 
+                    restoreFromCompressed(saved); 
+                    showLog("✅ 기기에 저장된 길드 데이터를 불러왔습니다."); 
+                } catch(e) { 
+                    initNewGame(); 
+                    showLog("⚠️ 이전 데이터가 호환되지 않아 새로 시작합니다."); 
+                }
+            } else { 
+                initNewGame(); 
+            }
 
             updateUI(); 
             let frame = 0;
+
+            // 5초(50프레임) 마다 오토 세이브
+            setInterval(() => {
+                if(frame % 50 === 0) saveGameLocally();
+            }, 100);
+
             setInterval(() => {
                 frame++; renderFloor();
                 let prevHour = getHour();
@@ -664,8 +718,6 @@
                 let currHour = getHour();
 
                 if(currHour !== prevHour) {
-                    try { localStorage.setItem("myGuildSaveData", getCompressedSave()); } catch(e){} // 자동저장
-
                     if (currHour === 0) {
                         let cost = guild.roster.length * 50; guild.money -= cost;
                         showLog(`🌙 자정 일일 유지비 -${cost}G 납부`);
@@ -687,7 +739,6 @@
                     guild.quests.push(new Quest());
                 }
 
-                // 시설 이용 완료
                 guild.roster.forEach(merc => {
                     if(merc.status === 'resting' || merc.status === 'training') {
                         if(guild.timeMin >= merc.targetMin) {
@@ -698,14 +749,11 @@
                     }
                 });
 
-                // 🌟 파티 출발 판단 및 퀘스트 완료 처리
                 guild.quests.forEach((q, idx) => {
-                    // 1) 파티 모집 중 -> 출발 판단
                     if(q.isParty && !q.departed && q.partyIds.length > 0) {
                         let pPower = q.partyIds.reduce((sum, id) => { let m=guild.roster.find(x=>x.id===id); return sum+(m?m.power:0); }, 0);
                         let wChance = (pPower / q.reqPower) * 70;
                         
-                        // 모집 후 2시간 경과, 파티 풀방, 또는 승산 40% 이상이면 즉시 출발
                         if(wChance >= 40 || q.partyIds.length >= q.maxParty || (guild.timeMin - q.gatherStartMin) > 120) {
                             q.departed = true; q.targetMin = guild.timeMin + q.durationMin;
                             q.partyIds.forEach(id => {
@@ -715,7 +763,6 @@
                         }
                     }
 
-                    // 2) 퀘스트 완료 시
                     if (q.departed && guild.timeMin >= q.targetMin) {
                         let involveMercs = [];
                         if(!q.isParty && q.assignedMercId) {
@@ -757,11 +804,6 @@
                 if(frame % 10 === 0) updateUI();
             }, 100); 
         };
-
-        function initNewGame() {
-            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
-            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
-        }
     </script>
 </body>
 </html>
