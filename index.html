@@ -3,147 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>판타지 용병 길드 타이쿤</title>
+    <title>판타지 용병 길드 (관찰형 타이쿤)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* 길드 내관의 따뜻한 나무와 카펫 컬러 */
-            --bg-dark: #110a05;
-            --wood-plank: #4a3018;
-            --wood-dark: #2a180a;
-            --carpet-red: rgba(180, 30, 30, 0.4);
-            
-            --gold: #f1c40f;
-            --text-light: #fdf5e6;
+            --bg-dark: #110a05; --wood-dark: #1a0e05; --wood-plank: #2a180a;
+            --gold: #f1c40f; --text-light: #fdf5e6;
             --font-main: 'Noto Sans KR', sans-serif;
-            --ui-bg: rgba(20, 15, 10, 0.85);
-            --ui-border: #8b5a2b;
+            --ui-bg: rgba(20, 15, 10, 0.85); --ui-border: #8b5a2b;
         }
 
         body {
             background-color: var(--bg-dark); color: var(--text-light); font-family: var(--font-main);
-            margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-            user-select: none;
+            margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none;
         }
 
         /* 🏰 상단 길드 정보창 */
         header {
             position: absolute; top: 15px; left: 20px; right: 20px; z-index: 100;
-            background: var(--ui-bg); padding: 15px 30px; border-radius: 8px; border: 2px solid var(--ui-border);
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            background: var(--ui-bg); padding: 12px 30px; border-radius: 8px; border: 2px solid var(--ui-border);
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 20px rgba(0,0,0,0.8);
         }
 
         .guild-title { font-size: 1.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
         .guild-stats { display: flex; gap: 30px; align-items: center; font-weight: 700; font-size: 1.1rem;}
         
-        /* 정교해진 시간 UI */
         .time-wrapper { display: flex; flex-direction: column; gap: 4px; align-items: center;}
-        .time-text { color: #fdf5e6; font-weight: 900; font-family: monospace; font-size: 1.2rem; text-shadow: 1px 1px 2px #000; }
-        .time-bg { width: 160px; height: 6px; background: #000; border-radius: 3px; overflow: hidden; border: 1px solid #555;}
-        .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22, #3498db, #8e44ad); width: 0%; }
+        .time-text { font-weight: 900; font-family: monospace; font-size: 1.2rem; }
+        .time-bg { width: 160px; height: 6px; background: #000; border-radius: 3px; border: 1px solid #555;}
+        .time-fill { height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22, #3498db); width: 0%; }
         
-        .money-text { color: var(--gold); font-size: 1.4rem; text-shadow: 1px 1px 0 #000;}
-        .capacity-text { color: #2ecc71; text-shadow: 1px 1px 0 #000;}
+        .money-text { color: var(--gold); font-size: 1.3rem; }
+        .capacity-text { color: #2ecc71; }
 
-        /* ================== 메인 화면: 길드 내부 인테리어 ================== */
+        /* ================== 메인 화면: 길드 내부 ================== */
         main { position: relative; width: 100%; height: 100%; display: flex; }
 
         #floor-container {
-            flex: 1; position: relative;
-            background-color: var(--wood-dark);
-            /* 따뜻한 나무 마루바닥과 중앙의 붉은 카펫 디자인 */
-            background-image: 
-                linear-gradient(90deg, transparent 40%, var(--carpet-red) 40%, var(--carpet-red) 60%, transparent 60%),
-                repeating-linear-gradient(0deg, transparent, transparent 48px, #1a0e05 48px, #1a0e05 50px),
-                repeating-linear-gradient(90deg, var(--wood-plank), var(--wood-plank) 98px, #1a0e05 98px, #1a0e05 100px);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            flex: 1; position: relative; background-color: var(--wood-dark);
+            background-image: repeating-linear-gradient(90deg, var(--wood-plank), var(--wood-plank) 98px, #110803 98px, #110803 100px);
+            box-shadow: inset 0 0 120px rgba(0,0,0,0.95);
         }
 
-        /* 📍 길드 내 시설 마커 (시각적 개선) */
         .facility-area {
             position: absolute; padding: 15px 25px; border-radius: 8px; font-weight: 900; 
-            background: rgba(0,0,0,0.6); box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-            border: 2px solid; font-size: 1.1rem; pointer-events: none; text-align: center; text-shadow: 1px 1px 2px #000;
+            background: rgba(0,0,0,0.7); border: 2px solid; pointer-events: none; text-shadow: 1px 1px 2px #000;
         }
-        #area-board { top: 18%; left: 50%; transform: translateX(-50%); border-color: #f1c40f; color: #fdf5e6;} /* 게시판 (중앙) */
-        #area-tavern { bottom: 12%; left: 10%; border-color: #e67e22; color: #fdf5e6;} /* 주점 */
-        #area-inn { top: 18%; left: 10%; border-color: #3498db; color: #fdf5e6;} /* 여관 */
-        #area-train { bottom: 12%; right: 10%; border-color: #e74c3c; color: #fdf5e6;} /* 훈련장 */
-        #area-shop { top: 40%; right: 10%; border-color: #9b59b6; color: #fdf5e6;} /* 🌟 장비 상점 */
 
-        /* ================== 🚶 용병 아바타 (부드러운 일러스트) ================== */
+        /* ================== 🚶 용병 아바타 (CSS 엠블럼) ================== */
         .merc-sprite {
             position: absolute; transform: translate(-50%, -50%);
-            transition: top 1s linear, left 1s linear; /* 1초마다 부드럽게 이동 */
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 10;
+            transition: top 1s linear, left 1s linear; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
         
-        /* 💬 말풍선 */
         .floor-bubble {
-            position: absolute; bottom: 65px; background: #fff; color: #111; font-size: 0.8rem; font-weight: 900; 
-            padding: 8px 12px; border-radius: 8px; width: max-content; max-width: 180px; text-align: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 20; opacity: 0; transition: opacity 0.3s;
+            position: absolute; bottom: 55px; background: #fff; color: #111; font-size: 0.8rem; font-weight: 900; 
+            padding: 6px 12px; border-radius: 6px; width: max-content; max-width: 150px; text-align: center; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
         .floor-bubble.show { opacity: 1; }
-        .floor-bubble::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            border-width: 6px 6px 0; border-style: solid; border-color: #fff transparent transparent transparent;
+
+        /* 🖼️ 이미지 삭제 및 CSS 전용 초상화 (엠블럼) 도입 */
+        .css-portrait {
+            width: 45px; height: 45px; border-radius: 50%; border: 3px solid; 
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.2rem; font-weight: 900; color: #fff; text-shadow: 1px 1px 2px #000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 0 10px rgba(0,0,0,0.5);
         }
 
-        /* 🖼️ 부드러운 일러스트 초상화 적용 (픽셀 아님) */
-        .merc-sprite img {
-            width: 50px; height: 50px; border-radius: 50%; border: 3px solid #f1c40f;
-            background: #d4c5b0; box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-            object-fit: cover;
-        }
-
-        /* 🏷️ 이름표 및 상태바 */
         .nameplate {
-            background: rgba(0,0,0,0.8); padding: 3px 8px; border-radius: 4px; border: 1px solid #555;
-            display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: 5px; z-index: 15;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.8); padding: 2px 6px; border-radius: 4px; border: 1px solid #555;
+            display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: 5px;
         }
-        .name-text { font-size: 0.75rem; font-weight: 900; }
-        .hp-bar-bg { width: 40px; height: 5px; background: #222; border-radius: 2px; overflow: hidden; }
-        .hp-bar-fill { height: 100%; background: #3498db; width: 100%; transition: width 0.3s;}
+        .name-text { font-size: 0.7rem; font-weight: 900; }
+        .hp-bar-bg { width: 35px; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+        .hp-bar-fill { height: 100%; background: #3498db; width: 100%; }
 
-        /* ================== 우측: 정보 사이드바 ================== */
+        /* ================== 우측: 사이드바 ================== */
         .sidebar {
-            width: 350px; background: var(--ui-bg); border-left: 2px solid var(--ui-border);
-            display: flex; flex-direction: column; z-index: 50; padding-top: 100px; box-shadow: -5px 0 15px rgba(0,0,0,0.7);
+            width: 320px; background: var(--ui-bg); border-left: 2px solid var(--ui-border);
+            display: flex; flex-direction: column; z-index: 50; padding-top: 85px; box-shadow: -5px 0 15px rgba(0,0,0,0.7);
         }
         
         .side-panel { display: flex; flex-direction: column; flex: 1; border-bottom: 2px solid #333;}
-        .side-header { background: rgba(0,0,0,0.6); padding: 12px; text-align: center; font-weight: 900; font-size: 0.95rem; color: #f1c40f; letter-spacing: 1px;}
-        .side-content { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .side-header { background: rgba(0,0,0,0.6); padding: 10px; text-align: center; font-weight: 900; font-size: 0.9rem; color: #f1c40f;}
+        .side-content { padding: 10px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; }
 
-        .list-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; border: 1px solid #444; display: flex; flex-direction: column; gap: 6px; }
+        .list-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border: 1px solid #444; display: flex; flex-direction: column; gap: 4px; }
         
-        /* 🖼️ 사이드바용 미니 초상화 */
+        /* 사이드바 미니 초상화 */
         .side-merc-info { display: flex; gap: 10px; align-items: center; }
-        .side-portrait { width: 40px; height: 40px; border-radius: 4px; border: 2px solid #8b5a2b; background: #d4c5b0; object-fit: cover;}
+        .mini-portrait { width: 35px; height: 35px; border-radius: 4px; border: 2px solid; display: flex; justify-content: center; align-items: center; font-weight: 900; color:#fff; text-shadow: 1px 1px 1px #000; }
 
-        .list-title { display: flex; justify-content: space-between; font-weight: 900; font-size: 0.9rem; color: #fff;}
-        .list-desc { font-size: 0.8rem; color: #ccc; display: flex; justify-content: space-between;}
+        .list-title { display: flex; justify-content: space-between; font-weight: 900; font-size: 0.85rem; color: #fff;}
+        .list-desc { font-size: 0.75rem; color: #ccc; display: flex; justify-content: space-between;}
         
-        .prog-bg-side { width: 100%; height: 6px; background: #111; border-radius: 3px; overflow: hidden; margin-top: 4px;}
-        .prog-fill-side { height: 100%; background: #e67e22; width: 0%; transition: width 0.3s;}
+        .prog-bg-side { width: 100%; height: 6px; background: #111; border-radius: 3px; overflow: hidden; margin-top: 2px;}
+        .prog-fill-side { height: 100%; background: #e67e22; width: 0%; }
 
         button.upgrade-btn {
-            background: linear-gradient(to bottom, #8e44ad, #5b2c6f); border: 2px solid #111; color: #fff;
-            padding: 12px; border-radius: 6px; font-weight: 900; cursor: pointer; transition: 0.2s; margin: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.5); font-size: 0.95rem;
+            background: linear-gradient(to bottom, #8e44ad, #5b2c6f); border: 1px solid #111; color: #fff;
+            padding: 10px; border-radius: 4px; font-weight: 900; cursor: pointer; transition: 0.2s; margin: 10px;
         }
-        button.upgrade-btn:hover:not(:disabled) { background: linear-gradient(to bottom, #9b59b6, #732d91); transform: translateY(-2px); }
-        button.upgrade-btn:disabled { background: #333; color: #777; cursor: not-allowed; transform: none;}
+        button.upgrade-btn:hover:not(:disabled) { background: linear-gradient(to bottom, #9b59b6, #732d91); }
+        button.upgrade-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
 
-        #log-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(20, 10, 5, 0.95); padding: 15px 30px; border-radius: 8px; border: 2px solid #f1c40f; display: none; z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
-        #log-text { color: #fff; font-weight: 900; font-size: 1rem; }
+        #log-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(20, 10, 5, 0.95); padding: 12px 25px; border-radius: 8px; border: 2px solid #f1c40f; display: none; z-index: 100; box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+        #log-text { color: #fff; font-weight: 900; font-size: 0.9rem; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #8b5a2b; border-radius: 3px; }
     </style>
 </head>
@@ -162,23 +132,21 @@
     </header>
 
     <main>
-        <!-- 👁️ 길드 내부 관찰 시점 -->
         <div id="floor-container">
-            <div class="facility-area" id="area-board">📜 의뢰 게시판</div>
-            <div class="facility-area" id="area-tavern">🍺 길드 주점</div>
-            <div class="facility-area" id="area-inn">🛏️ 길드 여관</div>
-            <div class="facility-area" id="area-train">🎯 훈련장</div>
-            <div class="facility-area" id="area-shop">🛒 장비 상점</div>
+            <div class="facility-area" style="top:15%; left:50%; transform:translateX(-50%); border-color:#f1c40f; color:#fdf5e6;">📜 의뢰 게시판</div>
+            <div class="facility-area" style="bottom:10%; left:10%; border-color:#e67e22; color:#fdf5e6;">🍺 길드 주점</div>
+            <div class="facility-area" style="top:15%; left:10%; border-color:#3498db; color:#fdf5e6;">🛏️ 길드 여관</div>
+            <div class="facility-area" style="bottom:10%; right:10%; border-color:#e74c3c; color:#fdf5e6;">🎯 훈련장</div>
+            <div class="facility-area" style="top:35%; right:10%; border-color:#9b59b6; color:#fdf5e6;">🛒 장비 상점</div>
         </div>
 
-        <!-- 📌 우측 데이터 패널 -->
         <aside class="sidebar">
             <div class="side-panel">
-                <div class="side-header">📜 접수된 의뢰 (수수료 수입 20%)</div>
+                <div class="side-header">📜 진행 및 대기 의뢰 (수수료 20%)</div>
                 <div class="side-content" id="quest-list"></div>
             </div>
             <div class="side-panel">
-                <div class="side-header">🛡️ 머무는 용병 명부</div>
+                <div class="side-header">🛡️ 머무는 프리랜서 명부</div>
                 <div class="side-content" id="roster-list"></div>
                 <button class="upgrade-btn" id="btn-upgrade" onclick="upgradeGuild()">길드 증축 (인원 +2) : 1000G</button>
             </div>
@@ -189,482 +157,303 @@
 
     <script>
         // ==========================================
-        // 1. 방대해진 직업 및 장비 데이터
+        // 1. 간결화된 데이터 베이스
         // ==========================================
         const CLASS_DB = {
-            "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextJobs: ["W_1"], reqLevel: 0, promoteCost: 0 },
-            "W_1": { tier: 1, name: "검사", color: "#c0392b", nextJobs: ["W_2A", "W_2B"], reqLevel: 5, promoteCost: 500 },
-            "W_2A": { tier: 2, name: "기사", color: "#922b21", nextJobs: ["W_3A"], reqLevel: 15, promoteCost: 2000 },
-            "W_2B": { tier: 2, name: "광전사", color: "#7b241c", nextJobs: ["W_3B"], reqLevel: 15, promoteCost: 2000 },
-            "W_3A": { tier: 3, name: "성기사", color: "#f1c40f", nextJobs: [], reqLevel: 30, promoteCost: 8000 },
-            "W_3B": { tier: 3, name: "워로드", color: "#641e16", nextJobs: [], reqLevel: 30, promoteCost: 8000 },
+            "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextId: "W_1", req: 0, cost: 0 },
+            "W_1": { tier: 1, name: "검사", color: "#c0392b", nextId: "W_2", req: 5, cost: 500 },
+            "W_2": { tier: 2, name: "기사", color: "#922b21", nextId: "W_3", req: 15, cost: 2000 },
+            "W_3": { tier: 3, name: "성기사", color: "#f1c40f", nextId: null, req: 30, cost: 8000 },
 
-            "A_0": { tier: 0, name: "초보 궁수", color: "#2ecc71", nextJobs: ["A_1"], reqLevel: 0, promoteCost: 0 },
-            "A_1": { tier: 1, name: "헌터", color: "#27ae60", nextJobs: ["A_2"], reqLevel: 5, promoteCost: 500 },
-            "A_2": { tier: 2, name: "스나이퍼", color: "#1e8449", nextJobs: ["A_3"], reqLevel: 15, promoteCost: 2000 },
-            "A_3": { tier: 3, name: "보우마스터", color: "#117a65", nextJobs: [], reqLevel: 30, promoteCost: 8000 },
+            "A_0": { tier: 0, name: "초보 궁수", color: "#2ecc71", nextId: "A_1", req: 0, cost: 0 },
+            "A_1": { tier: 1, name: "헌터", color: "#27ae60", nextId: "A_2", req: 5, cost: 500 },
+            "A_2": { tier: 2, name: "스나이퍼", color: "#1e8449", nextId: "A_3", req: 15, cost: 2000 },
+            "A_3": { tier: 3, name: "보우마스터", color: "#117a65", nextId: null, req: 30, cost: 8000 },
 
-            "M_0": { tier: 0, name: "마법학도", color: "#9b59b6", nextJobs: ["M_1"], reqLevel: 0, promoteCost: 0 },
-            "M_1": { tier: 1, name: "워록", color: "#8e44ad", nextJobs: ["M_2"], reqLevel: 5, promoteCost: 500 },
-            "M_2": { tier: 2, name: "아크메이지", color: "#5b2c6f", nextJobs: ["M_3"], reqLevel: 15, promoteCost: 2000 },
-            "M_3": { tier: 3, name: "그랜드마거스", color: "#4a235a", nextJobs: [], reqLevel: 30, promoteCost: 8000 }
+            "M_0": { tier: 0, name: "마법학도", color: "#9b59b6", nextId: "M_1", req: 0, cost: 0 },
+            "M_1": { tier: 1, name: "워록", color: "#8e44ad", nextId: "M_2", req: 5, cost: 500 },
+            "M_2": { tier: 2, name: "아크메이지", color: "#5b2c6f", nextId: "M_3", req: 15, cost: 2000 },
+            "M_3": { tier: 3, name: "그랜드마거스", color: "#4a235a", nextId: null, req: 30, cost: 8000 }
         };
         const BASE_CLASSES = ["W_0", "A_0", "M_0"];
-        const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", "로웬", "미아"];
+        const NAMES = ["아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론"];
 
-        // 🌟 장비 판매 시스템 (용병이 스스로 구매)
         const EQUIP_SHOP = [
-            { tier: 1, name: "강철 무기", cost: 200, powerUp: 15 },
-            { tier: 2, name: "미스릴 장비", cost: 800, powerUp: 40 },
-            { tier: 3, name: "드래곤 슬레이어", cost: 3000, powerUp: 120 }
+            { name: "강철 장비", cost: 300, powerUp: 20 },
+            { name: "미스릴 무기", cost: 1000, powerUp: 50 },
+            { name: "전설의 검", cost: 4000, powerUp: 150 }
         ];
 
-        // 시설 좌표 및 이용 시간 (게임 내 분 단위)
+        // 시설 좌표 및 정보 (시간 단위: 게임 속 '분')
         const FACILITIES = {
-            drink: { name: "주점", cost: 30, durationMin: 60, stamRecover: 40, x: 10, y: 88 },
-            sleep: { name: "여관", cost: 100, durationMin: 480, stamRecover: 100, x: 10, y: 18 },
-            train: { name: "훈련", cost: 250, durationMin: 300, powerUp: 5, x: 90, y: 88 },
-            shop:  { name: "상점", x: 90, y: 40 },
-            board: { name: "게시판", x: 50, y: 18 }
+            drink: { name: "주점", cost: 30, duration: 60, stam: 40, x: 10, y: 90 },
+            sleep: { name: "여관", cost: 100, duration: 480, stam: 100, x: 10, y: 15 },
+            train: { name: "훈련", cost: 250, duration: 300, pwr: 5, x: 90, y: 90 },
+            shop:  { name: "상점", x: 90, y: 35 }, board: { name: "게시판", x: 50, y: 15 }
         };
 
-        // ==========================================
-        // 2. 정교한 시간 및 길드 관리
-        // ==========================================
-        let guild = { 
-            timeMinutes: 480, // 아침 8시(480분) 시작
-            money: 500, capacity: 5, upgradeCost: 1000,
-            roster: [], quests: []
-        };
+        let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
 
-        function getDay() { return Math.floor(guild.timeMinutes / 1440) + 1; }
-        function getHour() { return Math.floor(guild.timeMinutes / 60) % 24; }
-        function getMinute() { return Math.floor(guild.timeMinutes % 60); }
+        function getDay() { return Math.floor(guild.timeMin / 1440) + 1; }
+        function getHour() { return Math.floor(guild.timeMin / 60) % 24; }
+        function getMin() { return Math.floor(guild.timeMin % 60); }
 
         // ==========================================
-        // 3. 용병 AI 에이전트
+        // 2. 용병 AI 및 시스템
         // ==========================================
         class Mercenary {
             constructor() {
-                this.id = 'M_' + Date.now() + Math.floor(Math.random() * 10000);
+                this.id = 'M_' + Date.now() + Math.floor(Math.random() * 1000);
                 this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
                 this.jobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
                 
-                this.level = 1; this.exp = 0;
+                this.level = 1; this.exp = 0; this.equipTier = 0;
                 this.basePower = 15 + Math.floor(Math.random() * 10);
-                this.equipTier = 0; // 장비 레벨
+                this.money = 150 + Math.floor(Math.random() * 50); 
                 
-                this.money = 150 + Math.floor(Math.random() * 100); // 초기 자금
+                this.stamina = 100; this.status = 'idle'; 
+                this.targetMin = 0; this.currentAction = null; 
+                this.thought = "대기 중..."; this.showBubble = false; this.bubbleEnd = 0;
                 
-                this.stamina = 100; this.maxStamina = 100;
-                this.status = 'idle'; 
-                this.actionTargetMin = 0; // 목표 완료 시간
-                this.currentAction = null; 
-
-                this.thought = "의뢰를 찾아볼까..."; 
-                this.showBubble = false;
-                this.bubbleEndMin = 0;
-                
-                this.tx = 50; this.ty = 80; 
-                this.targetX = 50; this.targetY = 50;
+                this.tx = 50; this.ty = 85; this.targetX = 50; this.targetY = 50;
             }
 
             get job() { return CLASS_DB[this.jobId]; }
-            get maxExp() { return this.level * 100; }
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
-            
-            // 🎨 부드러운 일러스트 초상화 적용 (픽셀 아님)
-            get portraitUrl() { return `https://api.dicebear.com/9.x/adventurer/svg?seed=${this.id}&backgroundColor=transparent`; }
 
-            setThought(text, durationMin = 30) {
-                this.thought = text;
-                this.showBubble = true;
-                this.bubbleEndMin = guild.timeMinutes + durationMin;
+            setThought(text, durationGameMins = 30) {
+                this.thought = text; this.showBubble = true;
+                this.bubbleEnd = guild.timeMin + durationGameMins;
             }
 
-            // 🧠 용병 자율 행동 AI
             think() {
                 if(this.status !== 'idle') return;
                 
-                if(Math.random() < 0.1) {
-                    // 심심하면 카펫(중앙) 근처를 서성거림
-                    this.targetX = 30 + Math.random() * 40; 
-                    this.targetY = 30 + Math.random() * 40;
-                }
+                if(Math.random() < 0.1) { this.targetX = 20 + Math.random()*60; this.targetY = 30 + Math.random()*50; }
+                if(Math.random() > 0.3) return;
 
-                if(Math.random() > 0.3) return; // 행동 판단 딜레이
-
-                // 🌟 1. 전직 심사 (가장 우선)
-                if(this.job.nextJobs.length > 0) {
-                    let nextJobId = this.job.nextJobs[0]; // 분기가 있으면 첫번째 임의 선택 (로직 단순화)
-                    if(this.job.nextJobs.length > 1) nextJobId = this.job.nextJobs[Math.floor(Math.random() * this.job.nextJobs.length)];
-                    
-                    let nextJob = CLASS_DB[nextJobId];
-                    if(this.level >= nextJob.reqLevel && this.money >= nextJob.promoteCost) {
-                        this.money -= nextJob.promoteCost;
-                        guild.money += nextJob.promoteCost; 
-                        this.jobId = nextJobId;
-                        this.setThought(`✨ [${this.job.name}] 전직 완료!`, 60);
-                        showLog(`📜 ${this.name} 전직 완료! (길드 심사비 수입: +${nextJob.promoteCost}G)`);
+                // 1. 전직 심사
+                if(this.job.nextId) {
+                    let nextJob = CLASS_DB[this.job.nextId];
+                    if(this.level >= nextJob.req && this.money >= nextJob.cost) {
+                        this.money -= nextJob.cost; guild.money += nextJob.cost; 
+                        this.jobId = this.job.nextId;
+                        this.setThought(`✨ [${this.job.name}] 전직!`, 60);
+                        showLog(`📜 ${this.name} 전직 완료! (심사 수입: +${nextJob.cost}G)`);
                         return;
                     }
                 }
 
-                // 🌟 2. 장비 구매 (돈이 모이면 스펙업)
+                // 2. 장비 구매
                 if(this.equipTier < EQUIP_SHOP.length) {
-                    let nextEquip = EQUIP_SHOP[this.equipTier];
-                    if(this.money >= nextEquip.cost + 50) { // 밥값 50G는 남겨두고 구매
-                        this.money -= nextEquip.cost;
-                        guild.money += nextEquip.cost;
-                        this.equipTier++;
-                        this.basePower += nextEquip.powerUp;
-                        
-                        this.targetX = FACILITIES.shop.x + (Math.random()*10 - 5);
-                        this.targetY = FACILITIES.shop.y + (Math.random()*10 - 5);
-                        this.setThought(`🛒 ${nextEquip.name} 구매 완료!`, 60);
-                        showLog(`⚔️ ${this.name} 장비 구매! (길드 상점 수입: +${nextEquip.cost}G)`);
+                    let eq = EQUIP_SHOP[this.equipTier];
+                    if(this.money >= eq.cost + 50) { 
+                        this.money -= eq.cost; guild.money += eq.cost;
+                        this.equipTier++; this.basePower += eq.powerUp;
+                        this.targetX = FACILITIES.shop.x; this.targetY = FACILITIES.shop.y;
+                        this.setThought(`🛒 ${eq.name} 구매!`, 60);
+                        showLog(`⚔️ ${this.name} 장비 구매! (상점 수입: +${eq.cost}G)`);
                         return;
                     }
                 }
 
-                // 3. 피로도 회복 (여관 or 주점)
+                // 3. 휴식
                 if(this.stamina < 30) {
-                    if(this.money >= FACILITIES.sleep.cost) { this.useFacility('sleep'); return; } 
-                    else if (this.money >= FACILITIES.drink.cost) { this.useFacility('drink'); return; } 
-                    else { this.setThought("돈이 없어서 못 쉬어...", 40); return; }
+                    if(this.money >= FACILITIES.sleep.cost) return this.useFacility('sleep');
+                    if(this.money >= FACILITIES.drink.cost) return this.useFacility('drink');
+                    return this.setThought("돈이 없어서 못 쉬어...", 40);
                 }
 
-                // 4. 자기계발 (체력/돈 여유 시)
-                if(this.stamina > 80 && this.money >= FACILITIES.train.cost + 100 && Math.random() < 0.3) { 
-                    this.useFacility('train'); return; 
-                }
+                // 4. 훈련
+                if(this.stamina > 80 && this.money >= FACILITIES.train.cost + 100 && Math.random() < 0.3) return this.useFacility('train');
 
-                // 5. 게시판 의뢰 수락
+                // 5. 퀘스트 수락
                 if(this.stamina >= 20) {
-                    let available = guild.quests.filter(q => !q.assignedMercId);
-                    if(available.length > 0) {
-                        this.targetX = FACILITIES.board.x + (Math.random()*10 - 5);
-                        this.targetY = FACILITIES.board.y + 10;
-
-                        available.sort((a,b) => b.reward - a.reward);
-                        for(let q of available) {
-                            if(this.stamina >= q.reqStamina) {
-                                let winChance = Math.floor((this.power / q.reqPower) * 70);
-                                if(winChance >= 30) { 
-                                    this.stamina -= q.reqStamina;
-                                    this.status = 'questing';
-                                    q.assignedMercId = this.id;
-                                    this.actionTargetMin = guild.timeMinutes + q.durationMin;
-                                    this.setThought(`[${q.title}] 출발한다!`, 60);
-                                    return;
-                                }
+                    let avail = guild.quests.filter(q => !q.assignedMercId).sort((a,b) => b.reward - a.reward);
+                    if(avail.length > 0) {
+                        this.targetX = FACILITIES.board.x; this.targetY = FACILITIES.board.y + 10;
+                        for(let q of avail) {
+                            if(this.stamina >= q.reqStamina && Math.floor((this.power / q.reqPower) * 70) >= 30) { 
+                                this.stamina -= q.reqStamina; this.status = 'questing';
+                                q.assignedMercId = this.id; q.targetMin = guild.timeMin + q.durationMin;
+                                this.targetMin = q.targetMin;
+                                return this.setThought(`[${q.title}] 접수완료!`, 60);
                             }
                         }
-                    } else {
-                        if(Math.random() < 0.1) this.setThought("의뢰가 없군...", 30);
-                    }
+                    } else if(Math.random() < 0.1) this.setThought("의뢰가 없군...", 30);
                 }
             }
 
             useFacility(type) {
                 let fac = FACILITIES[type];
-                this.money -= fac.cost;
-                guild.money += fac.cost; 
-                
+                this.money -= fac.cost; guild.money += fac.cost; 
                 this.status = type === 'train' ? 'training' : 'resting';
-                this.actionTargetMin = guild.timeMinutes + fac.durationMin;
-                this.currentAction = type;
-                this.setThought(`[${fac.name}] 이용 중`, fac.durationMin);
-                
-                this.targetX = fac.x + (Math.random()*10 - 5);
-                this.targetY = fac.y + (Math.random()*10 - 5);
+                this.currentAction = type; this.targetMin = guild.timeMin + fac.duration;
+                this.setThought(`[${fac.name}] 이용 중`, fac.duration);
+                this.targetX = fac.x + (Math.random()*10 - 5); this.targetY = fac.y + (Math.random()*10 - 5);
             }
         }
 
         class Quest {
             constructor() {
                 this.id = 'Q_' + Date.now() + Math.floor(Math.random()*100);
-                this.title = ["고블린 부락 토벌", "상단 마차 호위", "도적단 추적", "저주받은 묘지 정화", "드래곤 둥지 수색", "희귀 약초 채집"][Math.floor(Math.random()*6)];
-                
-                let hours = 2 + Math.floor(Math.random() * 6);
-                this.durationMin = hours * 60; 
-                
-                let baseReq = 15 + (getDay() * 3);
-                this.reqPower = Math.floor(baseReq * (0.6 + Math.random() * 0.8));
+                this.title = ["고블린 토벌", "마차 호위", "도적단 추적", "묘지 정화", "드래곤 수색", "약초 채집"][Math.floor(Math.random()*6)];
+                this.durationMin = (2 + Math.floor(Math.random() * 6)) * 60; 
+                this.reqPower = Math.floor((15 + getDay() * 2) * (0.6 + Math.random() * 0.8));
                 this.reqStamina = 20 + Math.floor(Math.random() * 20); 
-                
-                this.reward = this.reqPower * (5 + Math.floor(Math.random() * 5)); 
-                this.assignedMercId = null;
+                this.reward = this.reqPower * (4 + Math.floor(Math.random() * 4)); 
+                this.assignedMercId = null; this.targetMin = 0;
             }
         }
 
         // ==========================================
-        // 4. 화면 렌더링 함수
+        // 3. 간결해진 렌더링
         // ==========================================
-        function formatTimeLeft(targetMin) {
-            let remain = targetMin - guild.timeMinutes;
-            if(remain <= 0) return "완료 중...";
-            let h = Math.floor(remain / 60);
-            let m = Math.floor(remain % 60);
-            return h > 0 ? `${h}시간 ${m}분` : `${m}분`;
-        }
-
-        function updateHeader() {
-            let hStr = getHour().toString().padStart(2, '0');
-            let mStr = getMinute().toString().padStart(2, '0');
-            document.getElementById('ui-time').innerText = `DAY ${getDay()} [ ${hStr}:${mStr} ]`;
-            
-            let timeRatio = ((getHour() + getMinute() / 60) / 24) * 100;
-            document.getElementById('ui-time-bar').style.width = `${timeRatio}%`;
-
+        function updateUI() {
+            let h = getHour().toString().padStart(2, '0'), m = getMin().toString().padStart(2, '0');
+            document.getElementById('ui-time').innerText = `DAY ${getDay()} [ ${h}:${m} ]`;
+            document.getElementById('ui-time-bar').style.width = `${((getHour() + getMin() / 60) / 24) * 100}%`;
             document.getElementById('ui-money').innerText = Math.floor(guild.money).toLocaleString();
             document.getElementById('ui-cap').innerText = `${guild.roster.length} / ${guild.capacity}`;
             
             let btn = document.getElementById('btn-upgrade');
             btn.innerText = `길드 증축 (인원 +2) : ${guild.upgradeCost}G`;
             btn.disabled = guild.money < guild.upgradeCost;
-        }
 
-        function renderSidebar() {
-            const questCont = document.getElementById('quest-list');
-            questCont.innerHTML = '';
-            guild.quests.forEach((q) => {
-                let statusUI = "";
+            document.getElementById('quest-list').innerHTML = guild.quests.map(q => {
+                let status = "", ratio = 0;
                 if(q.assignedMercId) {
                     let m = guild.roster.find(m => m.id === q.assignedMercId);
-                    let remainRatio = Math.max(0, (q.actionTargetMin - guild.timeMinutes) / q.durationMin);
-                    statusUI = `
-                        <div style="font-size:0.75rem; color:#e74c3c; margin-top:5px;">[진행 중] 담당: ${m ? m.name : '?'}</div>
-                        <div class="prog-bg-side"><div class="prog-fill-side" style="width:${(1 - remainRatio)*100}%"></div></div>
-                        <div style="font-size:0.7rem; color:#aaa; text-align:right;">남은 시간: ${formatTimeLeft(q.actionTargetMin)}</div>
-                    `;
-                } else {
-                    statusUI = `<div style="font-size:0.75rem; color:#2ecc71; margin-top:5px;">[모집 중] 소요 시간: ${Math.floor(q.durationMin/60)}시간</div>`;
-                }
+                    ratio = Math.max(0, (q.targetMin - guild.timeMin) / q.durationMin);
+                    status = `<div style="font-size:0.75rem; color:#e74c3c;">[진행 중] ${m ? m.name : '?'}</div><div class="prog-bg-side"><div class="prog-fill-side" style="width:${(1 - ratio)*100}%"></div></div>`;
+                } else status = `<div style="font-size:0.75rem; color:#2ecc71;">[모집 중] ${Math.floor(q.durationMin/60)}시간</div>`;
+                return `<div class="list-item"><div class="list-title"><span>${q.title}</span><span style="color:var(--gold)">🪙${q.reward}G</span></div><div class="list-desc"><span>⚔️${q.reqPower} | ⚡${q.reqStamina}</span></div>${status}</div>`;
+            }).join('');
 
-                questCont.innerHTML += `
-                    <div class="list-item">
-                        <div class="list-title"><span>${q.title}</span><span style="color:var(--gold)">🪙${q.reward}G</span></div>
-                        <div class="list-desc"><span>권장: ⚔️${q.reqPower}</span><span>활력: ⚡${q.reqStamina}</span></div>
-                        ${statusUI}
-                    </div>
-                `;
-            });
-
-            const rosterCont = document.getElementById('roster-list');
-            rosterCont.innerHTML = '';
-            guild.roster.forEach((merc) => {
-                let statusStr = merc.status === 'idle' ? '대기중' : (merc.status === 'questing' ? '임무중' : '시설이용중');
-                let extUI = "";
+            document.getElementById('roster-list').innerHTML = guild.roster.map(merc => {
+                let statusStr = merc.status === 'idle' ? '대기중' : (merc.status === 'questing' ? '임무중' : '시설이용');
+                let ext = "";
                 if(merc.status === 'resting' || merc.status === 'training') {
                     let fac = FACILITIES[merc.currentAction];
-                    let remainRatio = Math.max(0, (merc.actionTargetMin - guild.timeMinutes) / fac.durationMin);
-                    extUI = `
-                        <div class="prog-bg-side"><div class="prog-fill-side" style="background:#3498db; width:${(1 - remainRatio)*100}%"></div></div>
-                        <div style="font-size:0.7rem; color:#aaa; text-align:right;">남은 시간: ${formatTimeLeft(merc.actionTargetMin)}</div>
-                    `;
+                    let ratio = Math.max(0, (merc.targetMin - guild.timeMin) / fac.duration);
+                    ext = `<div class="prog-bg-side"><div class="prog-fill-side" style="background:#3498db; width:${(1 - ratio)*100}%"></div></div>`;
                 }
-
-                rosterCont.innerHTML += `
-                    <div class="list-item" style="border-left: 3px solid ${merc.job.color}">
-                        <div class="side-merc-info">
-                            <img src="${merc.portraitUrl}" class="side-portrait">
-                            <div style="flex:1;">
-                                <div class="list-title">
-                                    <span>${merc.name} <span style="font-size:0.7rem; color:#888;">Lv.${merc.level}</span></span>
-                                    <span style="font-size:0.8rem; color:#ccc;">${statusStr}</span>
-                                </div>
-                                <div class="list-desc" style="margin-top:4px;">
-                                    <span>⚔️${merc.power} | ⚡${merc.stamina}</span>
-                                    <span style="color:var(--gold)">🪙${merc.money}G</span>
-                                </div>
-                            </div>
-                        </div>
-                        ${extUI}
-                    </div>
-                `;
-            });
+                // CSS 전용 엠블럼 토큰 렌더링
+                let emblem = `<div class="mini-portrait" style="background: linear-gradient(135deg, #111, ${merc.job.color}); border-color: ${merc.job.color}">${merc.name.charAt(0)}</div>`;
+                return `<div class="list-item" style="border-left: 3px solid ${merc.job.color}">
+                    <div class="side-merc-info">${emblem}<div style="flex:1;">
+                    <div class="list-title"><span>${merc.name} <span style="font-size:0.7rem; color:#888;">Lv.${merc.level}</span></span><span style="font-size:0.8rem; color:#ccc;">${statusStr}</span></div>
+                    <div class="list-desc" style="margin-top:2px;"><span>⚔️${merc.power} | ⚡${merc.stamina}</span><span style="color:var(--gold)">🪙${merc.money}G</span></div>
+                    </div></div>${ext}</div>`;
+            }).join('');
         }
 
         function renderFloor() {
             const container = document.getElementById('floor-container');
-            
-            // 말풍선 수명 처리
             guild.roster.forEach(merc => {
-                if(merc.showBubble && guild.timeMinutes >= merc.bubbleEndMin) {
-                    merc.showBubble = false;
-                }
-            });
-
-            guild.roster.forEach(merc => {
-                let el = document.getElementById('sprite-' + merc.id);
-                let bubble = document.getElementById('bubble-' + merc.id);
+                if(merc.showBubble && guild.timeMin >= merc.bubbleEnd) merc.showBubble = false;
                 
-                if(merc.status === 'questing') {
-                    if(el) el.style.display = 'none';
-                    return;
-                }
+                let el = document.getElementById('sprite-' + merc.id);
+                if(merc.status === 'questing') { if(el) el.style.display = 'none'; return; }
                 
                 if(!el) {
-                    el = document.createElement('div');
-                    el.id = 'sprite-' + merc.id;
-                    el.className = 'merc-sprite';
-                    
+                    el = document.createElement('div'); el.id = 'sprite-' + merc.id; el.className = 'merc-sprite';
                     el.innerHTML = `
                         <div class="floor-bubble" id="bubble-${merc.id}"></div>
-                        <img src="${merc.portraitUrl}" alt="portrait">
-                        <div class="nameplate">
-                            <span class="name-text" style="color:${merc.job.color}">${merc.name}</span>
-                            <div class="hp-bar-bg"><div class="hp-bar-fill" id="hp-${merc.id}"></div></div>
-                        </div>
-                    `;
+                        <div class="css-portrait" style="background: linear-gradient(135deg, #222, ${merc.job.color}88); border-color: ${merc.job.color}">${merc.name.charAt(0)}</div>
+                        <div class="nameplate"><span class="name-text" style="color:${merc.job.color}">${merc.name}</span>
+                        <div class="hp-bar-bg"><div class="hp-bar-fill" id="hp-${merc.id}"></div></div></div>`;
                     container.appendChild(el);
-                    bubble = document.getElementById('bubble-' + merc.id);
-                } else {
-                    el.style.display = 'flex';
-                }
+                } else el.style.display = 'flex';
                 
-                merc.tx += (merc.targetX - merc.tx) * 0.1; 
-                merc.ty += (merc.targetY - merc.ty) * 0.1;
-                el.style.left = merc.tx + '%';
-                el.style.top = merc.ty + '%';
+                merc.tx += (merc.targetX - merc.tx) * 0.1; merc.ty += (merc.targetY - merc.ty) * 0.1;
+                el.style.left = merc.tx + '%'; el.style.top = merc.ty + '%';
                 
-                document.getElementById('hp-' + merc.id).style.width = `${(merc.stamina / merc.maxStamina)*100}%`;
-                
-                if(merc.showBubble) {
-                    bubble.innerText = merc.thought;
-                    bubble.classList.add('show');
-                } else {
-                    bubble.classList.remove('show');
-                }
+                document.getElementById('hp-' + merc.id).style.width = `${(merc.stamina / 100)*100}%`;
+                let bubble = document.getElementById('bubble-' + merc.id);
+                if(merc.showBubble) { bubble.innerText = merc.thought; bubble.classList.add('show'); } 
+                else bubble.classList.remove('show');
             });
         }
 
         function showLog(msg) {
             const logBox = document.getElementById('log-container');
             document.getElementById('log-text').innerHTML = msg;
-            logBox.style.display = 'block';
-            setTimeout(() => { logBox.style.display = 'none'; }, 4000);
+            logBox.style.display = 'block'; setTimeout(() => logBox.style.display = 'none', 3000);
         }
 
         function upgradeGuild() {
             if(guild.money >= guild.upgradeCost) {
-                guild.money -= guild.upgradeCost;
-                guild.capacity += 2;
-                guild.upgradeCost = Math.floor(guild.upgradeCost * 1.5);
-                showLog(`🏰 길드 증축 완료! 최대 수용 인원이 ${guild.capacity}명으로 늘어났습니다.`);
-                updateHeader();
+                guild.money -= guild.upgradeCost; guild.capacity += 2; guild.upgradeCost = Math.floor(guild.upgradeCost * 1.5);
+                showLog(`🏰 길드 증축! 최대 인원이 ${guild.capacity}명으로 증가.`); updateUI();
             }
         }
 
         // ==========================================
-        // 5. ⏳ 정교한 메인 게임 루프 (현실 10분 = 게임 1일)
+        // 4. 메인 루프 (현실 10분 = 게임 1일)
         // ==========================================
-        // 현실 10분 = 600초 = 게임 24시간 = 1440분
-        // 현실 1초 = 게임 2.4분 경과
-        // 루프가 100ms마다 실행되므로 (1초에 10프레임)
-        // 1프레임당 게임 시간 0.24분 경과
-
+        // 현실 10분 = 600초 = 6000프레임(100ms) = 1440 게임 분
+        // 1프레임 = 0.24 게임 분 경과
+        
+        let frame = 0;
         setInterval(() => {
-            // 위치 부드럽게 렌더링
-            renderFloor();
-
-            // ⏱️ 시간 흐름 적용 (0.24분 추가)
+            frame++; renderFloor();
+            
             let prevHour = getHour();
-            guild.timeMinutes += 0.24;
-            let currentHour = getHour();
+            guild.timeMin += 0.24; 
+            let currHour = getHour();
 
-            // 1시간이 지났을 때의 이벤트 처리
-            if(currentHour !== prevHour) {
-                // 자정(0시) 일일 유지비 정산
-                if (currentHour === 0) {
-                    let maintenance = guild.roster.length * 50;
-                    guild.money -= maintenance;
-                    showLog(`🌙 자정입니다. 길드 시설 일일 유지비 -${maintenance} G 납부됨`);
+            // 1시간 마다 실행
+            if(currHour !== prevHour) {
+                if (currHour === 0) {
+                    let cost = guild.roster.length * 50; guild.money -= cost;
+                    showLog(`🌙 자정 일일 유지비 -${cost}G 납부`);
                 }
-
-                // 아침(8시) 용병 방문
-                if (currentHour === 8) {
-                    if (guild.roster.length < guild.capacity && Math.random() < 0.8) {
-                        let newMerc = new Mercenary();
-                        guild.roster.push(newMerc);
-                        showLog(`🚪 떠돌이 용병 [${newMerc.name}]이(가) 길드에 들어왔습니다.`);
-                    }
+                if (currHour === 8 && guild.roster.length < guild.capacity && Math.random() < 0.8) {
+                    guild.roster.push(new Mercenary()); showLog(`🚪 새로운 프리랜서 용병이 길드에 합류했습니다.`);
                 }
-
-                // 시간당 자연 회복
-                guild.roster.forEach(m => { 
-                    if(m.status === 'idle') m.stamina = Math.min(m.maxStamina, m.stamina + 5); 
-                });
+                guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + 5); });
             }
 
-            // AI 사고 판단 (자연스러움을 위해 확률적으로 실행)
-            guild.roster.forEach(merc => {
-                if(Math.random() < 0.05) merc.think();
-            });
+            if(frame % 20 === 0) guild.roster.forEach(m => m.think());
+            if(Math.random() < 0.005 && guild.quests.length < 5) guild.quests.push(new Quest());
 
-            // 🌟 게시판 의뢰 생성 (랜덤)
-            if(Math.random() < 0.01 && guild.quests.length < 5) {
-                guild.quests.push(new Quest());
-            }
-
-            // 🌟 상태 및 퀘스트 완료 처리
+            // 시설 및 퀘스트 완료 처리 로직 통합
             guild.roster.forEach(merc => {
                 if(merc.status === 'resting' || merc.status === 'training') {
-                    if(guild.timeMinutes >= merc.actionTargetMin) {
-                        let fac = FACILITIES[merc.currentAction];
-                        if(merc.currentAction === 'train') { 
-                            merc.basePower += fac.powerUp; merc.setThought("수련 성과가 확실하군!", 60); 
-                        } else { 
-                            merc.stamina = Math.min(merc.maxStamina, merc.stamina + fac.stamRecover); 
-                            merc.setThought("몸이 가벼워졌다.", 60); 
-                        }
+                    if(guild.timeMin >= merc.targetMin) {
+                        if(merc.currentAction === 'train') { merc.basePower += FACILITIES.train.pwr; merc.setThought("수련 성과가 확실해!", 60); } 
+                        else { merc.stamina = Math.min(100, merc.stamina + FACILITIES[merc.currentAction].stam); merc.setThought("몸이 가볍군.", 60); }
                         merc.status = 'idle'; merc.currentAction = null;
                     }
                 }
             });
 
             guild.quests.forEach((q, idx) => {
-                if (q.assignedMercId) {
-                    if (guild.timeMinutes >= q.actionTargetMin) {
-                        let merc = guild.roster.find(m => m.id === q.assignedMercId);
-                        if(merc) {
-                            merc.status = 'idle';
-                            merc.targetX = 50; merc.targetY = 85; // 복귀
-                            
-                            let winChance = Math.min(95, Math.max(10, Math.floor((merc.power / q.reqPower) * 70))); 
-                            
-                            if(Math.random() * 100 <= winChance) {
-                                // 💰 수수료 20%
-                                let guildCut = Math.floor(q.reward * 0.2); 
-                                let mercCut = q.reward - guildCut;
-                                
-                                guild.money += guildCut; 
-                                merc.money += mercCut; 
-                                merc.exp += q.expReward;
-                                
-                                merc.setThought(`의뢰 성공! 🪙${mercCut}G 벌었다.`, 120);
-                                showLog(`📜 ${merc.name} 의뢰 성공! (수수료 입금: +${guildCut} G)`);
-                            } else {
-                                merc.exp += Math.floor(q.expReward / 2);
-                                merc.setThought("죽을 뻔했네... 의뢰 실패다.", 120);
-                            }
+                if (q.assignedMercId && guild.timeMin >= q.targetMin) {
+                    let merc = guild.roster.find(m => m.id === q.assignedMercId);
+                    if(merc) {
+                        merc.status = 'idle'; merc.targetX = 50; merc.targetY = 85; 
+                        let win = Math.min(95, Math.max(10, Math.floor((merc.power / q.reqPower) * 70))); 
+                        if(Math.random() * 100 <= win) {
+                            let gCut = Math.floor(q.reward * 0.2); 
+                            guild.money += gCut; merc.money += (q.reward - gCut); merc.exp += q.reqPower * 2;
+                            merc.setThought(`의뢰 성공! 돈 벌었다.`, 120);
+                            showLog(`📜 ${merc.name} 의뢰 성공! (길드 수수료: +${gCut} G)`);
+                            if(merc.exp >= merc.level * 100) { merc.exp -= merc.level*100; merc.level++; }
+                        } else {
+                            merc.exp += q.reqPower; merc.setThought("실패다... 아파...", 120);
                         }
-                        guild.quests.splice(idx, 1);
                     }
+                    guild.quests.splice(idx, 1);
                 }
             });
 
-            updateHeader();
-            renderSidebar();
-        }, 100); // 100ms 마다 0.24분 경과
+            if(frame % 10 === 0) updateUI();
+        }, 100);
 
-        // 초기화
-        for(let i=0;i<3;i++) guild.roster.push(new Mercenary());
-        for(let i=0;i<3;i++) guild.quests.push(new Quest());
-        updateHeader();
-        renderSidebar();
-
+        for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
+        updateUI();
     </script>
 </body>
 </html>
