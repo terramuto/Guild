@@ -68,7 +68,7 @@
             overflow: hidden;
         }
 
-        /* 길드 바닥 원근감 선 (디테일) */
+        /* 길드 바닥 원근감 선 */
         .hall-perspective {
             position: absolute; top: 35%; left: 0; width: 100%; height: 65%;
             background-image: 
@@ -103,7 +103,6 @@
         /* 🚶 용병 아바타 (원근감 적용) */
         .merc-sprite {
             position: absolute; 
-            /* 바닥 기준점(발)을 (x, y)에 맞추기 위해 translate(-50%, -100%) 사용 */
             transform: translate(-50%, -100%); 
             transition: top 0.3s linear, left 0.3s linear, transform 0.3s linear;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
@@ -167,6 +166,11 @@
         }
         button.upgrade-btn:hover:not(:disabled) { background: linear-gradient(to bottom, #9b59b6, #732d91); transform: translateY(-2px);}
         button.upgrade-btn:disabled { background: #333; color: #777; cursor: not-allowed; transform: none; box-shadow: none;}
+
+        button.reset-btn {
+            background: #c0392b; border: 2px solid #111; color: #fff; padding: 10px; border-radius: 6px; font-weight: 900; cursor: pointer; margin: 0 15px 15px 15px;
+        }
+        button.reset-btn:hover { background: #e74c3c; }
 
         #log-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(20, 10, 5, 0.95); padding: 12px 25px; border-radius: 8px; border: 2px solid #f1c40f; display: none; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.8); pointer-events: none;}
         #log-text { color: #fff; font-weight: 900; font-size: 1rem; }
@@ -260,9 +264,10 @@
                 <div class="panel-header">🛡️ 머무는 용병 명부</div>
                 <div class="panel-content" id="roster-list"></div>
                 <button class="upgrade-btn" id="btn-upgrade" onclick="upgradeGuild()">길드 증축 (최대 수용 인원 +2) : 1000G</button>
+                <button class="reset-btn" onclick="resetGame()">🔄 데이터 전체 초기화 (새 게임)</button>
             </div>
             <div class="panel" style="flex: 1;">
-                <div class="panel-header">📜 진행 및 대기 의뢰 (수수료 20%)</div>
+                <div class="panel-header">📜 진행 및 대기 의뢰 (수수료 수익 20%)</div>
                 <div class="panel-content" id="quest-list"></div>
             </div>
         </div>
@@ -276,14 +281,9 @@
         // ==========================================
         const NAMES = [
             "아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", 
-            "로웬", "미아", "에반", "루나", "시온", "프레이", "레온", "클레어", "디안", "노아"
+            "로웬", "미아", "에반", "루나", "시온", "프레이", "레온", "클레어", "디안", "노아", 
+            "레이나", "이안", "로제", "카밀라", "리온", "루카스", "실비아", "아리안", "헥터", "베른"
         ];
-
-        const IMAGE_DB = {
-            "W_0": ["W1", "W2", "W3", "W4", "W5"], "A_0": ["A1", "A2", "A3", "A4", "A5"],
-            "R_0": ["R1", "R2", "R3", "R4", "R5"], "M_0": ["M1", "M2", "M3", "M4", "M5"],
-            "C_0": ["C1", "C2", "C3", "C4", "C5"]
-        };
 
         const CLASS_DB = {
             "W_0": { tier: 0, name: "초보 전사", color: "#e74c3c", nextJobs: ["W_1"], req: 0, cost: 0 },
@@ -334,6 +334,9 @@
             shop:  { name: "상점", x: 75, y: 60 }
         };
 
+        // 💾 오토 세이브 키 설정
+        const SAVE_KEY = "fantasyGuild_AutoSave";
+
         let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
         let gameSpeed = 1; 
 
@@ -351,8 +354,7 @@
                 this.name = NAMES[Math.floor(Math.random() * NAMES.length)];
                 this.baseJobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
                 this.jobId = this.baseJobId; 
-                let seed = IMAGE_DB[this.baseJobId][Math.floor(Math.random() * 5)];
-                this.portraitUrl = `https://api.dicebear.com/9.x/lorelei/svg?seed=${seed}&backgroundColor=transparent`;
+                this.portraitSeed = Math.floor(Math.random() * 1000);
                 
                 this.level = 1; this.exp = 0; this.equipTier = 0;
                 this.basePower = 15 + Math.floor(Math.random() * 10);
@@ -362,12 +364,13 @@
                 this.targetMin = 0; this.currentAction = null; 
                 this.thought = "대기 중..."; this.showBubble = false; this.bubbleEnd = 0;
                 
-                // 생성 시 앞쪽(가까운 곳)에서 시작
+                // 생성 시 앞쪽(가깝게)에서 등장
                 this.tx = 50; this.ty = 90; this.targetX = 50; this.targetY = 50;
             }
 
             get job() { return CLASS_DB[this.jobId]; }
             get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
+            get portraitUrl() { return `https://api.dicebear.com/9.x/lorelei/svg?seed=${this.baseJobId}_${this.portraitSeed}&backgroundColor=transparent`; }
 
             setThought(text, durationGameMins = 30) {
                 this.thought = text; this.showBubble = true;
@@ -453,7 +456,7 @@
                 this.status = type === 'train' ? 'training' : 'resting';
                 this.currentAction = type; this.targetMin = guild.timeMin + fac.duration;
                 this.setThought(`[${fac.name}] 간다`, fac.duration);
-                // 해당 시설 근처로 위치 지정
+                // 시설 위치 주변으로 이동
                 this.targetX = fac.x + (Math.random()*10 - 5); this.targetY = fac.y + (Math.random()*10 - 5);
             }
         }
@@ -482,7 +485,55 @@
         }
 
         // ==========================================
-        // 3. UI 조작 및 1인칭 렌더링
+        // 💾 강력한 오토 세이브 시스템
+        // ==========================================
+        function saveGameLocally() {
+            let data = {
+                t: guild.timeMin, m: guild.money, c: guild.capacity, u: guild.upgradeCost,
+                r: guild.roster.map(m => [m.id, m.name, m.baseJobId, m.jobId, m.portraitSeed, m.level, m.exp, m.equipTier, m.basePower, m.money, m.stamina, m.status, m.currentAction, m.targetMin]),
+                q: guild.quests.map(q => [q.id, q.title, q.durationMin, q.reqPower, q.reqStamina, q.reward, q.assignedMercId, q.targetMin, q.isParty?1:0, q.partyIds||[], q.maxParty||0, q.departed?1:0, q.gatherStartMin||0])
+            };
+            try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e){}
+        }
+
+        function restoreGameLocally(jsonStr) {
+            let d = JSON.parse(jsonStr);
+            guild.timeMin = d.t; guild.money = d.m; guild.capacity = d.c; guild.upgradeCost = d.u;
+            
+            guild.roster = [];
+            for(let arr of d.r) {
+                let m = new Mercenary();
+                m.id=arr[0]; m.name=arr[1]; m.baseJobId=arr[2]; m.jobId=arr[3]; m.portraitSeed=arr[4];
+                m.level=arr[5]; m.exp=arr[6]; m.equipTier=arr[7]; m.basePower=arr[8]; m.money=arr[9];
+                m.stamina=arr[10]; m.status=arr[11]; m.currentAction=arr[12]; m.targetMin=arr[13];
+                m.showBubble = false;
+                guild.roster.push(m);
+            }
+            
+            guild.quests = [];
+            for(let arr of d.q) {
+                let q = new Quest();
+                q.id=arr[0]; q.title=arr[1]; q.durationMin=arr[2]; q.reqPower=arr[3]; q.reqStamina=arr[4];
+                q.reward=arr[5]; q.assignedMercId=arr[6]; q.targetMin=arr[7];
+                q.isParty=!!arr[8]; q.partyIds=arr[9]||[]; q.maxParty=arr[10]||0; q.departed=!!arr[11]; q.gatherStartMin=arr[12]||0;
+                guild.quests.push(q);
+            }
+        }
+
+        function initNewGame() {
+            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
+            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
+        }
+
+        function resetGame() {
+            if(confirm("모든 데이터를 삭제하고 처음부터 다시 시작하시겠습니까?")) {
+                localStorage.removeItem(SAVE_KEY);
+                location.reload(); // 페이지 새로고침으로 완벽 리셋
+            }
+        }
+
+        // ==========================================
+        // 3. UI 탭 전환 및 조작
         // ==========================================
         function switchTab(tabId) {
             document.getElementById('view-hall').style.display = tabId === 'floor' ? 'block' : 'none';
@@ -506,6 +557,7 @@
                     <div class="dict-item" style="border-color:${c.color}">
                         <div style="font-weight:900; color:${c.color}">${c.tier}차: ${c.name}</div>
                         <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">다음: ${nextStr}</div>
+                        <div style="font-size:0.75rem; color:var(--gold); margin-top:2px;">승급 심사: ${c.cost}G</div>
                     </div>`;
             }
             document.getElementById('dict-screen').style.display = 'flex';
@@ -563,14 +615,14 @@
         function renderFloor() {
             if(document.getElementById('view-hall').style.display === 'none') return;
 
-            // 시설 배경(스탠드) 원근감 세팅 (최초 1회 배치)
+            // 시설 배경(스탠드) 세팅
             for(let key in FACILITIES) {
                 let f = FACILITIES[key];
                 let el = document.getElementById('fac-' + key);
                 if(el) {
-                    let yDepth = f.y; // 0:벽끝 ~ 100:내앞
-                    let renderTop = 35 + (yDepth * 0.65); // 35% ~ 100% 화면 높이로 매핑
-                    let scale = 0.5 + (yDepth * 0.006); // 멀면 작게, 가까우면 크게
+                    let yDepth = f.y; 
+                    let renderTop = 35 + (yDepth * 0.65); 
+                    let scale = 0.5 + (yDepth * 0.006); 
                     
                     el.style.left = f.x + '%';
                     el.style.top = renderTop + '%';
@@ -579,7 +631,6 @@
                 }
             }
 
-            // 용병 아바타 렌더링
             const container = document.getElementById('view-hall');
             guild.roster.forEach(merc => {
                 if(merc.showBubble && guild.timeMin >= merc.bubbleEnd) merc.showBubble = false;
@@ -601,15 +652,15 @@
                 merc.tx += (merc.targetX - merc.tx) * Math.min(1, spd); 
                 merc.ty += (merc.targetY - merc.ty) * Math.min(1, spd);
                 
-                // 🌟 원근감 (Perspective) 핵심 계산 🌟
-                let yDepth = Math.max(0, Math.min(100, merc.ty)); // 0(멀다) ~ 100(가깝다)
-                let renderTop = 35 + (yDepth * 0.65); // 바닥 시작점(35%)에서 화면 맨 아래(100%)로 매핑
-                let scale = 0.5 + (yDepth * 0.007); // 0.5배율에서 최대 1.2배율까지 커짐
+                // 🌟 원근감 핵심 계산
+                let yDepth = Math.max(0, Math.min(100, merc.ty)); 
+                let renderTop = 35 + (yDepth * 0.65); 
+                let scale = 0.5 + (yDepth * 0.007); 
 
                 el.style.left = merc.tx + '%'; 
                 el.style.top = renderTop + '%';
                 el.style.transform = `translate(-50%, -100%) scale(${scale})`;
-                el.style.zIndex = Math.floor(yDepth) + 1; // Y값이 클수록(가까울수록) 화면 앞쪽에 렌더링
+                el.style.zIndex = Math.floor(yDepth) + 1; 
                 
                 document.getElementById('hp-' + merc.id).style.width = `${(merc.stamina / 100)*100}%`;
                 let bubble = document.getElementById('bubble-' + merc.id);
@@ -632,14 +683,33 @@
         }
 
         // ==========================================
-        // 4. 메인 루프 실행 (휘발성)
+        // 4. 메인 루프 (자동저장 포함)
         // ==========================================
         window.onload = () => {
-            guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
-            for(let i=0;i<3;i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
+            // 브라우저 닫기/새로고침 시 마지막 저장
+            window.addEventListener('beforeunload', saveGameLocally);
+
+            // 기기 오토세이브 로드
+            let saved = localStorage.getItem(SAVE_KEY);
+            if(saved) {
+                try { 
+                    restoreGameLocally(saved); 
+                    showLog("✅ 기기에 저장된 데이터를 불러왔습니다."); 
+                } catch(e) { 
+                    initNewGame(); 
+                    showLog("⚠️ 이전 데이터가 호환되지 않아 새로 시작합니다."); 
+                }
+            } else { 
+                initNewGame(); 
+            }
             
             updateUI(); 
             let frame = 0;
+
+            // 5초(50프레임) 마다 오토 세이브 진행
+            setInterval(() => {
+                if(frame % 50 === 0) saveGameLocally();
+            }, 100);
 
             setInterval(() => {
                 frame++; renderFloor();
@@ -653,10 +723,10 @@
                         showLog(`🌙 자정 일일 유지비 -${cost}G 납부`);
                     }
                     if (currHour === 8 && guild.roster.length < guild.capacity && Math.random() < 0.8) {
-                        guild.roster.push(new Mercenary()); showLog(`🚪 새로운 용병이 합류했습니다.`);
+                        guild.roster.push(new Mercenary()); showLog(`🚪 새로운 프리랜서 용병이 합류했습니다.`);
                     }
-                    if (currHour === 18) showLog(`🔒 게시판 마감. 의뢰 수주가 중단됩니다.`); 
-                    if (currHour === 7) showLog(`🔓 게시판이 오픈되었습니다.`); 
+                    if (currHour === 18) showLog(`🔒 길드 의뢰 게시판이 마감되었습니다.`); 
+                    if (currHour === 7) showLog(`🔓 길드 의뢰 게시판이 오픈되었습니다.`); 
 
                     guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + 5); });
                 }
