@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#120703">
-    <title>판타지 용병 여관 (256-Unit HD Micro-Pixel)</title>
+    <title>판타지 용병 여관 ( 영구 세이브 연동판 )</title>
     
     <link href="https://fonts.googleapis.com/css2?family=DungGeunMo&family=Noto+Sans+KR:wght@600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -179,7 +179,6 @@
         /* ================== 🍻 뷰 1: 256 마이크로 텍스처 여관 홀 ================== */
         #view-hall {
             overflow: hidden;
-            /* 정교한 256단위 마이크로 타일 바닥 & 미세 디더링 */
             background: 
                 radial-gradient(circle at 50% 25%, rgba(255, 190, 90, 0.35) 0%, rgba(13, 5, 2, 0.96) 82%),
                 repeating-linear-gradient(0deg, #2d1408 0px, #2d1408 8px, #1a0a04 8px, #1a0a04 9px, #381a0b 9px, #381a0b 16px, #130702 16px, #130702 17px),
@@ -244,7 +243,6 @@
         }
         .floor-bubble.show { opacity: 1; }
 
-        /* 256 단위 고해상도 아바타 프레임 (마이크로 픽셀 브라켓) */
         .merc-emblem {
             width: 46px; height: 46px;
             border: 2px solid #0a0402;
@@ -268,7 +266,6 @@
         }
         .name-text { font-size: 0.65rem; font-family: var(--font-pixel); text-shadow: 1px 1px 0 #000; }
         
-        /* 마이크로 도트 체력바 (세밀한 256분할 눈금선) */
         .hp-bar-bg {
             width: 32px; height: 4px; background: #080301;
             border: 1px solid var(--hd-wood-900); overflow: hidden; position: relative;
@@ -308,7 +305,6 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* 256-마이크로 코너 브라켓 양피지 카드 */
         .idle-card {
             background: var(--hd-parch-base);
             color: var(--hd-parch-ink);
@@ -605,7 +601,7 @@
 
 <script>
     // ==========================================
-    // 🌟 1. 데이터 베이스 (256-유닛 고밀도 마이크로 아바타)
+    // 🌟 1. 데이터 베이스
     // ==========================================
     const NAMES = [
         "아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", 
@@ -613,7 +609,6 @@
         "레이나", "이안", "로제", "카밀라", "리온", "루카스", "실비아", "아리안", "헥터", "베른"
     ];
 
-    // 256 해상도 고밀도 판타지 스프라이트 시드
     const IMAGE_DB = {
         "W_0": ["Alexander", "Galahad", "Valerius", "Kaelen", "Thorin"],
         "A_0": ["Robin", "Artemis", "Faye", "Silas", "Hawke"],
@@ -683,7 +678,20 @@
         shop:   { name: "대장간", x: 74, y: 60 }
     };
 
-    const SAVE_KEY = "fantasyGuild_Tavern_v12_256micro";
+    // ==========================================
+    // 💾 영구 고정 저장소 키 & 구버전 자동 마이그레이션 목록
+    // ==========================================
+    const SAVE_KEY = "fantasyGuild_MasterSave";
+
+    const PREVIOUS_KEYS = [
+        "fantasyGuild_Tavern_v12_256micro",
+        "fantasyGuild_Tavern_v11_finepixel",
+        "fantasyGuild_Tavern_v10",
+        "fantasyGuild_AutoSave_v9_mobile",
+        "fantasyGuild_AutoSave_v8",
+        "fantasyGuild_AutoSave_v7",
+        "fantasyGuild_AutoSave_v6"
+    ];
 
     let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
     let gameSpeed = 1; 
@@ -704,7 +712,6 @@
             this.baseJobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
             this.jobId = this.baseJobId; 
             
-            // 256 해상도 기반의 정밀 마이크로 캐릭터 아바타
             let seedBase = IMAGE_DB[this.baseJobId][Math.floor(Math.random() * IMAGE_DB[this.baseJobId].length)];
             this.portraitSeed = `${seedBase}_${Math.floor(Math.random()*999)}`;
             this.portraitUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${this.portraitSeed}&backgroundColor=transparent`;
@@ -1187,7 +1194,7 @@
     }
 
     // ==========================================
-    // 💾 오토 세이브 & 라이프사이클
+    // 💾 영구 로컬 저장 및 구버전 데이터 복원
     // ==========================================
     function saveGameLocally() {
         let data = {
@@ -1200,27 +1207,51 @@
 
     function restoreGameLocally(jsonStr) {
         let d = JSON.parse(jsonStr);
-        guild.timeMin = d.t; guild.money = d.m; guild.capacity = d.c; guild.upgradeCost = d.u;
+        guild.timeMin = d.t ?? 480;
+        guild.money = d.m ?? 500;
+        guild.capacity = d.c ?? 5;
+        guild.upgradeCost = d.u ?? 1000;
         
         guild.roster = [];
-        for(let arr of d.r) {
+        for(let arr of (d.r || [])) {
             let m = new Mercenary();
-            m.id = arr[0]; m.name = arr[1]; m.baseJobId = arr[2]; m.jobId = arr[3];
+            m.id = arr[0]; 
+            m.name = arr[1]; 
+            m.baseJobId = arr[2]; 
+            m.jobId = arr[3];
             m.portraitSeed = arr[4] || 'Alexander_1';
             m.portraitUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${m.portraitSeed}&backgroundColor=transparent`;
-            m.level = arr[5]; m.exp = arr[6]; m.equipTier = arr[7]; m.basePower = arr[8]; m.money = arr[9];
-            m.stamina = arr[10]; m.status = arr[11] === 'moving' ? 'idle' : arr[11];
-            m.currentAction = arr[12]; m.targetMin = arr[13]; m.pendingAction = null; 
+            m.level = arr[5] ?? 1; 
+            m.exp = arr[6] ?? 0; 
+            m.equipTier = arr[7] ?? 0; 
+            m.basePower = arr[8] ?? 15; 
+            m.money = arr[9] ?? 100;
+            m.stamina = arr[10] ?? 100; 
+            m.status = arr[11] === 'moving' ? 'idle' : arr[11];
+            m.currentAction = arr[12] ?? null; 
+            m.targetMin = arr[13] ?? 0; 
+            m.pendingAction = null; 
             m.showBubble = false;
             guild.roster.push(m);
         }
         
         guild.quests = [];
-        for(let arr of d.q) {
+        for(let arr of (d.q || [])) {
             let q = new Quest();
-            q.id = arr[0]; q.title = arr[1]; q.durationMin = arr[2]; q.reqPower = arr[3]; q.reqStamina = arr[4];
-            q.reward = arr[5]; q.assignedMercId = arr[6]; q.targetMin = arr[7];
-            q.isParty = !!arr[8]; q.partyIds = arr[9]||[]; q.maxParty = arr[10]||1; q.departed = !!arr[11]; q.gatherStartMin = arr[12]||0;
+            q.id = arr[0]; 
+            q.title = arr[1]; 
+            q.durationMin = arr[2]; 
+            q.reqPower = arr[3]; 
+            q.reqStamina = arr[4];
+            q.reward = arr[5]; 
+            q.assignedMercId = arr[6] ?? null; 
+            q.targetMin = arr[7] ?? 0;
+            q.isParty = !!arr[8]; 
+            q.partyIds = arr[9] || []; 
+            q.maxParty = arr[10] || (q.isParty ? 3 : 1); 
+            q.departed = !!arr[11]; 
+            q.gatherStartMin = arr[12] || 0;
+            // 구버전 데이터에 없는 신규 항목은 기본값으로 자동 보정
             q.minParty = arr[13] || (q.isParty ? 2 : 1);
             q.minPower = arr[14] || Math.floor(q.reqPower * 0.72);
             guild.quests.push(q);
@@ -1234,25 +1265,52 @@
 
     function resetGame() {
         if(confirm("모든 데이터를 초기화하고 처음부터 다시 시작하시겠습니까?")) {
-            localStorage.removeItem(SAVE_KEY); location.reload();
+            localStorage.removeItem(SAVE_KEY); 
+            PREVIOUS_KEYS.forEach(k => localStorage.removeItem(k));
+            location.reload();
         }
     }
 
     // ==========================================
-    // 4. 메인 게임 루프
+    // 4. 메인 게임 루프 & 구버전 데이터 마이그레이션 실행
     // ==========================================
     window.onload = () => {
         window.addEventListener('beforeunload', saveGameLocally);
 
+        // 1. 고정 마스터 키에서 먼저 탐색
         let saved = localStorage.getItem(SAVE_KEY);
-        if(saved) {
-            try { restoreGameLocally(saved); showToast("여관 장부 데이터를 불러왔습니다."); } 
-            catch(e) { initNewGame(); }
-        } else { initNewGame(); }
+
+        // 2. 만약 마스터 키가 비어있다면 이전 버전 키들을 순차적으로 뒤져서 자동 복원
+        if (!saved) {
+            for (let oldKey of PREVIOUS_KEYS) {
+                let oldData = localStorage.getItem(oldKey);
+                if (oldData) {
+                    saved = oldData;
+                    // 발견 즉시 영구 마스터 키로 이전 저장
+                    localStorage.setItem(SAVE_KEY, saved);
+                    showToast("📦 이전 버전의 저장 데이터를 성공적으로 인계했습니다!");
+                    break;
+                }
+            }
+        }
+
+        // 3. 최종 데이터 복원
+        if (saved) {
+            try { 
+                restoreGameLocally(saved); 
+                showToast("여관 장부 데이터를 성공적으로 불러왔습니다."); 
+            } catch(e) { 
+                console.error("세이브 파싱 실패:", e);
+                initNewGame(); 
+            }
+        } else { 
+            initNewGame(); 
+        }
 
         updateUI();
         let frame = 0;
 
+        // 5초마다 자동 저장
         setInterval(() => { if(frame % 50 === 0) saveGameLocally(); }, 100);
 
         setInterval(() => {
