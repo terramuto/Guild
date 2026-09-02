@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 모바일 PWA 전체화면 대응 메타태그 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#120703">
-    <title>판타지 용병 여관 ( 영구 세이브 연동판 )</title>
+    <title>판타지 용병 여관 ( 대형 콘텐츠 업데이트판 )</title>
     
     <link href="https://fonts.googleapis.com/css2?family=DungGeunMo&family=Noto+Sans+KR:wght@600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -38,6 +39,7 @@
             --hd-hp-dark: #1b7a43;
             --hd-stamina: #3498db;
             --hd-danger: #e74c3c;
+            --hd-purple: #9b59b6;
 
             --font-pixel: 'DungGeunMo', monospace;
             --font-main: 'Noto Sans KR', sans-serif;
@@ -102,9 +104,17 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: var(--hd-gold-bright);
             text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0,0,0,0.8);
+        }
+        .rank-badge {
+            background: var(--hd-wood-900);
+            color: var(--hd-gold-bright);
+            border: 1px solid var(--hd-gold-rim);
+            padding: 1px 5px;
+            font-size: 0.75rem;
+            box-shadow: inset 1px 1px 0 #000;
         }
 
         .time-box {
@@ -186,6 +196,39 @@
             box-shadow: inset 0 0 70px rgba(0,0,0,0.9);
         }
 
+        /* 🐉 여관 상단 벽면 전리품 트로피 선반 */
+        .trophy-wall {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; z-index: 10; pointer-events: none;
+        }
+        .trophy-item-icon {
+            font-size: 1.4rem; opacity: 0.25; filter: grayscale(100%); transition: 0.3s;
+        }
+        .trophy-item-icon.unlocked {
+            opacity: 1; filter: drop-shadow(0 2px 4px rgba(255,215,0,0.5));
+            animation: pulseGlow 2s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* 🥊 여관 돌발 이벤트 알림 바 */
+        #event-banner {
+            position: absolute; top: 40px; left: 14px; right: 14px;
+            background: rgba(18, 5, 2, 0.95);
+            border: 2px solid var(--hd-danger);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+            padding: 8px 12px; border-radius: 4px;
+            display: none; align-items: center; justify-content: space-between;
+            z-index: 80; animation: shake 0.4s ease-in-out infinite;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
         .hall-depth-layer {
             position: absolute; top: 32%; left: 0; width: 100%; height: 68%;
             background-image: 
@@ -258,6 +301,18 @@
         .merc-sprite:active .merc-emblem { transform: scale(0.92); }
         .merc-emblem img { width: 100%; height: 100%; object-fit: cover; }
 
+        .merc-trait-tag {
+            position: absolute; top: -6px; right: -6px;
+            background: var(--hd-wood-900); border: 1px solid var(--hd-gold-bright);
+            font-size: 0.58rem; padding: 1px 3px; border-radius: 2px;
+            color: var(--hd-gold-bright); z-index: 5;
+        }
+        .merc-buff-icon {
+            position: absolute; top: -6px; left: -6px;
+            font-size: 0.75rem; z-index: 5;
+            filter: drop-shadow(0 1px 2px #000);
+        }
+
         .nameplate {
             background: #140803; padding: 2px 6px;
             border: 1px solid var(--hd-wood-900);
@@ -288,7 +343,7 @@
         }
         .desk-props { font-size: 1.4rem; filter: drop-shadow(1px 2px 0 #000); }
 
-        /* ================== 📜 256-디더링 양피지 카드 UI ================== */
+        /* ================== 📜 리스트 UI (공통) ================== */
         .list-container {
             padding: 12px;
             display: flex;
@@ -328,6 +383,7 @@
             width: 42px; height: 42px; border: 1px solid var(--hd-wood-900);
             box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 var(--hd-parch-dark), 0 2px 4px rgba(0,0,0,0.4);
             overflow: hidden; background: radial-gradient(circle, #3d1c0b, #120703); flex-shrink: 0;
+            position: relative;
         }
         .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -357,7 +413,7 @@
         .btn-action-wide:active { transform: translateY(2px); box-shadow: inset 1px 1px 0px var(--hd-wood-200), inset -1px -1px 0px #240e04, 0 1px 0 #090301; }
         .btn-action-wide:disabled { background: #332722; border-color: #1a1310; color: #695b55; box-shadow: none; cursor: not-allowed; }
 
-        /* ================== 📱 하단 256 내비바 ================== */
+        /* ================== 📱 하단 4분할 내비바 ================== */
         nav#bottom-nav {
             flex-shrink: 0;
             height: 56px;
@@ -365,7 +421,7 @@
             border-top: 2px solid var(--hd-wood-900);
             box-shadow: inset 0 1px 0 var(--hd-wood-500);
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             z-index: 100;
         }
 
@@ -381,8 +437,8 @@
             cursor: pointer;
             transition: 0.1s;
         }
-        .nav-icon { font-size: 1.15rem; }
-        .nav-label { font-size: 0.72rem; font-family: var(--font-pixel); }
+        .nav-icon { font-size: 1.1rem; }
+        .nav-label { font-size: 0.68rem; font-family: var(--font-pixel); }
         .nav-btn.active {
             background: rgba(0, 0, 0, 0.45);
             color: var(--hd-gold-bright);
@@ -462,9 +518,11 @@
 <body>
 
 <div id="app">
+    <!-- 🏰 256 HD 마이크로 헤더 -->
     <header>
         <div class="header-top">
             <div class="guild-badge">
+                <span class="rank-badge" id="ui-rank-badge">[F급]</span>
                 <span>🍺 멧돼지 여관 길드</span>
             </div>
             <div class="time-box">
@@ -477,14 +535,34 @@
         <div class="header-sub">
             <div class="resource-pill gold">🪙 <span id="ui-money">500</span> G</div>
             <div class="resource-pill cap">👥 <span id="ui-cap">0 / 5</span></div>
-            <button class="header-btn" onclick="openDict()">📖 직업 계통</button>
+            <button class="header-btn" onclick="openDict()">📖 전직 계통</button>
         </div>
     </header>
 
+    <!-- 🧭 메인 뷰 스위처 -->
     <main>
+        <!-- 뷰 1: 길드 관찰 (256 마이크로 픽셀 여관 홀) -->
         <div class="view-pane active" id="view-hall">
             <div class="hall-depth-layer"></div>
+
+            <!-- 🐉 상단 벽면 전리품 트로피 진열대 -->
+            <div class="trophy-wall">
+                <span class="trophy-item-icon" id="wall-trophy-goblin" title="고블린 왕관 (수수료 +2%)">👑</span>
+                <span class="trophy-item-icon" id="wall-trophy-bandit" title="산적단 두목 칼 (기본공격력 +5)">🗡️</span>
+                <span class="trophy-item-icon" id="wall-trophy-orc" title="오크 군단 깃발 (휴식속도 +20%)">🚩</span>
+                <span class="trophy-item-icon" id="wall-trophy-dragon" title="화룡의 해골 (파티성공률 +10%)">🐉</span>
+            </div>
+
+            <!-- 🥊 돌발 난투극 알림 바 -->
+            <div id="event-banner">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <div style="font-size:0.75rem; color:#ff7675; font-weight:800;" id="event-title">🥊 주점 취중 난투 발생!</div>
+                    <div style="font-size:0.65rem; color:#eee;" id="event-desc">용병들이 싸우고 있습니다!</div>
+                </div>
+                <button onclick="resolveBrawl()" style="background:#f39c12; border:1px solid #fff; color:#111; font-family:var(--font-pixel); font-size:0.72rem; padding:4px 8px; cursor:pointer;">🍺 골든벨 (50G)</button>
+            </div>
             
+            <!-- 길드장 카운터 데스크 소품 -->
             <div class="gm-desk">
                 <div class="desk-props">📜</div>
                 <div class="desk-props">🍺</div>
@@ -493,6 +571,7 @@
                 <div class="desk-props">🪙</div>
             </div>
 
+            <!-- 시설 NPC -->
             <div class="facility-stand" id="fac-board">
                 <div class="fac-sign">📜 의뢰 접수처</div>
                 <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/adventurer/svg?seed=Eileen&hair=long02&skinColor=f8d25c" alt="에일린"></div>
@@ -520,29 +599,65 @@
             </div>
         </div>
 
+        <!-- 뷰 2: 용병단 명부 -->
         <div class="view-pane" id="view-roster">
             <div class="list-container">
                 <div class="sub-header-banner">
-                    <span>📜 길드 숙박 용병 명부</span>
-                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);">터치하여 명령/관리</span>
+                    <span>📜 소속 용병 명부</span>
+                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);">터치하여 명령/상세</span>
                 </div>
                 <div id="roster-card-list" style="display:flex; flex-direction:column; gap:8px;"></div>
                 <button class="btn-action-wide" id="btn-upgrade" onclick="upgradeGuild()" style="margin-top:6px;">여관 침상 증축 (+2인) : 1000G</button>
-                <button onclick="resetGame()" style="background:none; border:none; color:#a06a44; font-size:0.7rem; font-family:var(--font-pixel); margin-top:8px; cursor:pointer; text-decoration:underline;">새 게임 시작 (데이터 초기화)</button>
             </div>
         </div>
 
+        <!-- 뷰 3: 의뢰 게시판 -->
         <div class="view-pane" id="view-quests">
             <div class="list-container">
                 <div class="sub-header-banner">
                     <span>📜 접수처 게시판</span>
-                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);">중개 수수료 20%</span>
+                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);" id="ui-guild-cut-text">수수료 20%</span>
                 </div>
                 <div id="quest-card-list" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
         </div>
+
+        <!-- 뷰 4: 여관 경영 (신규 콘텐츠 3종 통합) -->
+        <div class="view-pane" id="view-manage">
+            <div class="list-container">
+                <!-- 1) 길드 평판 등급 심사 -->
+                <div class="sub-header-banner">
+                    <span>👑 길드 평판 승급 심사</span>
+                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);" id="ui-rank-name">F급: 시골 주막</span>
+                </div>
+                <div class="idle-card">
+                    <div class="card-row">
+                        <span style="font-size:0.85rem;">다음 등급 심사 요구치</span>
+                        <span style="font-size:0.85rem; color:#d35400;" id="ui-rank-req">완료 의뢰: 0/5 | 1000G</span>
+                    </div>
+                    <button class="btn-action-wide" id="btn-rankup" onclick="promoteGuildRank()">길드 등급 심사 신청</button>
+                </div>
+
+                <!-- 2) 주방장 고든의 양조 & 요리 연구 -->
+                <div class="sub-header-banner" style="margin-top:6px;">
+                    <span>🍺 주방장 고든의 특선 요리 연구</span>
+                    <span style="font-size:0.72rem; color:var(--hd-gold-bright);">주점 이용 시 버프 제공</span>
+                </div>
+                <div id="kitchen-menu-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+
+                <!-- 3) 전리품 트로피 룸 -->
+                <div class="sub-header-banner" style="margin-top:6px;">
+                    <span>🐉 마수 박제 & 전리품 진열실</span>
+                    <span style="font-size:0.72rem; color:var(--hd-gold-bright);">영구 길드 패시브</span>
+                </div>
+                <div id="trophy-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+
+                <button onclick="resetGame()" style="background:none; border:none; color:#a06a44; font-size:0.7rem; font-family:var(--font-pixel); margin-top:14px; cursor:pointer; text-decoration:underline;">새 게임 시작 (데이터 전체 초기화)</button>
+            </div>
+        </div>
     </main>
 
+    <!-- 📱 하단 4분할 내비게이션 바 -->
     <nav id="bottom-nav">
         <button class="nav-btn active" id="tab-btn-hall" onclick="switchNavTab('hall')">
             <span class="nav-icon">🍺</span>
@@ -556,15 +671,23 @@
             <span class="nav-icon">📜</span>
             <span class="nav-label">의뢰소</span>
         </button>
+        <button class="nav-btn" id="tab-btn-manage" onclick="switchNavTab('manage')">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-label">여관경영</span>
+        </button>
     </nav>
 
+    <!-- 🛡️ 바텀시트: 용병 상세 관리 -->
     <div class="modal-backdrop" id="merc-modal">
         <div class="bottom-sheet">
             <div class="sheet-pill-handle"></div>
             <div style="display:flex; gap:12px; align-items:center;">
                 <div class="card-avatar" id="mmodal-portrait" style="width:48px; height:48px;"></div>
                 <div style="display:flex; flex-direction:column; gap:2px;">
-                    <div style="font-size:1.1rem; font-family:var(--font-pixel);" id="mmodal-name">아서</div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <div style="font-size:1.1rem; font-family:var(--font-pixel);" id="mmodal-name">아서</div>
+                        <span class="badge-pill" id="mmodal-trait" style="background:#2c1408; color:var(--hd-gold-bright); border-color:var(--hd-gold-rim);">애주가</span>
+                    </div>
                     <div style="font-size:0.8rem; font-weight:800;" id="mmodal-job">초보 전사</div>
                 </div>
             </div>
@@ -575,6 +698,8 @@
                 <div class="sheet-grid-item"><span>체력(기력)</span><span id="mmodal-stamina" style="color:var(--hd-stamina)">⚡ 100/100</span></div>
                 <div class="sheet-grid-item"><span>소지금</span><span id="mmodal-gold" style="color:#d35400">🪙 150</span></div>
                 <div class="sheet-grid-item" style="grid-column:span 2;"><span>착용 장비</span><span id="mmodal-equip">기본 장비</span></div>
+                <div class="sheet-grid-item" style="grid-column:span 2;"><span>성격 특성</span><span id="mmodal-trait-desc" style="color:#27ae60;">특성 효과 설명</span></div>
+                <div class="sheet-grid-item" style="grid-column:span 2;"><span>적용 버프</span><span id="mmodal-buff" style="color:#e67e22;">없음</span></div>
                 <div class="sheet-grid-item" style="grid-column:span 2;"><span>현재 상태</span><span id="mmodal-status">여관 홀에서 휴식 중</span></div>
             </div>
 
@@ -587,6 +712,7 @@
         </div>
     </div>
 
+    <!-- 📖 바텀시트: 직업 도감 -->
     <div class="modal-backdrop" id="dict-modal">
         <div class="bottom-sheet" style="max-height:80vh;">
             <div class="sheet-pill-handle"></div>
@@ -601,7 +727,7 @@
 
 <script>
     // ==========================================
-    // 🌟 1. 데이터 베이스
+    // 🌟 1. 데이터 베이스 & 신규 콘텐츠 정의
     // ==========================================
     const NAMES = [
         "아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", 
@@ -678,8 +804,45 @@
         shop:   { name: "대장간", x: 74, y: 60 }
     };
 
+    // 🧠 1. 용병 성격(트레잇) DB
+    const TRAIT_DB = {
+        "drunkard": { name: "애주가", desc: "주점 기력 회복량 1.5배 & 요리 버프 효과 2배", icon: "🍺" },
+        "leader": { name: "리더십", desc: "파티 참가 시 파티 전원 전투력 +15%", icon: "👑" },
+        "genius": { name: "대기만성", desc: "레벨업 시 기본 전투력 상승량 2배", icon: "⚡" },
+        "coward": { name: "겁쟁이", desc: "의뢰 실패 시 체력 소모 50% 절감", icon: "🏃" },
+        "perfectionist": { name: "완벽주의", desc: "의뢰 성공 시 길드 수수료 +10% 추가 헌납", icon: "💎" },
+        "brave": { name: "용맹함", desc: "자신의 전투력 항상 +15% 증가", icon: "⚔️" }
+    };
+    const TRAIT_KEYS = Object.keys(TRAIT_DB);
+
+    // 🍺 2. 주방장 고든의 요리/양조 레시피 DB
+    const KITCHEN_RECIPES = [
+        { id: "beer", name: "오크통 흑맥주", cost: 400, desc: "다음 의뢰 전투력 +20% (지속 1회)", icon: "🍺", buffType: "atk", buffVal: 0.2 },
+        { id: "roast", name: "멧돼지 통구이", cost: 1200, desc: "다음 의뢰 기력 소모 40% 감소", icon: "🍖", buffType: "stam", buffVal: 0.4 },
+        { id: "elixir", name: "용과 엘릭서", cost: 3500, desc: "경험치 획득량 2배 (지속 1회)", icon: "🧪", buffType: "exp", buffVal: 1.0 }
+    ];
+
+    // 🐉 3. 전리품 트로피 DB (영구 패시브)
+    const TROPHY_DB = {
+        "goblin": { id: "goblin", name: "고블린 왕관", req: "고블린 토벌 3회 성공", desc: "길드 수수료 기본 +2%", icon: "👑", countReq: 3 },
+        "bandit": { id: "bandit", name: "산적단 두목 칼", req: "산적단/도적 토벌 2회 성공", desc: "소속 용병 기본 전투력 +5", icon: "🗡️", countReq: 2 },
+        "orc": { id: "orc", name: "오크 군단 깃발", req: "오크 군락 소탕 성공", desc: "여관 침실 회복 속도 +20%", icon: "🚩", countReq: 1 },
+        "dragon": { id: "dragon", name: "화룡의 해골", req: "드래곤 수색 성공", desc: "파티 원정 성공률 +10%", icon: "🐉", countReq: 1 }
+    };
+
+    // 👑 4. 길드 평판 랭크 DB (F ~ S)
+    const GUILD_RANKS = [
+        { rank: "F", name: "시골 허름한 주막", reqQuests: 0, reqGold: 0 },
+        { rank: "E", name: "소문난 길드 여관", reqQuests: 5, reqGold: 800 },
+        { rank: "D", name: "유명 모험가 거점", reqQuests: 15, reqGold: 2000 },
+        { rank: "C", name: "왕국 공인 여관", reqQuests: 30, reqGold: 5000 },
+        { rank: "B", name: "대륙 최강의 전당", reqQuests: 50, reqGold: 12000 },
+        { rank: "A", name: "전설의 성채 여관", reqQuests: 80, reqGold: 25000 },
+        { rank: "S", name: "신화적 용병 연합", reqQuests: 120, reqGold: 50000 }
+    ];
+
     // ==========================================
-    // 💾 영구 고정 저장소 키 & 구버전 자동 마이그레이션 목록
+    // 💾 영구 고정 저장소 키 & 마이그레이션
     // ==========================================
     const SAVE_KEY = "fantasyGuild_MasterSave";
 
@@ -693,7 +856,16 @@
         "fantasyGuild_AutoSave_v6"
     ];
 
-    let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
+    let guild = {
+        timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000,
+        roster: [], quests: [],
+        rankIdx: 0, questsCleared: 0,
+        unlockedRecipes: [], // ['beer', ...]
+        unlockedTrophies: [], // ['goblin', ...]
+        killCounters: { goblin: 0, bandit: 0, orc: 0, dragon: 0 },
+        activeEvent: null // { type: 'brawl'|'bard', endMin: ... }
+    };
+
     let gameSpeed = 1; 
     let selectedMercId = null;
 
@@ -702,8 +874,15 @@
     function getMin() { return Math.floor(guild.timeMin % 60); }
     function isGuildOpen() { let h = getHour(); return h >= 7 && h < 18; }
 
+    function getGuildRank() { return GUILD_RANKS[guild.rankIdx]; }
+    function getGuildFeeRate() {
+        let base = 0.20;
+        if(guild.unlockedTrophies.includes('goblin')) base += 0.02;
+        return base;
+    }
+
     // ==========================================
-    // 2. 용병 & 의뢰 로직
+    // 2. 용병 & 의뢰 로직 (성격 및 요리 버프 연동)
     // ==========================================
     class Mercenary {
         constructor() {
@@ -717,9 +896,18 @@
             this.portraitUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${this.portraitSeed}&backgroundColor=transparent`;
             
             this.level = 1; this.exp = 0; this.equipTier = 0;
-            this.basePower = 15 + Math.floor(Math.random() * 10);
+            
+            // 랭크 보너스: 길드 랭크가 높을수록 능력치 높은 용병 출현
+            let bonusPwr = guild.rankIdx * 4;
+            this.basePower = 15 + Math.floor(Math.random() * 10) + bonusPwr;
             this.money = 150 + Math.floor(Math.random() * 50); 
             
+            // 🧠 고유 성격(트레잇) 부여
+            this.trait = TRAIT_KEYS[Math.floor(Math.random() * TRAIT_KEYS.length)];
+            
+            // 🍺 적용 중인 요리 버프: null 또는 { type: 'atk'|'stam'|'exp', val: 0.2, name: '...' }
+            this.buff = null;
+
             this.stamina = 100; this.status = 'idle';
             this.targetMin = 0; this.currentAction = null; 
             this.pendingAction = null;
@@ -729,7 +917,16 @@
         }
 
         get job() { return CLASS_DB[this.jobId]; }
-        get power() { return Math.floor(this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1)); }
+        get power() {
+            let p = this.basePower * (1 + this.level * 0.15) * (this.job.tier + 1);
+            if(guild.unlockedTrophies.includes('bandit')) p += 5; // 산적 칼 영구 패시브
+            if(this.trait === 'brave') p *= 1.15; // 용맹함 특성
+            if(this.buff && this.buff.type === 'atk') {
+                let m = this.trait === 'drunkard' ? this.buff.val * 2 : this.buff.val;
+                p *= (1 + m);
+            }
+            return Math.floor(p);
+        }
 
         setThought(text, durationGameMins = 30) {
             this.thought = text; this.showBubble = true;
@@ -766,9 +963,10 @@
 
             let isNight = !isGuildOpen();
 
-            // 3. 휴식
-            if(this.stamina < 30 || (isNight && this.stamina < 90)) {
-                if(this.money >= FACILITIES.inn.cost && this.stamina < 60) return this.moveToFacility('inn');
+            // 3. 휴식 및 주점 요리 섭취 (애주가는 주점 선호)
+            let needDrink = (this.trait === 'drunkard' && Math.random() < 0.3 && this.stamina < 80);
+            if(this.stamina < 30 || (isNight && this.stamina < 90) || needDrink) {
+                if(this.money >= FACILITIES.inn.cost && this.stamina < 50 && this.trait !== 'drunkard') return this.moveToFacility('inn');
                 if(this.money >= FACILITIES.tavern.cost) return this.moveToFacility('tavern');
                 if(isNight) return this.setThought("노숙 신세구만...", 40);
                 else return this.setThought("피곤한데 돈이 없네...", 40);
@@ -785,7 +983,10 @@
                 let avail = guild.quests.filter(q => !q.departed && (!q.isParty ? !q.assignedMercId : q.partyIds.length < q.maxParty)).sort((a,b) => b.reward - a.reward);
                 if(avail.length > 0) {
                     for(let q of avail) {
-                        if(this.stamina >= q.reqStamina) {
+                        let requiredStamina = q.reqStamina;
+                        if(this.buff && this.buff.type === 'stam') requiredStamina = Math.floor(requiredStamina * (1 - this.buff.val));
+                        
+                        if(this.stamina >= requiredStamina) {
                             if(!q.isParty) {
                                 q.assignedMercId = this.id;
                                 this.status = 'moving';
@@ -835,8 +1036,23 @@
                 let fac = FACILITIES[target];
                 this.money -= fac.cost; guild.money += fac.cost; 
                 this.status = target === 'train' ? 'training' : 'resting';
-                this.currentAction = target; this.targetMin = guild.timeMin + fac.duration;
-                this.setThought(`[${fac.name}] 이용 중...`, fac.duration);
+                
+                let duration = fac.duration;
+                if(target === 'inn' && guild.unlockedTrophies.includes('orc')) duration = Math.floor(duration * 0.8);
+                
+                this.currentAction = target; this.targetMin = guild.timeMin + duration;
+
+                // 주방 이용 시 고든의 요리 버프 자동 섭취
+                if(target === 'tavern' && guild.unlockedRecipes.length > 0) {
+                    let highestRecipeId = guild.unlockedRecipes[guild.unlockedRecipes.length - 1];
+                    let r = KITCHEN_RECIPES.find(x => x.id === highestRecipeId);
+                    if(r) {
+                        this.buff = { type: r.buffType, val: r.buffVal, name: r.name, icon: r.icon };
+                        this.setThought(`고든의 [${r.name}] 먹고 든든해졌다!`, 60);
+                    }
+                } else {
+                    this.setThought(`[${fac.name}] 이용 중...`, duration);
+                }
             }
             else if(type === 'quest') {
                 let q = guild.quests.find(x => x.id === target);
@@ -845,11 +1061,15 @@
                         q.assignedMercId = null;
                         this.status = 'idle';
                         this.setThought(`에일린: "전투력 ⚔️${q.minPower} 이상이어야 해요!"`, 80);
-                        showToast(`🚫 [접수 거절] 에일린: "${this.name}님은 전투력(⚔️${this.power}/${q.minPower}) 미달로 반려되었습니다."`);
+                        showToast(`🚫 [접수 거절] 에일린: "${this.name}님은 전투력 미달로 반려되었습니다."`);
                         return;
                     }
 
-                    this.stamina -= q.reqStamina; this.status = 'questing';
+                    let requiredStamina = q.reqStamina;
+                    if(this.buff && this.buff.type === 'stam') requiredStamina = Math.floor(requiredStamina * (1 - this.buff.val));
+                    this.stamina -= requiredStamina;
+                    
+                    this.status = 'questing';
                     q.departed = true; q.targetMin = guild.timeMin + q.durationMin; this.targetMin = q.targetMin;
                     this.setThought(`[${q.title}] 출격 완료!`, 60);
                     showToast(`⚔️ [${this.name}] 의뢰 출격!`);
@@ -863,11 +1083,15 @@
                         q.partyIds = q.partyIds.filter(id => id !== this.id);
                         this.status = 'idle';
                         this.setThought(`에일린: "파티 최소 권장치(⚔️${memberMinPower})에 못 미쳐요!"`, 80);
-                        showToast(`🚫 [접수 거절] 에일린: "${this.name}님은 파티 참가 자격이 부족합니다."`);
+                        showToast(`🚫 [접수 거절] 에일린: "${this.name}님은 파티 자격 미달입니다."`);
                         return;
                     }
 
-                    this.stamina -= q.reqStamina; this.status = 'gathering';
+                    let requiredStamina = q.reqStamina;
+                    if(this.buff && this.buff.type === 'stam') requiredStamina = Math.floor(requiredStamina * (1 - this.buff.val));
+                    this.stamina -= requiredStamina;
+                    
+                    this.status = 'gathering';
                     this.setThought(`파티원 기다리는 중...`, 60);
                 } else this.status = 'idle';
             }
@@ -893,13 +1117,16 @@
             this.departed = false;
             this.durationMin = (2 + Math.floor(Math.random() * 4)) * 60; 
             
-            let baseReq = 16 + (getDay() * 3);
+            // 랭크가 높을수록 보상과 난이도가 함께 상승
+            let rankScale = 1 + (guild.rankIdx * 0.25);
+            let baseReq = (16 + (getDay() * 3)) * rankScale;
             if(this.isParty) baseReq *= 2.6; 
+            
             this.reqPower = Math.floor(baseReq * (0.8 + Math.random() * 0.6));
             this.minPower = Math.floor(this.reqPower * 0.72);
 
             this.reqStamina = 20 + Math.floor(Math.random() * 20); 
-            this.reward = this.reqPower * (5 + Math.floor(Math.random() * 3)); 
+            this.reward = Math.floor(this.reqPower * (5 + Math.floor(Math.random() * 3))); 
             this.targetMin = 0;
         }
     }
@@ -972,11 +1199,16 @@
         jobEl.innerText = `${m.job.tier}차 [${m.job.name}]`;
         jobEl.style.color = m.job.color;
 
+        let traitObj = TRAIT_DB[m.trait];
+        document.getElementById('mmodal-trait').innerText = `${traitObj.icon} ${traitObj.name}`;
+        document.getElementById('mmodal-trait-desc').innerText = traitObj.desc;
+
         document.getElementById('mmodal-lv').innerText = `Lv.${m.level} (${m.exp}/${m.level*100})`;
         document.getElementById('mmodal-power').innerText = `⚔️ ${m.power}`;
         document.getElementById('mmodal-stamina').innerText = `⚡ ${Math.floor(m.stamina)} / 100`;
         document.getElementById('mmodal-gold').innerText = `🪙 ${m.money}`;
         document.getElementById('mmodal-equip').innerText = m.equipTier === 0 ? "기본 장비" : EQUIP_SHOP[m.equipTier - 1].name;
+        document.getElementById('mmodal-buff').innerText = m.buff ? `${m.buff.icon} ${m.buff.name}` : "없음";
 
         let statusNames = { 'idle': '여관 홀에서 휴식', 'moving': '시설 이동 중', 'gathering': '파티 결성 대기', 'questing': '원정 의뢰 수행 중', 'resting': '기력 회복 중', 'training': '수련장에서 특훈 중' };
         document.getElementById('mmodal-status').innerText = statusNames[m.status] || m.status;
@@ -1039,10 +1271,61 @@
         }
     }
 
+    // 🍺 요리 연구 함수
+    function researchRecipe(recipeId) {
+        let r = KITCHEN_RECIPES.find(x => x.id === recipeId);
+        if(!r) return;
+        if(guild.unlockedRecipes.includes(recipeId)) return;
+        if(guild.money < r.cost) return showToast(`⚠️ 연구 자금이 부족합니다 (필요: ${r.cost}G)`);
+
+        guild.money -= r.cost;
+        guild.unlockedRecipes.push(recipeId);
+        showToast(`🍳 [${r.name}] 요리 개발 완료! 주점 메뉴에 추가되었습니다.`);
+        updateUI();
+    }
+
+    // 👑 길드 승급 심사 신청
+    function promoteGuildRank() {
+        if(guild.rankIdx >= GUILD_RANKS.length - 1) return showToast("이미 최고 등급(S급)입니다!");
+        let nextRank = GUILD_RANKS[guild.rankIdx + 1];
+
+        if(guild.questsCleared < nextRank.reqQuests) {
+            return showToast(`⚠️ 완료 의뢰 수 부족 (${guild.questsCleared}/${nextRank.reqQuests})`);
+        }
+        if(guild.money < nextRank.reqGold) {
+            return showToast(`⚠️ 승급 심사비 부족 (${Math.floor(guild.money)}/${nextRank.reqGold}G)`);
+        }
+
+        guild.money -= nextRank.reqGold;
+        guild.rankIdx++;
+        showToast(`🎉 축하합니다! 길드가 [${nextRank.rank}급: ${nextRank.name}]으로 승급했습니다!`);
+        updateUI();
+    }
+
+    // 🥊 취중 난투극 수습 (골든벨)
+    function resolveBrawl() {
+        if(!guild.activeEvent || guild.activeEvent.type !== 'brawl') return;
+        if(guild.money < 50) return showToast("⚠️ 골든벨 자금이 부족합니다 (50G 필요)");
+
+        guild.money -= 50;
+        let [m1, m2] = guild.activeEvent.mercIds.map(id => guild.roster.find(x => x.id === id)).filter(Boolean);
+        if(m1) m1.setThought("길드장님이 쏜 맥주 마시고 화해했다!", 60);
+        if(m2) m2.setThought("내가 참는다, 크하하!", 60);
+
+        guild.activeEvent = null;
+        document.getElementById('event-banner').style.display = 'none';
+        showToast("🍺 골든벨을 울려 난투를 진압했습니다! (+우호도)");
+        updateUI();
+    }
+
     function updateUI() {
         let h = getHour().toString().padStart(2, '0'), m = getMin().toString().padStart(2, '0');
         document.getElementById('ui-day').innerText = `D.${getDay()}`;
         document.getElementById('ui-clock').innerText = `${h}:${m}`;
+        
+        let curRank = getGuildRank();
+        document.getElementById('ui-rank-badge').innerText = `[${curRank.rank}급]`;
+
         let statusEl = document.getElementById('ui-open-status');
         if(isGuildOpen()) {
             statusEl.className = "open-status open"; statusEl.innerText = "영업중";
@@ -1052,10 +1335,22 @@
 
         document.getElementById('ui-money').innerText = Math.floor(guild.money).toLocaleString();
         document.getElementById('ui-cap').innerText = `${guild.roster.length} / ${guild.capacity}`;
+        document.getElementById('ui-guild-cut-text').innerText = `수수료 ${Math.floor(getGuildFeeRate() * 100)}%`;
 
         let btnUp = document.getElementById('btn-upgrade');
-        btnUp.innerText = `여관 침상 증축 (+2인) : ${guild.upgradeCost}G`;
-        btnUp.disabled = guild.money < guild.upgradeCost;
+        if(btnUp) {
+            btnUp.innerText = `여관 침상 증축 (+2인) : ${guild.upgradeCost}G`;
+            btnUp.disabled = guild.money < guild.upgradeCost;
+        }
+
+        // 트로피 벽면 아이콘 활성화
+        for(let key in TROPHY_DB) {
+            let el = document.getElementById('wall-trophy-' + key);
+            if(el) {
+                if(guild.unlockedTrophies.includes(key)) el.classList.add('unlocked');
+                else el.classList.remove('unlocked');
+            }
+        }
 
         // 용병 명부 렌더링
         if(document.getElementById('view-roster').classList.contains('active')) {
@@ -1068,14 +1363,26 @@
                     extBar = `<div class="prog-track"><div class="prog-bar" style="background:#2980b9; width:${(1 - ratio)*100}%"></div></div>`;
                 }
 
+                let traitInfo = TRAIT_DB[merc.trait];
+                let buffBadge = merc.buff ? `<span style="font-size:0.65rem; color:#e67e22;">${merc.buff.icon} ${merc.buff.name}</span>` : '';
+
                 return `
                 <div class="idle-card" onclick="openMercModal('${merc.id}')">
                     <div class="card-row">
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <div class="card-avatar" style="border-color:${merc.job.color}"><img src="${merc.portraitUrl}" alt="p"></div>
+                            <div class="card-avatar" style="border-color:${merc.job.color}">
+                                <img src="${merc.portraitUrl}" alt="p">
+                            </div>
                             <div>
-                                <div style="font-size:0.92rem; font-family:var(--font-pixel);">${merc.name} <span style="font-size:0.72rem; color:#7f8c8d;">Lv.${merc.level}</span></div>
-                                <div style="font-size:0.75rem; color:${merc.job.color}; font-family:var(--font-pixel);">${merc.job.name}</div>
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <span style="font-size:0.92rem; font-family:var(--font-pixel);">${merc.name}</span>
+                                    <span style="font-size:0.68rem; color:#7f8c8d;">Lv.${merc.level}</span>
+                                    <span class="badge-pill" style="background:#2c1408; color:var(--hd-gold-bright); font-size:0.62rem;">${traitInfo.icon} ${traitInfo.name}</span>
+                                </div>
+                                <div style="font-size:0.75rem; color:${merc.job.color}; font-family:var(--font-pixel); display:flex; gap:6px;">
+                                    <span>${merc.job.name}</span>
+                                    ${buffBadge}
+                                </div>
                             </div>
                         </div>
                         <span class="badge-pill" style="background:#e0c99f; color:#3b2314;">${statusLabels[merc.status] || merc.status}</span>
@@ -1132,6 +1439,66 @@
             }).join('');
         }
 
+        // 여관 경영 탭 렌더링
+        if(document.getElementById('view-manage').classList.contains('active')) {
+            document.getElementById('ui-rank-name').innerText = `[${curRank.rank}급] ${curRank.name}`;
+            let nextRank = GUILD_RANKS[guild.rankIdx + 1];
+            if(nextRank) {
+                document.getElementById('ui-rank-req').innerText = `의뢰: ${guild.questsCleared}/${nextRank.reqQuests} | ${nextRank.reqGold}G`;
+                let btnR = document.getElementById('btn-rankup');
+                btnR.innerText = `[${nextRank.rank}급] 승급 심사 신청 (${nextRank.reqGold}G)`;
+                btnR.disabled = (guild.questsCleared < nextRank.reqQuests || guild.money < nextRank.reqGold);
+            } else {
+                document.getElementById('ui-rank-req').innerText = `최고 랭크 달성`;
+                document.getElementById('btn-rankup').disabled = true;
+                document.getElementById('btn-rankup').innerText = `전설적인 여관 완성`;
+            }
+
+            // 요리 연구 목록
+            document.getElementById('kitchen-menu-list').innerHTML = KITCHEN_RECIPES.map(r => {
+                let isUnlocked = guild.unlockedRecipes.includes(r.id);
+                let actionBtn = isUnlocked 
+                    ? `<span style="color:#27ae60; font-size:0.75rem; font-weight:800;">개발 완료 (상시 제공)</span>`
+                    : `<button onclick="researchRecipe('${r.id}')" style="background:#7d3c98; border:1px solid #000; color:#fff; font-family:var(--font-pixel); font-size:0.72rem; padding:4px 8px; cursor:pointer;">연구 (${r.cost}G)</button>`;
+
+                return `
+                <div class="idle-card">
+                    <div class="card-row">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:1.1rem;">${r.icon}</span>
+                            <div>
+                                <div style="font-size:0.85rem; font-weight:800;">${r.name}</div>
+                                <div style="font-size:0.7rem; color:#6a4427;">${r.desc}</div>
+                            </div>
+                        </div>
+                        ${actionBtn}
+                    </div>
+                </div>`;
+            }).join('');
+
+            // 트로피 목록
+            document.getElementById('trophy-list').innerHTML = Object.values(TROPHY_DB).map(t => {
+                let isUnlocked = guild.unlockedTrophies.includes(t.id);
+                let badge = isUnlocked 
+                    ? `<span style="color:#27ae60; font-size:0.75rem;">🏆 전시 중 (효과 적용)</span>`
+                    : `<span style="color:#7f8c8d; font-size:0.7rem;">미달성 (${t.req})</span>`;
+
+                return `
+                <div class="idle-card" style="${isUnlocked ? 'border-left: 4px solid var(--hd-gold-bright);' : 'opacity:0.65;'}">
+                    <div class="card-row">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.3rem;">${t.icon}</span>
+                            <div>
+                                <div style="font-size:0.88rem; font-weight:800;">${t.name}</div>
+                                <div style="font-size:0.72rem; color:#6a4427;">${t.desc}</div>
+                            </div>
+                        </div>
+                        ${badge}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
         if(selectedMercId) updateMercModal();
     }
 
@@ -1162,16 +1529,34 @@
             
             if(merc.status === 'questing') { if(el) el.style.opacity = '0'; return; }
             
+            let traitInfo = TRAIT_DB[merc.trait] || { icon: '⚔️' };
+            let buffIconHtml = merc.buff ? `<div class="merc-buff-icon">${merc.buff.icon}</div>` : '';
+
             if(!el) {
                 el = document.createElement('div'); el.id = 'sprite-' + merc.id; el.className = 'merc-sprite';
                 el.onclick = () => openMercModal(merc.id);
                 el.innerHTML = `
                     <div class="floor-bubble" id="bubble-${merc.id}"></div>
-                    <div class="merc-emblem" style="border-color: ${merc.job.color}"><img src="${merc.portraitUrl}" alt="${merc.name}"></div>
+                    <div class="merc-emblem" style="border-color: ${merc.job.color}">
+                        ${buffIconHtml}
+                        <div class="merc-trait-tag">${traitInfo.icon}</div>
+                        <img src="${merc.portraitUrl}" alt="${merc.name}">
+                    </div>
                     <div class="nameplate"><span class="name-text" style="color:${merc.job.color}">${merc.name}</span>
                     <div class="hp-bar-bg"><div class="hp-bar-fill" id="hp-${merc.id}"></div></div></div>`;
                 container.appendChild(el);
-            } else el.style.opacity = '1';
+            } else {
+                el.style.opacity = '1';
+                // 버프 아이콘 갱신
+                let emblem = el.querySelector('.merc-emblem');
+                let curBuffIcon = emblem.querySelector('.merc-buff-icon');
+                if(merc.buff && !curBuffIcon) {
+                    let b = document.createElement('div'); b.className = 'merc-buff-icon'; b.innerText = merc.buff.icon;
+                    emblem.appendChild(b);
+                } else if(!merc.buff && curBuffIcon) {
+                    curBuffIcon.remove();
+                }
+            }
             
             let yDepth = Math.max(0, Math.min(100, merc.ty)); 
             let renderTop = 32 + (yDepth * 0.68); 
@@ -1199,8 +1584,20 @@
     function saveGameLocally() {
         let data = {
             t: guild.timeMin, m: guild.money, c: guild.capacity, u: guild.upgradeCost,
-            r: guild.roster.map(m => [m.id, m.name, m.baseJobId, m.jobId, m.portraitSeed, m.level, m.exp, m.equipTier, m.basePower, m.money, m.stamina, m.status, m.currentAction, m.targetMin, m.pendingAction]),
-            q: guild.quests.map(q => [q.id, q.title, q.durationMin, q.reqPower, q.reqStamina, q.reward, q.assignedMercId, q.targetMin, q.isParty?1:0, q.partyIds||[], q.maxParty||0, q.departed?1:0, q.gatherStartMin||0, q.minParty||1, q.minPower||0])
+            rk: guild.rankIdx, qc: guild.questsCleared,
+            rc: guild.unlockedRecipes, tr: guild.unlockedTrophies, kc: guild.killCounters,
+            r: guild.roster.map(m => [
+                m.id, m.name, m.baseJobId, m.jobId, m.portraitSeed,
+                m.level, m.exp, m.equipTier, m.basePower, m.money,
+                m.stamina, m.status, m.currentAction, m.targetMin, m.pendingAction,
+                m.trait, m.buff ? [m.buff.type, m.buff.val, m.buff.name, m.buff.icon] : null
+            ]),
+            q: guild.quests.map(q => [
+                q.id, q.title, q.durationMin, q.reqPower, q.reqStamina,
+                q.reward, q.assignedMercId, q.targetMin, q.isParty?1:0,
+                q.partyIds||[], q.maxParty||0, q.departed?1:0, q.gatherStartMin||0,
+                q.minParty||1, q.minPower||0
+            ])
         };
         try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e){}
     }
@@ -1211,6 +1608,12 @@
         guild.money = d.m ?? 500;
         guild.capacity = d.c ?? 5;
         guild.upgradeCost = d.u ?? 1000;
+        
+        guild.rankIdx = d.rk ?? 0;
+        guild.questsCleared = d.qc ?? 0;
+        guild.unlockedRecipes = d.rc || [];
+        guild.unlockedTrophies = d.tr || [];
+        guild.killCounters = d.kc || { goblin: 0, bandit: 0, orc: 0, dragon: 0 };
         
         guild.roster = [];
         for(let arr of (d.r || [])) {
@@ -1232,6 +1635,13 @@
             m.targetMin = arr[13] ?? 0; 
             m.pendingAction = null; 
             m.showBubble = false;
+            
+            m.trait = arr[15] || TRAIT_KEYS[Math.floor(Math.random() * TRAIT_KEYS.length)];
+            if(arr[16]) {
+                m.buff = { type: arr[16][0], val: arr[16][1], name: arr[16][2], icon: arr[16][3] };
+            } else {
+                m.buff = null;
+            }
             guild.roster.push(m);
         }
         
@@ -1251,7 +1661,6 @@
             q.maxParty = arr[10] || (q.isParty ? 3 : 1); 
             q.departed = !!arr[11]; 
             q.gatherStartMin = arr[12] || 0;
-            // 구버전 데이터에 없는 신규 항목은 기본값으로 자동 보정
             q.minParty = arr[13] || (q.isParty ? 2 : 1);
             q.minPower = arr[14] || Math.floor(q.reqPower * 0.72);
             guild.quests.push(q);
@@ -1259,7 +1668,14 @@
     }
 
     function initNewGame() {
-        guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
+        guild = {
+            timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000,
+            roster: [], quests: [],
+            rankIdx: 0, questsCleared: 0,
+            unlockedRecipes: [], unlockedTrophies: [],
+            killCounters: { goblin: 0, bandit: 0, orc: 0, dragon: 0 },
+            activeEvent: null
+        };
         for(let i=0; i<3; i++) { guild.roster.push(new Mercenary()); guild.quests.push(new Quest()); }
     }
 
@@ -1272,21 +1688,17 @@
     }
 
     // ==========================================
-    // 4. 메인 게임 루프 & 구버전 데이터 마이그레이션 실행
+    // 4. 메인 게임 루프 & 이벤트 제어
     // ==========================================
     window.onload = () => {
         window.addEventListener('beforeunload', saveGameLocally);
 
-        // 1. 고정 마스터 키에서 먼저 탐색
         let saved = localStorage.getItem(SAVE_KEY);
-
-        // 2. 만약 마스터 키가 비어있다면 이전 버전 키들을 순차적으로 뒤져서 자동 복원
         if (!saved) {
             for (let oldKey of PREVIOUS_KEYS) {
                 let oldData = localStorage.getItem(oldKey);
                 if (oldData) {
                     saved = oldData;
-                    // 발견 즉시 영구 마스터 키로 이전 저장
                     localStorage.setItem(SAVE_KEY, saved);
                     showToast("📦 이전 버전의 저장 데이터를 성공적으로 인계했습니다!");
                     break;
@@ -1294,7 +1706,6 @@
             }
         }
 
-        // 3. 최종 데이터 복원
         if (saved) {
             try { 
                 restoreGameLocally(saved); 
@@ -1310,7 +1721,6 @@
         updateUI();
         let frame = 0;
 
-        // 5초마다 자동 저장
         setInterval(() => { if(frame % 50 === 0) saveGameLocally(); }, 100);
 
         setInterval(() => {
@@ -1334,18 +1744,69 @@
             let currH = getHour();
 
             if(currH !== prevH) {
+                // 자정 일일 숙박 유지비
                 if(currH === 0) {
                     let cost = guild.roster.length * 50; guild.money -= cost;
                     showToast(`🌙 자정 여관 숙박 유지비 -${cost}G`);
                 }
-                if(currH === 8 && guild.roster.length < guild.capacity && Math.random() < 0.8) {
+                // 아침 8시 모험가 방문 (랭크에 따라 확률 및 스탯 증가)
+                if(currH === 8 && guild.roster.length < guild.capacity && Math.random() < 0.85) {
                     guild.roster.push(new Mercenary());
-                    showToast("🚪 새로운 방랑 모험가가 여관에 들어왔습니다");
+                    showToast("🚪 새로운 방랑 모험가가 여관 문을 열었습니다!");
                 }
                 if(currH === 18) showToast("🔒 접수처 의뢰 접수 마감");
                 if(currH === 7) showToast("🔓 접수처 영업 시작");
 
-                guild.roster.forEach(m => { if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + 5); });
+                // 음유시인 방문 중이면 홀에 있는 용병 기력 대폭 회복
+                let bardRegen = (guild.activeEvent && guild.activeEvent.type === 'bard') ? 15 : 5;
+                guild.roster.forEach(m => {
+                    if(m.status === 'idle') m.stamina = Math.min(100, m.stamina + bardRegen);
+                });
+
+                // 🥊 2. 여관 돌발 이벤트 발생 체크 (3시간마다 20% 확률)
+                if(currH % 3 === 0 && !guild.activeEvent) {
+                    let idleMercs = guild.roster.filter(m => m.status === 'idle');
+                    let randEvt = Math.random();
+
+                    // 1) 취중 난투극 (2인 이상 대기 중일 때)
+                    if(randEvt < 0.35 && idleMercs.length >= 2) {
+                        let [m1, m2] = [idleMercs[0], idleMercs[1]];
+                        guild.activeEvent = { type: 'brawl', mercIds: [m1.id, m2.id], endMin: guild.timeMin + 60 };
+                        document.getElementById('event-title').innerText = `🥊 취중 난투! [${m1.name}] VS [${m2.name}]`;
+                        document.getElementById('event-desc').innerText = `탁자를 뒤엎고 싸우는 중! 방치 시 기력 감소`;
+                        document.getElementById('event-banner').style.display = 'flex';
+                        m1.setThought("뭐라고 임마?! 덤벼!", 60);
+                        m2.setThought("오늘 한 놈은 누워 나간다!", 60);
+                        showToast(`🥊 [${m1.name}]와 [${m2.name}] 사이에 주먹다짐이 일어났습니다!`);
+                    }
+                    // 2) 방랑 음유시인 방문 (음악 힐링)
+                    else if(randEvt < 0.65) {
+                        guild.activeEvent = { type: 'bard', endMin: guild.timeMin + 180 };
+                        showToast("🎵 방랑 음유시인이 여관에서 하프를 연주합니다! (기력 회복 3배)");
+                        guild.roster.forEach(m => { if(m.status === 'idle') m.setThought("음악이 감미롭구만~ ♬", 80); });
+                    }
+                }
+            }
+
+            // 이벤트 만료 체크
+            if(guild.activeEvent && guild.timeMin >= guild.activeEvent.endMin) {
+                if(guild.activeEvent.type === 'brawl') {
+                    // 방치된 난투극: 둘 다 체력 40 감소 후 침실로
+                    guild.activeEvent.mercIds.forEach(id => {
+                        let m = guild.roster.find(x => x.id === id);
+                        if(m) {
+                            m.stamina = Math.max(10, m.stamina - 40);
+                            m.status = 'resting'; m.currentAction = 'inn';
+                            m.targetMin = guild.timeMin + FACILITIES.inn.duration;
+                            m.setThought("골병 들겠네... 침대로 가야겠다...", 80);
+                        }
+                    });
+                    showToast("🩸 난투극이 끝나 양쪽 모두 부상을 입고 침대로 실려갔습니다.");
+                    document.getElementById('event-banner').style.display = 'none';
+                } else if(guild.activeEvent.type === 'bard') {
+                    showToast("🎵 음유시인이 팁을 챙겨 다음 마을로 떠났습니다.");
+                }
+                guild.activeEvent = null;
             }
 
             if(frame % Math.max(2, Math.floor(20 / gameSpeed)) === 0) {
@@ -1374,7 +1835,13 @@
             // 퀘스트 출발 및 완료 판정
             guild.quests.forEach(q => {
                 if(q.isParty && !q.departed && q.partyIds.length > 0) {
-                    let pPower = q.partyIds.reduce((sum, id) => { let m = guild.roster.find(x=>x.id===id); return sum + (m?m.power:0); }, 0);
+                    let pPower = q.partyIds.reduce((sum, id) => {
+                        let m = guild.roster.find(x=>x.id===id);
+                        let pwr = m ? m.power : 0;
+                        if(m && m.trait === 'leader') pwr = Math.floor(pwr * 1.15); // 리더십
+                        return sum + pwr;
+                    }, 0);
+                    
                     let waitTime = guild.timeMin - q.gatherStartMin;
 
                     let hasMinParty = (q.partyIds.length >= q.minParty);
@@ -1413,20 +1880,67 @@
                     if(squad.length > 0) {
                         let totalPwr = squad.reduce((s,m) => s + m.power, 0);
                         let winRate = Math.min(95, Math.max(10, Math.floor((totalPwr / q.reqPower) * 70)));
+                        
+                        // 트로피 패시브: 화룡 해골 (파티 성공률 +10%)
+                        if(q.isParty && guild.unlockedTrophies.includes('dragon')) winRate = Math.min(98, winRate + 10);
+
                         let isWin = (Math.random() * 100 <= winRate);
-                        let gCut = Math.floor(q.reward * 0.2);
+                        
+                        let feeRate = getGuildFeeRate();
+                        // 완벽주의자 특성 용병이 있으면 수수료 보너스
+                        if(squad.some(m => m.trait === 'perfectionist')) feeRate += 0.1;
+                        
+                        let gCut = Math.floor(q.reward * feeRate);
                         let pReward = Math.floor((q.reward - gCut) / squad.length);
 
-                        if(isWin) guild.money += gCut;
+                        if(isWin) {
+                            guild.money += gCut;
+                            guild.questsCleared++;
+
+                            // 🐉 4. 몬스터 카운터 누적 & 트로피 잠금 해제 판정
+                            if(q.title.includes("고블린")) guild.killCounters.goblin++;
+                            if(q.title.includes("산적") || q.title.includes("도적")) guild.killCounters.bandit++;
+                            if(q.title.includes("오크")) guild.killCounters.orc++;
+                            if(q.title.includes("드래곤")) guild.killCounters.dragon++;
+
+                            for(let tKey in TROPHY_DB) {
+                                let t = TROPHY_DB[tKey];
+                                if(!guild.unlockedTrophies.includes(t.id) && guild.killCounters[t.id] >= t.countReq) {
+                                    guild.unlockedTrophies.push(t.id);
+                                    showToast(`🏆 전리품 획득! [${t.name}]이(가) 여관 벽면에 박제되었습니다!`);
+                                }
+                            }
+                        }
 
                         squad.forEach(merc => {
                             merc.status = 'idle'; merc.targetX = 50; merc.targetY = 88;
+                            
+                            // 경험치 계산 (엘릭서 버프 시 2배)
+                            let expGain = q.reqPower * 2;
+                            if(merc.buff && merc.buff.type === 'exp') expGain *= 2;
+                            
+                            // 원정 종료 시 일회성 요리 버프 소모
+                            merc.buff = null;
+
                             if(isWin) {
-                                merc.money += pReward; merc.exp += (q.reqPower * 2);
+                                merc.money += pReward; merc.exp += expGain;
                                 merc.setThought("보수 두둑하게 챙겼다! 꿀맛이네.", 100);
-                                if(merc.exp >= merc.level * 100) { merc.exp -= merc.level*100; merc.level++; }
+                                
+                                // 대기만성 특성: 레벨업 시 파워 2배 증가
+                                if(merc.exp >= merc.level * 100) {
+                                    merc.exp -= merc.level * 100;
+                                    merc.level++;
+                                    let statUp = merc.trait === 'genius' ? 6 : 3;
+                                    merc.basePower += statUp;
+                                    showToast(`🌟 [${merc.name}] 레벨 업! Lv.${merc.level}`);
+                                }
                             } else {
-                                merc.exp += q.reqPower; merc.setThought("크윽... 몬스터가 너무 강했어.", 100);
+                                merc.exp += q.reqPower;
+                                if(merc.trait === 'coward') {
+                                    merc.setThought("휴, 도망쳐서 덜 다쳤다...", 100);
+                                } else {
+                                    merc.setThought("크윽... 몬스터가 너무 강했어.", 100);
+                                }
                             }
                         });
 
