@@ -6,33 +6,38 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1a0c05">
-    <title>판타지 용병 여관 (16비트 도트 타이쿤)</title>
+    <meta name="theme-color" content="#120703">
+    <title>판타지 용병 여관 (256-Unit HD Micro-Pixel)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=DungGeunMo&family=Noto+Sans+KR:wght@600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* 🏰 고밀도 마이크로 도트 팔레트 */
-            --wood-black: #0c0502;
-            --wood-shadow: #1e0d05;
-            --wood-dark: #2c1408;
-            --wood-base: #46220e;
-            --wood-mid: #5e3015;
-            --wood-light: #7a401e;
-            --wood-highlight: #9c552a;
-            --wood-rim: #bf6f3a;
+            /* 🏰 256단계 마이크로 픽셀 팔레트 */
+            --hd-wood-900: #0d0502;
+            --hd-wood-800: #1b0c05;
+            --hd-wood-700: #2a1409;
+            --hd-wood-600: #3c1e0e;
+            --hd-wood-500: #542b14;
+            --hd-wood-400: #6f3b1e;
+            --hd-wood-300: #8c4c28;
+            --hd-wood-200: #ab6034;
+            --hd-wood-100: #c97844;
 
-            --parch-shadow: #b3925c;
-            --parch-dark: #d2b37b;
-            --parch-base: #ebd4a7;
-            --parch-light: #faecd0;
-            --parch-ink: #2b1509;
+            --hd-gold-bright: #ffd700;
+            --hd-gold-warm: #d4ac0d;
+            --hd-gold-dark: #9a7d0a;
+            --hd-gold-rim: #f5b041;
 
-            --pixel-gold: #ffcc00;
-            --pixel-amber: #e67e22;
-            --pixel-red: #e74c3c;
-            --pixel-green: #2ecc71;
-            --pixel-blue: #3498db;
+            --hd-parch-base: #f4e8c1;
+            --hd-parch-light: #fdf6e2;
+            --hd-parch-shade: #dac392;
+            --hd-parch-dark: #b89b65;
+            --hd-parch-ink: #2b170a;
+
+            --hd-hp-green: #2ecc71;
+            --hd-hp-dark: #1b7a43;
+            --hd-stamina: #3498db;
+            --hd-danger: #e74c3c;
 
             --font-pixel: 'DungGeunMo', monospace;
             --font-main: 'Noto Sans KR', sans-serif;
@@ -45,12 +50,11 @@
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
-            text-rendering: geometricPrecision;
         }
 
         body {
-            background-color: #060201;
-            color: var(--parch-light);
+            background-color: #050201;
+            color: var(--hd-parch-light);
             font-family: var(--font-pixel);
             height: 100vh;
             height: 100dvh;
@@ -60,26 +64,27 @@
             overflow: hidden;
         }
 
-        /* 📱 모바일 프레임 */
+        /* 📱 고해상도 모바일 래퍼 프레임 */
         #app {
             width: 100%;
             max-width: 440px;
             height: 100%;
-            background: var(--wood-black);
+            background: var(--hd-wood-900);
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.95), 0 0 0 3px var(--wood-shadow);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.98), 0 0 0 2px var(--hd-wood-700);
             overflow: hidden;
         }
 
-        /* 👑 16비트 도트 원목 현판 헤더 */
+        /* 👑 256-마이크로 원목 현판 헤더 */
         header {
             flex-shrink: 0;
             background: 
-                repeating-linear-gradient(0deg, #3d1b0a 0px, #3d1b0a 8px, #2a1105 8px, #2a1105 16px);
-            border-bottom: 3px solid var(--wood-black);
-            box-shadow: inset 0 2px 0 var(--wood-rim), 0 4px 10px rgba(0,0,0,0.8);
+                repeating-linear-gradient(0deg, #2a1307 0px, #2a1307 4px, #1e0d04 4px, #1e0d04 8px),
+                linear-gradient(to bottom, var(--hd-wood-600), var(--hd-wood-800));
+            border-bottom: 2px solid var(--hd-wood-900);
+            box-shadow: inset 0 1px 0 var(--hd-wood-200), inset 0 -1px 0 var(--hd-wood-900), 0 4px 12px rgba(0,0,0,0.85);
             padding: 8px 12px;
             display: flex;
             flex-direction: column;
@@ -98,35 +103,35 @@
             align-items: center;
             gap: 6px;
             font-size: 1.05rem;
-            color: var(--pixel-gold);
-            text-shadow: 2px 2px 0 #000;
+            color: var(--hd-gold-bright);
+            text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0,0,0,0.8);
         }
 
         .time-box {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.95rem;
-            background: #110602;
+            gap: 5px;
+            font-size: 0.92rem;
+            background: #100602;
             padding: 3px 8px;
-            border: 2px solid var(--wood-base);
-            box-shadow: inset 1px 1px 0 #000, 1px 1px 0 var(--wood-highlight);
+            border: 1px solid var(--hd-wood-500);
+            box-shadow: inset 1px 1px 0 #000, 0 1px 0 var(--hd-wood-300);
         }
-        .day-tag { color: var(--pixel-gold); }
+        .day-tag { color: var(--hd-gold-bright); }
         .clock-tag { color: #fff; }
         .open-status {
-            font-size: 0.72rem; padding: 1px 5px; border-radius: 2px;
+            font-size: 0.68rem; padding: 1px 4px; border-radius: 1px;
             border: 1px solid #000;
         }
-        .open-status.open { background: var(--pixel-green); color: #05260f; }
-        .open-status.closed { background: var(--pixel-red); color: #fff; }
+        .open-status.open { background: #27ae60; color: #05260f; }
+        .open-status.closed { background: #c0392b; color: #fff; }
 
         .btn-speed {
-            background: var(--wood-base);
-            border: 2px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 var(--wood-highlight), inset -1px -1px 0 #180802, 0 2px 0 #000;
-            color: #fff; padding: 2px 8px;
-            font-family: var(--font-pixel); font-size: 0.8rem; cursor: pointer;
+            background: var(--hd-wood-500);
+            border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 var(--hd-wood-200), inset -1px -1px 0 var(--hd-wood-800), 0 2px 0 #000;
+            color: #fff; padding: 2px 7px;
+            font-family: var(--font-pixel); font-size: 0.78rem; cursor: pointer;
         }
         .btn-speed:active { transform: translateY(1px); box-shadow: none; }
 
@@ -134,20 +139,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #190a04;
+            background: #150903;
             padding: 5px 10px;
-            border: 2px solid var(--wood-shadow);
-            box-shadow: inset 1px 1px 0 #000;
+            border: 1px solid var(--hd-wood-700);
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
         }
-        .resource-pill { display: flex; align-items: center; gap: 5px; font-size: 0.95rem; }
-        .resource-pill.gold { color: var(--pixel-gold); text-shadow: 1px 1px 0 #000; }
+        .resource-pill { display: flex; align-items: center; gap: 4px; font-size: 0.92rem; }
+        .resource-pill.gold { color: var(--hd-gold-bright); text-shadow: 1px 1px 0 #000; }
         .resource-pill.cap { color: #7bed9f; text-shadow: 1px 1px 0 #000; }
 
         .header-btn {
-            background: #6c3483;
-            border: 2px solid #110515;
-            box-shadow: inset 1px 1px 0 #af7ac5, 0 2px 0 #000;
-            color: #fff; padding: 3px 8px; font-size: 0.75rem; font-family: var(--font-pixel);
+            background: linear-gradient(180deg, #7d3c98, #512e5f);
+            border: 1px solid #1c0d24;
+            box-shadow: inset 1px 1px 0 #bb8fce, 0 2px 0 #000;
+            color: #fff; padding: 3px 8px; font-size: 0.74rem; font-family: var(--font-pixel);
             cursor: pointer;
         }
 
@@ -156,7 +161,7 @@
             flex: 1;
             position: relative;
             overflow: hidden;
-            background: #110703;
+            background: #0d0502;
         }
 
         .view-pane {
@@ -171,116 +176,122 @@
         }
         .view-pane.active { display: flex; }
 
-        /* ================== 🍻 뷰 1: 고밀도 도트 여관 홀 ================== */
+        /* ================== 🍻 뷰 1: 256 마이크로 텍스처 여관 홀 ================== */
         #view-hall {
             overflow: hidden;
-            /* 정밀한 16비트 도트 원목 마루 바닥 텍스처 (도트 나뭇결 + 이음새 못 자국 패턴) */
+            /* 정교한 256단위 마이크로 타일 바닥 & 미세 디더링 */
             background: 
-                radial-gradient(circle at 50% 20%, rgba(255, 180, 70, 0.28) 0%, rgba(16, 7, 3, 0.95) 85%),
-                repeating-linear-gradient(0deg, #381a0b 0px, #381a0b 16px, #1a0a04 16px, #1a0a04 18px),
-                repeating-linear-gradient(90deg, transparent 0px, transparent 96px, #140702 96px, #140702 98px);
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.85);
+                radial-gradient(circle at 50% 25%, rgba(255, 190, 90, 0.35) 0%, rgba(13, 5, 2, 0.96) 82%),
+                repeating-linear-gradient(0deg, #2d1408 0px, #2d1408 8px, #1a0a04 8px, #1a0a04 9px, #381a0b 9px, #381a0b 16px, #130702 16px, #130702 17px),
+                repeating-linear-gradient(90deg, transparent 0px, transparent 32px, rgba(0,0,0,0.35) 32px, rgba(0,0,0,0.35) 33px);
+            box-shadow: inset 0 0 70px rgba(0,0,0,0.9);
         }
 
-        /* 원근 가이드 레이어 (미세 도트 격자) */
         .hall-depth-layer {
             position: absolute; top: 32%; left: 0; width: 100%; height: 68%;
             background-image: 
-                linear-gradient(to right, transparent 49.5%, rgba(0,0,0,0.3) 49.5%, rgba(0,0,0,0.3) 50.5%, transparent 50.5%),
-                linear-gradient(35deg, transparent 49.6%, rgba(0,0,0,0.2) 49.6%, rgba(0,0,0,0.2) 50.4%, transparent 50.4%),
-                linear-gradient(-35deg, transparent 49.6%, rgba(0,0,0,0.2) 49.6%, rgba(0,0,0,0.2) 50.4%, transparent 50.4%);
+                linear-gradient(to right, transparent 49.7%, rgba(0,0,0,0.35) 49.7%, rgba(0,0,0,0.35) 50.3%, transparent 50.3%),
+                linear-gradient(35deg, transparent 49.7%, rgba(0,0,0,0.2) 49.7%, rgba(0,0,0,0.2) 50.3%, transparent 50.3%),
+                linear-gradient(-35deg, transparent 49.7%, rgba(0,0,0,0.2) 49.7%, rgba(0,0,0,0.2) 50.3%, transparent 50.3%);
             pointer-events: none;
         }
 
-        /* 📍 시설 스탠드 (정교한 픽셀 보더) */
+        /* 📍 시설 스탠드 */
         .facility-stand {
             position: absolute; transform: translate(-50%, -100%);
             display: flex; flex-direction: column; align-items: center; z-index: 2; pointer-events: none;
         }
         .fac-sign {
-            background: #231006; color: var(--pixel-gold);
-            padding: 3px 7px; border: 2px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 var(--wood-rim), 0 3px 0 #000;
+            background: #1f0c04; color: var(--hd-gold-bright);
+            padding: 3px 8px; border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 var(--hd-wood-200), inset -1px -1px 0 #0a0401, 0 3px 0 #000;
             font-size: 0.65rem; font-family: var(--font-pixel); margin-bottom: 3px;
             white-space: nowrap; text-shadow: 1px 1px 0 #000;
         }
         .npc-emblem {
             width: 44px; height: 44px;
-            border: 2px solid var(--wood-black);
-            box-shadow: inset 2px 2px 0 var(--wood-highlight), inset -2px -2px 0 #100602, 0 4px 6px rgba(0,0,0,0.8);
-            background: #381a0b; overflow: hidden;
+            border: 2px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 var(--hd-wood-200), inset -1px -1px 0 #000, 0 4px 8px rgba(0,0,0,0.9);
+            background: radial-gradient(circle, #3d1c0b, #180a04);
+            overflow: hidden;
         }
         .npc-emblem img { width: 100%; height: 100%; object-fit: cover; }
         .npc-nameplate {
-            background: #140803; color: var(--parch-dark); padding: 2px 6px;
-            border: 1px solid var(--wood-mid); font-size: 0.62rem; margin-top: 3px;
+            background: #120703; color: var(--hd-parch-shade); padding: 2px 6px;
+            border: 1px solid var(--hd-wood-600); font-size: 0.62rem; margin-top: 2px;
             box-shadow: 1px 1px 0 #000;
         }
 
-        /* 🚶 고밀도 도트 용병 스프라이트 */
+        /* 🚶 256 고밀도 마이크로 도트 용병 스프라이트 */
         .merc-sprite {
             position: absolute; transform: translate(-50%, -100%);
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             cursor: pointer; pointer-events: auto;
-            animation: pixelBob 1.6s infinite ease-in-out;
+            animation: microFloat 1.8s infinite ease-in-out;
         }
-        @keyframes pixelBob {
+        @keyframes microFloat {
             0%, 100% { margin-top: 0px; }
-            50% { margin-top: -2px; }
+            50% { margin-top: -3px; }
         }
         
         .floor-bubble {
-            position: absolute; bottom: 62px; background: var(--parch-light);
-            color: var(--parch-ink); border: 2px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 #fff, 0 3px 0 rgba(0,0,0,0.8);
+            position: absolute; bottom: 62px; background: var(--hd-parch-light);
+            color: var(--hd-parch-ink); border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 var(--hd-parch-shade), 0 3px 0 rgba(0,0,0,0.85);
             font-size: 0.68rem; font-family: var(--font-pixel); padding: 4px 8px;
-            width: max-content; max-width: 140px; text-align: center;
+            width: max-content; max-width: 144px; text-align: center;
             opacity: 0; transition: opacity 0.15s; pointer-events: none;
         }
         .floor-bubble.show { opacity: 1; }
 
+        /* 256 단위 고해상도 아바타 프레임 (마이크로 픽셀 브라켓) */
         .merc-emblem {
-            width: 44px; height: 44px;
-            border: 2px solid var(--wood-black);
-            background: #2b1409;
-            box-shadow: inset 2px 2px 0 rgba(255,255,255,0.25), inset -2px -2px 0 rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.8);
+            width: 46px; height: 46px;
+            border: 2px solid #0a0402;
+            background: radial-gradient(circle at 50% 35%, #3e1e0d, #140702);
+            box-shadow: 
+                inset 1px 1px 0px rgba(255,255,255,0.4),
+                inset -1px -1px 0px rgba(0,0,0,0.8),
+                0 4px 8px rgba(0,0,0,0.85);
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; transition: transform 0.1s;
+            overflow: hidden; transition: transform 0.08s;
+            position: relative;
         }
         .merc-sprite:active .merc-emblem { transform: scale(0.92); }
         .merc-emblem img { width: 100%; height: 100%; object-fit: cover; }
 
         .nameplate {
-            background: #180a04; padding: 2px 6px;
-            border: 1px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 var(--wood-base), 0 2px 0 #000;
+            background: #140803; padding: 2px 6px;
+            border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 var(--hd-wood-600), 0 2px 0 #000;
             display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 3px;
         }
-        .name-text { font-size: 0.64rem; font-family: var(--font-pixel); text-shadow: 1px 1px 0 #000; }
+        .name-text { font-size: 0.65rem; font-family: var(--font-pixel); text-shadow: 1px 1px 0 #000; }
         
-        /* 16비트 도트 체력바 (픽셀 눈금 분할) */
+        /* 마이크로 도트 체력바 (세밀한 256분할 눈금선) */
         .hp-bar-bg {
-            width: 32px; height: 5px; background: #000;
-            border: 1px solid #221006; overflow: hidden; position: relative;
+            width: 32px; height: 4px; background: #080301;
+            border: 1px solid var(--hd-wood-900); overflow: hidden; position: relative;
         }
         .hp-bar-fill {
             height: 100%;
-            background: repeating-linear-gradient(90deg, #2ecc71 0px, #2ecc71 4px, #27ae60 4px, #27ae60 5px);
+            background: repeating-linear-gradient(90deg, #2ecc71 0px, #2ecc71 2px, #27ae60 2px, #27ae60 3px);
             width: 100%;
         }
 
-        /* 🍺 여관장 카운터 데스크 */
+        /* 🍺 카운터 데스크 */
         .gm-desk {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background: 
-                repeating-linear-gradient(0deg, #4d230d 0px, #4d230d 8px, #361707 8px, #361707 16px);
-            border-top: 3px solid var(--wood-black);
-            box-shadow: inset 0 3px 0 var(--wood-rim), 0 -8px 20px rgba(0,0,0,0.85);
+                repeating-linear-gradient(0deg, #3d1b09 0px, #3d1b09 4px, #2a1104 4px, #2a1104 8px),
+                linear-gradient(to bottom, var(--hd-wood-500), var(--hd-wood-800));
+            border-top: 2px solid var(--hd-wood-900);
+            box-shadow: inset 0 2px 0 var(--hd-wood-200), 0 -8px 20px rgba(0,0,0,0.9);
             z-index: 50; display: flex; justify-content: space-around; align-items: center;
         }
-        .desk-props { font-size: 1.4rem; filter: drop-shadow(2px 2px 0 #000); }
+        .desk-props { font-size: 1.4rem; filter: drop-shadow(1px 2px 0 #000); }
 
-        /* ================== 📜 도트 양피지 카드 UI ================== */
+        /* ================== 📜 256-디더링 양피지 카드 UI ================== */
         .list-container {
             padding: 12px;
             display: flex;
@@ -289,73 +300,74 @@
         }
 
         .sub-header-banner {
-            background: #2a1206;
-            border: 2px solid var(--wood-black);
-            border-left: 5px solid var(--pixel-gold);
-            box-shadow: inset 1px 1px 0 var(--wood-highlight), 0 2px 0 #000;
-            padding: 6px 10px; font-size: 0.85rem; color: var(--parch-light);
+            background: #230d04;
+            border: 1px solid var(--hd-wood-900);
+            border-left: 4px solid var(--hd-gold-bright);
+            box-shadow: inset 1px 1px 0 var(--hd-wood-400), 0 2px 0 #000;
+            padding: 6px 10px; font-size: 0.85rem; color: var(--hd-parch-light);
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* 16비트 도트 테두리 양피지 카드 */
+        /* 256-마이크로 코너 브라켓 양피지 카드 */
         .idle-card {
-            background: var(--parch-base);
-            color: var(--parch-ink);
-            border: 2px solid var(--wood-black);
+            background: var(--hd-parch-base);
+            color: var(--hd-parch-ink);
+            border: 1px solid var(--hd-wood-900);
             box-shadow:
-                inset 2px 2px 0px #fff,
-                inset -2px -2px 0px var(--parch-shadow),
-                0 4px 0px #0c0502;
-            padding: 10px;
+                inset 1px 1px 0px #fff,
+                inset -1px -1px 0px var(--hd-parch-shade),
+                0 3px 0px #090301;
+            padding: 9px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             transition: transform 0.08s;
+            position: relative;
         }
-        .idle-card:active { transform: translateY(2px); box-shadow: inset 2px 2px 0px #fff, inset -2px -2px 0px var(--parch-shadow), 0 2px 0px #0c0502; }
+        .idle-card:active { transform: translateY(2px); box-shadow: inset 1px 1px 0px #fff, inset -1px -1px 0px var(--hd-parch-shade), 0 1px 0px #090301; }
 
         .card-row { display: flex; align-items: center; justify-content: space-between; }
 
         .card-avatar {
-            width: 42px; height: 42px; border: 2px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 var(--parch-shadow);
-            overflow: hidden; background: #2b1409; flex-shrink: 0;
+            width: 42px; height: 42px; border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 var(--hd-parch-dark), 0 2px 4px rgba(0,0,0,0.4);
+            overflow: hidden; background: radial-gradient(circle, #3d1c0b, #120703); flex-shrink: 0;
         }
         .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .badge-pill {
-            padding: 2px 5px; font-size: 0.65rem; border: 1px solid var(--wood-black);
+            padding: 2px 5px; font-size: 0.65rem; border: 1px solid var(--hd-wood-900);
             box-shadow: 1px 1px 0 #000;
         }
 
         .prog-track {
-            width: 100%; height: 8px; background: #1a0c05;
-            border: 1px solid var(--wood-black);
+            width: 100%; height: 7px; background: #140803;
+            border: 1px solid var(--hd-wood-900);
             overflow: hidden; margin-top: 3px;
         }
         .prog-bar {
             height: 100%;
-            background: repeating-linear-gradient(90deg, #e67e22 0px, #e67e22 6px, #d35400 6px, #d35400 8px);
+            background: repeating-linear-gradient(90deg, #e67e22 0px, #e67e22 4px, #d35400 4px, #d35400 6px);
             width: 0%;
         }
 
         .btn-action-wide {
-            background: #783814;
-            border: 2px solid var(--wood-black);
-            box-shadow: inset 2px 2px 0px var(--wood-rim), inset -2px -2px 0px #381504, 0 4px 0 #0c0502;
-            color: var(--pixel-gold); font-family: var(--font-pixel); font-size: 0.92rem;
-            padding: 11px; cursor: pointer; text-align: center;
+            background: #642e10;
+            border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0px var(--hd-wood-200), inset -1px -1px 0px #240e04, 0 3px 0 #090301;
+            color: var(--hd-gold-bright); font-family: var(--font-pixel); font-size: 0.9rem;
+            padding: 10px; cursor: pointer; text-align: center;
         }
-        .btn-action-wide:active { transform: translateY(2px); box-shadow: inset 2px 2px 0px var(--wood-rim), inset -2px -2px 0px #381504, 0 2px 0 #0c0502; }
-        .btn-action-wide:disabled { background: #3d302a; border-color: #1f1815; color: #78665f; box-shadow: none; cursor: not-allowed; }
+        .btn-action-wide:active { transform: translateY(2px); box-shadow: inset 1px 1px 0px var(--hd-wood-200), inset -1px -1px 0px #240e04, 0 1px 0 #090301; }
+        .btn-action-wide:disabled { background: #332722; border-color: #1a1310; color: #695b55; box-shadow: none; cursor: not-allowed; }
 
-        /* ================== 📱 하단 16비트 내비바 ================== */
+        /* ================== 📱 하단 256 내비바 ================== */
         nav#bottom-nav {
             flex-shrink: 0;
             height: 56px;
-            background: #230f06;
-            border-top: 3px solid var(--wood-black);
-            box-shadow: inset 0 2px 0 var(--wood-base);
+            background: #1c0b04;
+            border-top: 2px solid var(--hd-wood-900);
+            box-shadow: inset 0 1px 0 var(--hd-wood-500);
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             z-index: 100;
@@ -369,38 +381,38 @@
             gap: 2px;
             background: transparent;
             border: none;
-            color: #9c6c4c;
+            color: #926647;
             cursor: pointer;
             transition: 0.1s;
         }
         .nav-icon { font-size: 1.15rem; }
         .nav-label { font-size: 0.72rem; font-family: var(--font-pixel); }
         .nav-btn.active {
-            background: rgba(0, 0, 0, 0.4);
-            color: var(--pixel-gold);
-            box-shadow: inset 0 -3px 0 var(--pixel-gold);
+            background: rgba(0, 0, 0, 0.45);
+            color: var(--hd-gold-bright);
+            box-shadow: inset 0 -3px 0 var(--hd-gold-bright);
         }
 
-        /* ================== 📜 도트 바텀시트 모달 ================== */
+        /* ================== 📜 마이크로 양피지 바텀시트 ================== */
         .modal-backdrop {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.88);
             z-index: 500; display: none;
             justify-content: center; align-items: flex-end;
         }
 
         .bottom-sheet {
             width: 100%;
-            background: var(--parch-base);
-            color: var(--parch-ink);
-            border: 3px solid var(--wood-black);
+            background: var(--hd-parch-base);
+            color: var(--hd-parch-ink);
+            border: 2px solid var(--hd-wood-900);
             border-bottom: none;
-            box-shadow: inset 3px 3px 0px #fff, inset -3px 0px 0px var(--parch-shadow), 0 -8px 25px rgba(0,0,0,0.9);
+            box-shadow: inset 2px 2px 0px #fff, inset -2px 0px 0px var(--hd-parch-shade), 0 -8px 25px rgba(0,0,0,0.95);
             padding: 16px 14px 20px 14px;
             display: flex; flex-direction: column; gap: 10px;
             max-height: 85vh;
             overflow-y: auto;
-            animation: slideUp 0.15s steps(6, end);
+            animation: slideUp 0.15s cubic-bezier(0, 0.9, 0.3, 1);
         }
         @keyframes slideUp {
             from { transform: translateY(100%); }
@@ -408,16 +420,16 @@
         }
 
         .sheet-pill-handle {
-            width: 36px; height: 4px; background: var(--wood-base);
+            width: 36px; height: 4px; background: var(--hd-wood-500);
             box-shadow: 0 1px 0 #fff;
             align-self: center; margin-bottom: 2px;
         }
 
         .sheet-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-            background: var(--parch-light); padding: 8px;
-            border: 2px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 var(--parch-shadow);
+            background: var(--hd-parch-light); padding: 8px;
+            border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 var(--hd-parch-shade);
             font-size: 0.76rem;
         }
         .sheet-grid-item { display: flex; justify-content: space-between; }
@@ -429,23 +441,23 @@
         }
         .btn-sheet {
             padding: 9px; font-size: 0.8rem; font-family: var(--font-pixel);
-            border: 2px solid var(--wood-black);
-            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4), 0 3px 0 #0c0502;
+            border: 1px solid var(--hd-wood-900);
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4), 0 2px 0 #090301;
             cursor: pointer; text-align: center;
         }
-        .btn-sheet:active { transform: translateY(2px); box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4), 0 1px 0 #0c0502; }
+        .btn-sheet:active { transform: translateY(2px); box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4), 0 1px 0 #090301; }
         .btn-sheet.encourage { background: #27ae60; color: #fff; }
         .btn-sheet.tip { background: #d35400; color: #fff; }
         .btn-sheet.fire { background: #c0392b; color: #fff; grid-column: span 2; }
         .btn-sheet.close { background: #566573; color: #fff; grid-column: span 2; }
 
-        /* 토스트 알림창 */
+        /* 토스트 알림 */
         #toast-log {
             position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
-            background: #180903;
-            border: 2px solid var(--pixel-gold);
-            box-shadow: inset 1px 1px 0 var(--wood-rim), 0 4px 12px rgba(0,0,0,0.9);
-            color: var(--parch-light); padding: 6px 12px;
+            background: #150702;
+            border: 1px solid var(--hd-gold-bright);
+            box-shadow: inset 1px 1px 0 var(--hd-wood-200), 0 4px 14px rgba(0,0,0,0.9);
+            color: var(--hd-parch-light); padding: 6px 12px;
             font-size: 0.76rem; font-family: var(--font-pixel); display: none; z-index: 600;
             white-space: nowrap;
         }
@@ -487,27 +499,27 @@
 
             <div class="facility-stand" id="fac-board">
                 <div class="fac-sign">📜 의뢰 접수처</div>
-                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=EileenReception&scale=110" alt="에일린"></div>
+                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/adventurer/svg?seed=Eileen&hair=long02&skinColor=f8d25c" alt="에일린"></div>
                 <div class="npc-nameplate">[접수원] 에일린</div>
             </div>
             <div class="facility-stand" id="fac-inn">
                 <div class="fac-sign">🛏️ 여관 침실</div>
-                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=MarthaInnkeeper&scale=110" alt="마사"></div>
+                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/adventurer/svg?seed=Martha&hair=curly" alt="마사"></div>
                 <div class="npc-nameplate">[주모] 마사</div>
             </div>
             <div class="facility-stand" id="fac-tavern">
                 <div class="fac-sign">🍺 주방 술통</div>
-                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=GordonChef&scale=110" alt="고든"></div>
+                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/adventurer/svg?seed=Gordon&hair=short01" alt="고든"></div>
                 <div class="npc-nameplate">[주방장] 고든</div>
             </div>
             <div class="facility-stand" id="fac-train">
                 <div class="fac-sign">🎯 수련 짚단</div>
-                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=BaronTrainer&scale=110" alt="바론"></div>
+                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/adventurer/svg?seed=Baron&hair=short04" alt="바론"></div>
                 <div class="npc-nameplate">[교관] 바론</div>
             </div>
             <div class="facility-stand" id="fac-shop">
                 <div class="fac-sign">🛒 무기 모루</div>
-                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=BrockSmith&scale=110" alt="브록"></div>
+                <div class="npc-emblem"><img src="https://api.dicebear.com/9.x/adventurer/svg?seed=Brock&hair=short02" alt="브록"></div>
                 <div class="npc-nameplate">[대장장이] 브록</div>
             </div>
         </div>
@@ -516,7 +528,7 @@
             <div class="list-container">
                 <div class="sub-header-banner">
                     <span>📜 길드 숙박 용병 명부</span>
-                    <span style="font-size:0.75rem; color:var(--pixel-gold);">터치하여 명령/관리</span>
+                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);">터치하여 명령/관리</span>
                 </div>
                 <div id="roster-card-list" style="display:flex; flex-direction:column; gap:8px;"></div>
                 <button class="btn-action-wide" id="btn-upgrade" onclick="upgradeGuild()" style="margin-top:6px;">여관 침상 증축 (+2인) : 1000G</button>
@@ -528,7 +540,7 @@
             <div class="list-container">
                 <div class="sub-header-banner">
                     <span>📜 접수처 게시판</span>
-                    <span style="font-size:0.75rem; color:var(--pixel-gold);">중개 수수료 20%</span>
+                    <span style="font-size:0.75rem; color:var(--hd-gold-bright);">중개 수수료 20%</span>
                 </div>
                 <div id="quest-card-list" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
@@ -563,9 +575,9 @@
 
             <div class="sheet-grid">
                 <div class="sheet-grid-item"><span>계급/경험치</span><span id="mmodal-lv">Lv.1 (0/100)</span></div>
-                <div class="sheet-grid-item"><span>전투력</span><span id="mmodal-power" style="color:var(--pixel-red)">⚔️ 25</span></div>
-                <div class="sheet-grid-item"><span>체력(기력)</span><span id="mmodal-stamina" style="color:var(--pixel-blue)">⚡ 100/100</span></div>
-                <div class="sheet-grid-item"><span>소지금</span><span id="mmodal-gold" style="color:var(--pixel-amber)">🪙 150</span></div>
+                <div class="sheet-grid-item"><span>전투력</span><span id="mmodal-power" style="color:var(--hd-danger)">⚔️ 25</span></div>
+                <div class="sheet-grid-item"><span>체력(기력)</span><span id="mmodal-stamina" style="color:var(--hd-stamina)">⚡ 100/100</span></div>
+                <div class="sheet-grid-item"><span>소지금</span><span id="mmodal-gold" style="color:#d35400">🪙 150</span></div>
                 <div class="sheet-grid-item" style="grid-column:span 2;"><span>착용 장비</span><span id="mmodal-equip">기본 장비</span></div>
                 <div class="sheet-grid-item" style="grid-column:span 2;"><span>현재 상태</span><span id="mmodal-status">여관 홀에서 휴식 중</span></div>
             </div>
@@ -582,7 +594,7 @@
     <div class="modal-backdrop" id="dict-modal">
         <div class="bottom-sheet" style="max-height:80vh;">
             <div class="sheet-pill-handle"></div>
-            <div style="font-size:1.05rem; font-family:var(--font-pixel); color:var(--wood-dark); text-align:center;">📖 35종 모험가 승급 계통도</div>
+            <div style="font-size:1.05rem; font-family:var(--font-pixel); color:var(--hd-wood-900); text-align:center;">📖 35종 모험가 승급 계통도</div>
             <div id="dict-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; padding-right:2px;"></div>
             <button class="btn-sheet close" onclick="document.getElementById('dict-modal').style.display='none'">닫기</button>
         </div>
@@ -593,7 +605,7 @@
 
 <script>
     // ==========================================
-    // 🌟 1. 데이터 베이스 (고밀도 도트 픽셀 시드)
+    // 🌟 1. 데이터 베이스 (256-유닛 고밀도 마이크로 아바타)
     // ==========================================
     const NAMES = [
         "아서", "렌", "엘리스", "바츠", "카일", "루시", "테오", "세리아", "카론", "제이드", 
@@ -601,13 +613,13 @@
         "레이나", "이안", "로제", "카밀라", "리온", "루카스", "실비아", "아리안", "헥터", "베른"
     ];
 
-    // 정교한 도트 픽셀용 고유 시드
+    // 256 해상도 고밀도 판타지 스프라이트 시드
     const IMAGE_DB = {
-        "W_0": ["FelixKnight", "GarethWarrior", "HildPaladin", "RolandSlayer"],
-        "A_0": ["RobinHunter", "KaelenArcher", "LyraRanger", "SylvanScout"],
-        "R_0": ["ShadowThief", "NyxAssassin", "RavenRogue", "DanteBandit"],
-        "M_0": ["MerlinMage", "SolomonWizard", "AriaWitch", "IgnisSorcerer"],
-        "C_0": ["GracePriest", "BenedictCleric", "SilasBishop", "ValerieSaint"]
+        "W_0": ["Alexander", "Galahad", "Valerius", "Kaelen", "Thorin"],
+        "A_0": ["Robin", "Artemis", "Faye", "Silas", "Hawke"],
+        "R_0": ["Shadow", "Loki", "Vesper", "Nyx", "Dante"],
+        "M_0": ["Merlin", "Morgana", "Ignis", "Zephyr", "Rowan"],
+        "C_0": ["Benedict", "Aurelia", "Seraphina", "Lucius", "Elysia"]
     };
 
     const CLASS_DB = {
@@ -671,7 +683,7 @@
         shop:   { name: "대장간", x: 74, y: 60 }
     };
 
-    const SAVE_KEY = "fantasyGuild_Tavern_v11_finepixel";
+    const SAVE_KEY = "fantasyGuild_Tavern_v12_256micro";
 
     let guild = { timeMin: 480, money: 500, capacity: 5, upgradeCost: 1000, roster: [], quests: [] };
     let gameSpeed = 1; 
@@ -692,9 +704,10 @@
             this.baseJobId = BASE_CLASSES[Math.floor(Math.random() * BASE_CLASSES.length)];
             this.jobId = this.baseJobId; 
             
-            // 고밀도 도트 픽셀 캐릭터 URL 생성 (Pixel Art 프리셋)
-            this.portraitSeed = IMAGE_DB[this.baseJobId][Math.floor(Math.random() * IMAGE_DB[this.baseJobId].length)] + '_' + Math.floor(Math.random()*99);
-            this.portraitUrl = `https://api.dicebear.com/9.x/pixel-art/svg?seed=${this.portraitSeed}&scale=110&backgroundColor=transparent`;
+            // 256 해상도 기반의 정밀 마이크로 캐릭터 아바타
+            let seedBase = IMAGE_DB[this.baseJobId][Math.floor(Math.random() * IMAGE_DB[this.baseJobId].length)];
+            this.portraitSeed = `${seedBase}_${Math.floor(Math.random()*999)}`;
+            this.portraitUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${this.portraitSeed}&backgroundColor=transparent`;
             
             this.level = 1; this.exp = 0; this.equipTier = 0;
             this.basePower = 15 + Math.floor(Math.random() * 10);
@@ -916,7 +929,7 @@
             let c = CLASS_DB[key];
             let nextStr = c.nextJobs && c.nextJobs.length > 0 ? c.nextJobs.map(k=>CLASS_DB[k].name).join(', ') : '최종';
             list.innerHTML += `
-                <div style="background:var(--parch-light); padding:8px; border:2px solid var(--wood-black); border-left:4px solid ${c.color}; display:flex; justify-content:space-between; align-items:center;">
+                <div style="background:var(--hd-parch-light); padding:8px; border:1px solid var(--hd-wood-900); border-left:4px solid ${c.color}; display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <div style="font-size:0.88rem; font-family:var(--font-pixel); color:${c.color};">${c.tier}차 · ${c.name}</div>
                         <div style="font-size:0.7rem; color:#5a3014; margin-top:2px;">승급: ${nextStr} (필요 Lv.${c.req})</div>
@@ -1193,8 +1206,8 @@
         for(let arr of d.r) {
             let m = new Mercenary();
             m.id = arr[0]; m.name = arr[1]; m.baseJobId = arr[2]; m.jobId = arr[3];
-            m.portraitSeed = arr[4] || 'FelixKnight_1';
-            m.portraitUrl = `https://api.dicebear.com/9.x/pixel-art/svg?seed=${m.portraitSeed}&scale=110&backgroundColor=transparent`;
+            m.portraitSeed = arr[4] || 'Alexander_1';
+            m.portraitUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${m.portraitSeed}&backgroundColor=transparent`;
             m.level = arr[5]; m.exp = arr[6]; m.equipTier = arr[7]; m.basePower = arr[8]; m.money = arr[9];
             m.stamina = arr[10]; m.status = arr[11] === 'moving' ? 'idle' : arr[11];
             m.currentAction = arr[12]; m.targetMin = arr[13]; m.pendingAction = null; 
