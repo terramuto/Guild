@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v20 · 용병 전투 모션 프레임</title>
+<title>용병 길드 v21 · 36직업 전투 모션</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -3365,7 +3365,7 @@ renderTabExtras=function(){
  document.getElementById('battle-detail').innerHTML=e?`<div><b>${esc16(e.quest.name)}</b><p class="small">참가: ${esc16(memberNames(e.memberIds))}<br>출현: ${esc16(encounterNames(e.quest))}<br>장소: ${BATTLE_GROUNDS[backgroundIndex(e.quest)].name}<br>출발 전투력 ${e.combinedPower} · 예상 성공률 ${Math.round(e.successChance*100)}%</p></div><div><b>예상 귀환</b><p class="small">${absoluteTimeLabel(e.returnAt)}<br>밤 00:00~06:00도 수행한 것으로 계산됩니다.</p></div>`:'<p class="hint">출발한 의뢰가 생기면 자동으로 첫 임무를 관전합니다.</p>';
 };
 const makeSaveV18=makeSave;
-makeSave=function(){const save=makeSaveV18();save.appVersion=20;return save;};
+makeSave=function(){const save=makeSaveV18();save.appVersion=21;return save;};
 setupBattleTab();
 for(const room of roomDefs){
  const surface=document.getElementById(room.key+'-view');if(!surface)continue;
@@ -3378,24 +3378,23 @@ for(const room of roomDefs){
 
 setupEncounterGuide();
 
-// v20: actual mercenary animation frames layered over the job-specific weapon atlas.
-const MERC_MOTION_URL='assets/mercenary-motion-v20.png';
+// v21: every one of the 36 jobs gets a four-frame strip derived from the v20 source sheet.
+const MERC_MOTION_URL='assets/mercenary-motion-v21.png';
 const mercMotion=new Image();mercMotion.src=MERC_MOTION_URL;
 const mercMotionReady=mercMotion.decode().catch(()=>{});
 function mercMotionRow(job){
- const motion=weaponForJob(job).motion;
- if(motion==='bow')return 2;
- if(motion==='magic')return 3;
- if(motion==='heal')return 4;
- if(motion==='dagger'||motion==='throw')return 1;
- return 0;
+ const normalized=LEGACY_THIRD_MAP[job]||job;
+ const idx=WEAPON_JOBS.indexOf(normalized);
+ if(idx>=0)return idx;
+ const early=EARLY_WEAPON_JOBS.indexOf(normalized);
+ return early>=0?20+early:0;
 }
 function mercMotionFrame(p){
  if(p<.17)return 0;if(p<.30)return 1;if(p<.44)return 2;if(p<.65)return 3;return 0;
 }
 function drawMercMotionBody(c,m,x,y,a){
  if(!mercMotion.naturalWidth)return false;
- const col=mercMotionFrame(a.p),row=mercMotionRow(m.job),sw=mercMotion.naturalWidth/4,sh=mercMotion.naturalHeight/5;
+ const col=mercMotionFrame(a.p),row=mercMotionRow(m.job),sw=mercMotion.naturalWidth/4,sh=mercMotion.naturalHeight/36;
  const bodySize=92;
  c.save();c.globalAlpha=a.alpha;c.translate(a.x,a.y);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;
  c.drawImage(mercMotion,col*sw,row*sh,sw,sh,-bodySize/2,-bodySize,bodySize,bodySize);c.restore();return true;
@@ -3407,7 +3406,7 @@ function drawMercenaryFighter(c,m,x,y,t,index,mode){
  const img=spriteImages[spriteKeyForJob(m.job)];
  if(animated){
   drawMercMotionBody(c,m,xp,yp,a);
-  if(a.melee&&a.combat&&p>.19&&p<.31){for(let k=3;k>=1;k--){c.save();c.globalAlpha=.06*(4-k);c.drawImage(mercMotion,(mercMotionFrame(Math.max(0,p-k*.035))*mercMotion.naturalWidth/4),mercMotionRow(m.job)*mercMotion.naturalHeight/5,mercMotion.naturalWidth/4,mercMotion.naturalHeight/5,xp-46-k*15,yp-91,92,92);c.restore();}}
+  if(a.melee&&a.combat&&p>.19&&p<.31){for(let k=3;k>=1;k--){c.save();c.globalAlpha=.06*(4-k);c.drawImage(mercMotion,(mercMotionFrame(Math.max(0,p-k*.035))*mercMotion.naturalWidth/4),mercMotionRow(m.job)*mercMotion.naturalHeight/36,mercMotion.naturalWidth/4,mercMotion.naturalHeight/36,xp-46-k*15,yp-91,92,92);c.restore();}}
  }else if(img){c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();}
  c.save();c.translate(xp+24,yp-35);c.rotate(reducedBattleMotion?0:magic?-.3*a.wind:bow?-.2*a.wind:['thrust','dagger'].includes(a.type)?-.5+a.strike*.3:-a.wind*.8+a.strike*1.35);drawBattleWeapon(c,m.job,-18,-53,76);c.restore();
  if(a.combat&&!reducedBattleMotion){
@@ -3427,8 +3426,6 @@ function drawMercenaryFighter(c,m,x,y,t,index,mode){
  if(mode==='explore'){c.fillStyle='#f9dc8544';c.beginPath();c.arc(xp+35,yp-40,12,0,Math.PI*2);c.fill();}
  battleLabel(c,m.name,xp,yp+27,16);battleLabel(c,m.job,xp,yp+46,12,'#e0dccb');if(a.combat&&p<.65)battleLabel(c,a.stage,xp,yp-98,12,magic?'#c6daff':'#ffdf9f');battleHitTargets.push({id:m.id,x:xp-48,y:yp-106,w:112,h:159});
 }
-
-
 init();
 </script>
 </body>
