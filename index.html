@@ -3368,7 +3368,7 @@ const v30EquipmentCatalog=[
 const v30PartyRoles=[['front','전열'],['damage','화력'],['support','지원'],['scout','정찰']];
 function v30ReputationStage(rep=state.reputation){if(rep>=80)return {level:4,name:'왕실 후원',next:null};if(rep>=45)return {level:3,name:'귀족 신뢰',next:80};if(rep>=20)return {level:2,name:'도시 명성',next:45};return {level:1,name:'신생 길드',next:20};}
 function v30EnsureEquipment(m){
- if(typeof ensureIdentity==='function')ensureIdentity(m);m.ageAnchor??=state.gameMinute;const old=m.gear||{name:'초보자의 무기',power:3,rank:0,durability:100};m.equipment=m.equipment&&typeof m.equipment==='object'?m.equipment:{};
+ if(typeof ensureIdentity==='function')ensureIdentity(m);m.ageAnchor??=state.gameMinute;m.inventory=m.inventory&&typeof m.inventory==='object'?m.inventory:{};for(const item of goods||[])m.inventory[item.id]??=0;const old=m.gear||{name:'초보자의 무기',power:3,rank:0,durability:100};m.equipment=m.equipment&&typeof m.equipment==='object'?m.equipment:{};
  for(const slot of v30EquipmentSlots)m.equipment[slot]??=(slot==='weapon'?old:null);
  m.gear=m.equipment.weapon||old;m.equipment.weapon=m.gear;
 }
