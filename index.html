@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v27 · 전투 모션 정리</title>
+<title>용병 길드 v28 · 이름·시설 레벨 정리</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -3293,7 +3293,7 @@ renderTabExtras=function(){
  document.getElementById('battle-detail').innerHTML=e?`<div><b>${esc16(e.quest.name)}</b><p class="small">참가: ${esc16(memberNames(e.memberIds))}<br>출현: ${esc16(encounterNames(e.quest))}<br>장소: ${BATTLE_GROUNDS[backgroundIndex(e.quest)].name}<br>출발 전투력 ${e.combinedPower} · 예상 성공률 ${Math.round(e.successChance*100)}%</p></div><div><b>예상 귀환</b><p class="small">${absoluteTimeLabel(e.returnAt)}<br>밤 00:00~06:00도 수행한 것으로 계산됩니다.</p></div>`:'<p class="hint">출발한 의뢰가 생기면 자동으로 첫 임무를 관전합니다.</p>';
 };
 const makeSaveV18=makeSave;
-makeSave=function(){const save=makeSaveV18();save.appVersion=27;return save;};
+makeSave=function(){const save=makeSaveV18();save.appVersion=28;return save;};
 setupBattleTab();
 for(const room of roomDefs){
  const surface=document.getElementById(room.key+'-view');if(!surface)continue;
