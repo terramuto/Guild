@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v25 · 무기 정리·투명 버그 수정</title>
+<title>용병 길드 v26 · 전투 이미지 정리</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -3123,17 +3123,6 @@ function weaponForJob(job){
  const i=weaponIndex(job),early=i>=20;
  return {id:i,name:WEAPON_NAMES[i],atlas:early?'earlyWeapons':'weapons',index:early?i-20:i,cols:early?4:5,rows:4,motion:WEAPON_MOTIONS[i],tier:early?(i===20?0:i<26?1:2):3};
 }
-function drawBattleWeapon(c,job,x,y,size=70){
- const w=weaponForJob(job),s=size/70,m=w.motion;
- const color=m==='magic'?'#8bd7ff':m==='heal'?'#ffe7a4':m==='bow'?'#a9df9d':m==='dagger'||m==='throw'?'#d9c7ff':'#e6c17a';
- c.save();c.translate(x,y);c.scale(s,s);c.lineCap='round';c.lineJoin='round';c.strokeStyle=color;c.fillStyle=color;c.lineWidth=5;
- if(m==='bow'){c.beginPath();c.arc(0,0,27,-1.15,1.15);c.stroke();c.beginPath();c.moveTo(-8,-25);c.lineTo(34,0);c.lineTo(-8,25);c.stroke();}
- else if(m==='magic'||m==='heal'){c.strokeStyle='#a9794e';c.lineWidth=6;c.beginPath();c.moveTo(-16,24);c.lineTo(14,-22);c.stroke();c.fillStyle=color;c.beginPath();c.arc(16,-25,9,0,Math.PI*2);c.fill();}
- else if(m==='shield'){c.fillStyle='#6f9fc6';c.beginPath();c.moveTo(-22,-25);c.lineTo(22,-25);c.lineTo(26,13);c.lineTo(0,30);c.lineTo(-26,13);c.closePath();c.fill();c.strokeStyle='#f2d58a';c.stroke();}
- else if(m==='dagger'||m==='throw'){c.beginPath();c.moveTo(-18,18);c.lineTo(23,-22);c.stroke();c.strokeStyle='#8d6748';c.beginPath();c.moveTo(-25,25);c.lineTo(-13,13);c.stroke();}
- else {c.beginPath();c.moveTo(-18,22);c.lineTo(27,-24);c.stroke();c.strokeStyle='#8d6748';c.beginPath();c.moveTo(-25,25);c.lineTo(-12,12);c.stroke();}
- c.restore();
-}
 function bossIndex(q){
  const m=/^named-(\d+)$/.exec(q.bossId||'');
  if(m&&+m[1]<25)return +m[1];
@@ -3252,50 +3241,12 @@ function queueBattleFX(row,progress,x,y,size,alpha=1,angle=0,impact=false){
  if(progress<0||progress>=1)return;
  battleEffects.push({row,frame:Math.min(3,Math.floor(progress*4)),x,y,size,alpha:alpha*(progress>.78?1-(progress-.78)/.22:1),angle,impact});
 }
-function drawMercenaryFighterV19(c,m,x,y,t,index,mode){
- const a=battlePose(m,x,y,t,index,mode),p=a.p,xp=a.x,yp=a.y,w=weaponForJob(m.job),target=a.target;
- const magic=['magic','heal'].includes(a.type),bow=a.type==='bow',strike=a.strike;
- c.fillStyle='#08121c65';c.beginPath();c.ellipse(xp,yp+5,35,10,0,0,Math.PI*2);c.fill();
- const img=spriteImages[spriteKeyForJob(m.job)];
- if(img){
-  if(!reducedBattleMotion&&a.melee&&a.combat&&p>.19&&p<.31){
-   for(let k=3;k>=1;k--){c.save();c.globalAlpha=.08*(4-k);c.drawImage(img,xp-40-k*15,yp-78,80,80);c.restore();}
-  }
-  c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();
- }else drawMercenaryFallback(c,xp,yp,a.alpha);
- c.save();c.translate(xp+24,yp-35);c.rotate(reducedBattleMotion?0:magic?-.3*a.wind:bow?-.2*a.wind:['thrust','dagger'].includes(a.type)?-.5+strike*.3:-a.wind*.8+strike*1.35);drawBattleWeapon(c,m.job,-18,-53,76);c.restore();
- if(a.combat&&!reducedBattleMotion){
-  // The release and impact share one phase so projectiles actually reach the target.
-  if(a.melee){
-   queueBattleFX(a.type==='heavy'?1:0,(p-.3)/.2,xp+65,yp-42,a.type==='heavy'?132:112,.92,a.type==='thrust'?-.4:0);
-   queueBattleFX(1,(p-.36)/.22,target.x,target.bodyY,a.type==='heavy'?125:82,.85,0,true);
-  }else if(bow||a.type==='throw'){
-   if(p>=.25&&p<.44){const travel=(p-.25)/.19;battleEffects.push({projectile:a.type,x:xp+45+(target.x-xp-45)*travel,y:yp-46+(target.bodyY-yp+46)*travel,angle:Math.atan2(target.bodyY-yp+46,target.x-xp-45),job:m.job});}
-   queueBattleFX(1,(p-.44)/.2,target.x,target.bodyY,82,.85,0,true);
-  }else if(a.type==='magic'){
-   queueBattleFX(2,p/.23,xp+45,yp-82,70,.75);
-   if(p>=.25&&p<.44){const u=(p-.25)/.19;queueBattleFX(2,.25,xp+50+(target.x-xp-50)*u,yp-64+(target.bodyY-yp+64)*u,70,.95);}
-   queueBattleFX(2,(p-.44)/.23,target.x,target.bodyY,140,.95,0,true);
-  }else if(a.type==='heal'){
-   queueBattleFX(3,(p-.2)/.42,xp,yp-28,128,.9);
-   const e=activeWatchedExpedition(),ally=e?.memberIds.map(mercById).filter(Boolean).find(v=>v.id!==m.id);
-   if(ally){const j=e.memberIds.indexOf(ally.id),home=battleHomeFor(ally.id,j),b=battlePose(ally,home.x,home.y,t,j,mode);queueBattleFX(3,(p-.28)/.38,b.x,b.y-25,112,.8);}
-  }
-  if(a.guard){c.strokeStyle='#b6daffaa';c.lineWidth=3;c.beginPath();c.arc(xp+22,yp-40,35,-1.2,1.2);c.stroke();}
- }
- if(mode==='gather'&&!reducedBattleMotion)queueBattleFX(1,(p-.3)/.2,xp+48,yp-10,45,.5);
- if(mode==='ritual'&&!reducedBattleMotion)queueBattleFX(2,p,xp,yp-70,95,.6);
- if(mode==='explore'){c.fillStyle='#f9dc8544';c.beginPath();c.arc(xp+35,yp-40,12,0,Math.PI*2);c.fill();}
- battleLabel(c,m.name,xp,yp+27,16);battleLabel(c,m.job,xp,yp+46,12,'#e0dccb');
- if(a.combat&&p<.65)battleLabel(c,a.stage,xp,yp-98,12,magic?'#c6daff':'#ffdf9f');
- battleHitTargets.push({id:m.id,x:xp-48,y:yp-106,w:112,h:159});
-}
 function drawBattleEffects(c){
  for(const effect of battleEffects){
   c.save();c.translate(effect.x,effect.y);c.rotate(effect.angle||0);
   if(effect.projectile==='bow'){
    c.strokeStyle='#fff0be';c.lineWidth=3;c.beginPath();c.moveTo(-36,0);c.lineTo(10,0);c.lineTo(2,-5);c.moveTo(10,0);c.lineTo(2,5);c.moveTo(-29,0);c.lineTo(-35,-5);c.moveTo(-29,0);c.lineTo(-35,5);c.stroke();
-  }else if(effect.projectile==='throw'){c.rotate(battleVisualTime/75);drawBattleWeapon(c,effect.job,-23,-23,46);}
+  }else if(effect.projectile==='throw'){c.globalAlpha=0;}
   else{c.globalAlpha=effect.alpha;atlasDraw(c,'combatFx',effect.row*4+effect.frame,4,4,-effect.size/2,-effect.size/2,effect.size,effect.size);}
   c.restore();
  }
@@ -3342,7 +3293,7 @@ renderTabExtras=function(){
  document.getElementById('battle-detail').innerHTML=e?`<div><b>${esc16(e.quest.name)}</b><p class="small">참가: ${esc16(memberNames(e.memberIds))}<br>출현: ${esc16(encounterNames(e.quest))}<br>장소: ${BATTLE_GROUNDS[backgroundIndex(e.quest)].name}<br>출발 전투력 ${e.combinedPower} · 예상 성공률 ${Math.round(e.successChance*100)}%</p></div><div><b>예상 귀환</b><p class="small">${absoluteTimeLabel(e.returnAt)}<br>밤 00:00~06:00도 수행한 것으로 계산됩니다.</p></div>`:'<p class="hint">출발한 의뢰가 생기면 자동으로 첫 임무를 관전합니다.</p>';
 };
 const makeSaveV18=makeSave;
-makeSave=function(){const save=makeSaveV18();save.appVersion=25;return save;};
+makeSave=function(){const save=makeSaveV18();save.appVersion=26;return save;};
 setupBattleTab();
 for(const room of roomDefs){
  const surface=document.getElementById(room.key+'-view');if(!surface)continue;
@@ -3374,9 +3325,6 @@ function spriteThumbForJob(job){
  oc.drawImage(mercJobAtlas,(idx%6)*sw,Math.floor(idx/6)*sh,sw,sh,0,0,128,128);
  try{return jobThumbCache[normalized]=off.toDataURL('image/png');}catch{return MERC_JOB_ATLAS_URL;}
 }
-function drawMercenaryFallback(c,x,y,alpha=1){
- c.save();c.globalAlpha=Math.max(.85,alpha);c.translate(x,y);c.fillStyle='#d9b47a';c.beginPath();c.arc(0,-55,12,0,Math.PI*2);c.fill();c.fillStyle='#557b89';c.fillRect(-15,-43,30,38);c.fillStyle='#3b4d59';c.fillRect(-13,-5,10,20);c.fillRect(3,-5,10,20);c.restore();
-}
 function mercMotionRow(job){
  const normalized=LEGACY_THIRD_MAP[job]||job;
  const idx=JOB_ATLAS_ORDER.indexOf(normalized);
@@ -3388,40 +3336,16 @@ function mercMotionFrame(p){
 function drawMercMotionBody(c,m,x,y,a){
  if(!mercJobAtlas.naturalWidth)return false;
  const idx=mercMotionRow(m.job),col=idx%6,row=Math.floor(idx/6),sw=mercJobAtlas.naturalWidth/6,sh=mercJobAtlas.naturalHeight/6;
- const phase=mercMotionFrame(a.p),bodySize=104;
- c.save();c.globalAlpha=a.alpha;c.translate(x,y);c.imageSmoothingEnabled=false;
- // Each job has its own source character; the pose phase adds a readable strike/cast motion.
- if(phase===1){c.translate(0,-2);c.rotate(a.lean*.35);c.scale(1.02,.98);}
- else if(phase===2){c.translate(a.melee?6:2,-6);c.rotate(a.melee?-.10:-.04);c.scale(1.08,.94);}
- else if(phase===3){c.translate(-2,1);c.rotate(a.lean*.7);c.scale(.98,1.03);}
+ const bodySize=104;
+ c.save();c.globalAlpha=1;c.translate(x,y);c.imageSmoothingEnabled=false;
  c.drawImage(mercJobAtlas,col*sw,row*sh,sw,sh,-bodySize/2,-bodySize,bodySize,bodySize);c.restore();return true;
 }
 function drawMercenaryFighter(c,m,x,y,t,index,mode){
- const a=battlePose(m,x,y,t,index,mode),p=a.p,xp=a.x,yp=a.y,w=weaponForJob(m.job),animated=a.combat&&!reducedBattleMotion&&mercJobAtlas.naturalWidth;
- const magic=['magic','heal'].includes(a.type),bow=a.type==='bow';
- c.fillStyle='#08121c65';c.beginPath();c.ellipse(xp,yp+5,35,10,0,0,Math.PI*2);c.fill();
- const img=spriteImages[spriteKeyForJob(m.job)];
- if(animated){
-  drawMercMotionBody(c,m,xp,yp,a);
-  if(a.melee&&a.combat&&p>.19&&p<.31){for(let k=3;k>=1;k--){c.save();c.globalAlpha=.06*(4-k);drawMercMotionBody(c,m,xp-k*15,yp,a);c.restore();}}
- }else if(img){c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();}else drawMercenaryFallback(c,xp,yp,a.alpha);
- c.save();c.translate(xp+24,yp-35);c.rotate(reducedBattleMotion?0:magic?-.3*a.wind:bow?-.2*a.wind:['thrust','dagger'].includes(a.type)?-.5+a.strike*.3:-a.wind*.8+a.strike*1.35);drawBattleWeapon(c,m.job,-18,-53,76);c.restore();
- if(a.combat&&!reducedBattleMotion){
-  if(a.melee){queueBattleFX(a.type==='heavy'?1:(a.type==='thrust'?0:0),(p-.3)/.2,xp+65,yp-42,a.type==='heavy'?132:112,.92,a.type==='thrust'?-0.4:0);queueBattleFX(1,(p-.36)/.22,a.target.x,a.target.bodyY,a.type==='heavy'?125:82,.85,0,true);}
-  else if(bow||a.type==='throw'){
-   if(p>=.25&&p<.44){const travel=(p-.25)/.19;battleEffects.push({projectile:a.type,x:xp+45+(a.target.x-xp-45)*travel,y:yp-46+(a.target.bodyY-yp+46)*travel,angle:Math.atan2(a.target.bodyY-yp+46,a.target.x-xp-45),job:m.job});}
-   queueBattleFX(1,(p-.44)/.2,a.target.x,a.target.bodyY,82,.85,0,true);
-  }else if(a.type==='magic'){
-   queueBattleFX(2,p/.23,xp+45,yp-82,70,.75);if(p>=.25&&p<.44){const u=(p-.25)/.19;queueBattleFX(2,.25,xp+50+(a.target.x-xp-50)*u,yp-64+(a.target.bodyY-yp+64)*u,70,.95);}queueBattleFX(2,(p-.44)/.23,a.target.x,a.target.bodyY,140,.95,0,true);
-  }else if(a.type==='heal'){
-   queueBattleFX(3,(p-.2)/.42,xp,yp-28,128,.9);const e=activeWatchedExpedition(),ally=e?.memberIds.map(mercById).filter(Boolean).find(v=>v.id!==m.id);if(ally){const j=e.memberIds.indexOf(ally.id),home=battleHomeFor(ally.id,j),b=battlePose(ally,home.x,home.y,t,j,mode);queueBattleFX(3,(p-.28)/.38,b.x,b.y-25,112,.8);}
-  }
-  if(a.guard){c.strokeStyle='#b6daffaa';c.lineWidth=3;c.beginPath();c.arc(xp+22,yp-40,35,-1.2,1.2);c.stroke();}
- }
- if(mode==='gather'&&!reducedBattleMotion)queueBattleFX(1,(p-.3)/.2,xp+48,yp-10,45,.5);
- if(mode==='ritual'&&!reducedBattleMotion)queueBattleFX(2,p,xp,yp-70,95,.6);
- if(mode==='explore'){c.fillStyle='#f9dc8544';c.beginPath();c.arc(xp+35,yp-40,12,0,Math.PI*2);c.fill();}
- battleLabel(c,m.name,xp,yp+27,16);battleLabel(c,m.job,xp,yp+46,12,'#e0dccb');if(a.combat&&p<.65)battleLabel(c,a.stage,xp,yp-98,12,magic?'#c6daff':'#ffdf9f');battleHitTargets.push({id:m.id,x:xp-48,y:yp-106,w:112,h:159});
+ const a=battlePose(m,x,y,t,index,mode),xp=a.x,yp=a.y;
+ if(mercJobAtlas.naturalWidth)drawMercMotionBody(c,m,xp,yp,a);
+ battleLabel(c,m.name,xp,yp+27,16);
+ battleLabel(c,m.job,xp,yp+46,12,'#e0dccb');
+ battleHitTargets.push({id:m.id,x:xp-48,y:yp-106,w:112,h:159});
 }
 init();
 </script>
