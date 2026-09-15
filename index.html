@@ -3404,7 +3404,7 @@ function drawMercenaryFighter(c,m,x,y,t,index,mode){
  if(animated){
   drawMercMotionBody(c,m,xp,yp,a);
   if(a.melee&&a.combat&&p>.19&&p<.31){for(let k=3;k>=1;k--){c.save();c.globalAlpha=.06*(4-k);drawMercMotionBody(c,m,xp-k*15,yp,a);c.restore();}}
- }else if(img){c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();}
+ }else if(img){c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();}else drawMercenaryFallback(c,xp,yp,a.alpha);
  c.save();c.translate(xp+24,yp-35);c.rotate(reducedBattleMotion?0:magic?-.3*a.wind:bow?-.2*a.wind:['thrust','dagger'].includes(a.type)?-.5+a.strike*.3:-a.wind*.8+a.strike*1.35);drawBattleWeapon(c,m.job,-18,-53,76);c.restore();
  if(a.combat&&!reducedBattleMotion){
   if(a.melee){queueBattleFX(a.type==='heavy'?1:(a.type==='thrust'?0:0),(p-.3)/.2,xp+65,yp-42,a.type==='heavy'?132:112,.92,a.type==='thrust'?-0.4:0);queueBattleFX(1,(p-.36)/.22,a.target.x,a.target.bodyY,a.type==='heavy'?125:82,.85,0,true);}
