@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v18 · 전투 관전 아트</title>
+<title>용병 길드 v19 · 전 직업 무기·일반 몬스터·전투 모션</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -521,6 +521,13 @@ button:focus-visible{outline:3px solid #9ce7dc;outline-offset:3px}
 .battle-stage{min-width:0}.battle-mission{overflow-wrap:anywhere}.battle-stage .hint{line-height:1.7}
 .occupant[role=button]{cursor:pointer}.occupant[role=button]:focus-visible{outline:2px solid #a1dbc3;outline-offset:2px}
 @media(min-width:1200px){.battle-layout{grid-template-columns:minmax(0,1fr) 290px}}
+
+.battle-motion-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;color:#cbdacf;font-size:13px}.battle-motion-toggle input{accent-color:#88cbb0;width:16px;height:16px}
+.merc-layout .party-panel{height:420px;max-height:420px;display:flex;flex-direction:column;overflow:hidden}
+.merc-layout .party-panel .panel-head{flex:0 0 auto}
+.merc-layout .party-panel #party-list{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.quest-guide{grid-column:1/-1;margin-bottom:14px}.quest-guide summary{padding:16px;cursor:pointer;font-weight:bold}.quest-guide summary span{display:block;margin-top:7px;font-weight:normal}
+.quest-guide-scroll{max-height:480px;overflow:auto;padding:0 16px 16px;overscroll-behavior:contain}.quest-guide table{width:100%;border-collapse:collapse;text-align:left;font-size:13px}.quest-guide th,.quest-guide td{padding:12px 8px;border-bottom:1px solid #3c4944}.quest-guide th{position:sticky;top:0;background:#1c2824}.quest-guide td{min-width:90px}
 
 </style>
 
@@ -3126,29 +3133,113 @@ function roundRect17(c,x,y,w,h,r,fill,stroke){
  c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}
 }
 // v18: generated scene atlases. Mission outcomes still belong to the simulation.
-const BATTLE_ASSET_URLS={bosses:'assets/bosses-v18.png',backgrounds:'assets/backgrounds-v18.png',weapons:'assets/weapons-v18.png'};
+const BATTLE_ASSET_URLS={bosses:'assets/bosses-v18.png',backgrounds:'assets/backgrounds-v18.png',weapons:'assets/weapons-v18.png',earlyWeapons:'assets/weapons-early-v19.png',combatFx:'assets/combat-fx-v19.png',normalMonsters:'assets/normal-monsters-v19.png',coast:'assets/coast-v19.png'};
 const battleAssets={};
 const battleAssetsReady=Promise.all(Object.entries(BATTLE_ASSET_URLS).map(async([key,url])=>{
  const img=new Image();img.src=url;
  try{await img.decode();battleAssets[key]=img;}catch{battleAssets[key]=null;}
 }));
+// Each of the 36 jobs has its own atlas cell. Job identity controls visuals only.
 const WEAPON_JOBS=Object.values(CAREER_PATHS).flat().map(v=>v[0]);
-const WEAPON_NAMES=['용창','암흑 룬검','전장의 망치','혈투 도끼','야수의 활','정밀 석궁','바람의 활','번개 장궁','밤의 단검','그림자 단검','차크람','탐험가의 채찍','비전 지팡이','원소 지팡이','강령 지팡이','저주의 마도서','정화 지팡이','예언의 홀','수호의 검','심판의 철퇴'];
+const EARLY_WEAPON_JOBS=['모험가','검사','궁수','도적','마법사','사제','기사','광전사','사냥꾼','레인저','암살자','로그','원소술사','흑마법사','성직자','성전사'];
+const WEAPON_NAMES=['용창','암흑 룬검','전장의 망치','혈투 도끼','야수의 활','정밀 석궁','바람의 활','번개 장궁','밤의 단검','그림자 단검','차크람','탐험가의 채찍','비전 지팡이','원소 지팡이','강령 지팡이','저주의 마도서','정화 지팡이','예언의 홀','수호의 검','심판의 철퇴','여행자의 철제 소검','검사의 강철 장검','궁수의 나무 단궁','도적의 곡선 단검','마법사의 수정 지팡이','사제의 나무 십자 지팡이','기사의 청강검','광전사의 전투 도끼','사냥꾼의 참나무 활','레인저의 물푸레 장궁','암살자의 흑철 스틸레토','로그의 갈고리 단검','원소술사의 삼원소 지팡이','흑마법사의 보랏빛 지팡이','성직자의 은제 목장','성전사의 강철 철퇴'];
+const WEAPON_MOTIONS=['thrust','slash','heavy','heavy','bow','bow','bow','bow','dagger','dagger','throw','dagger','magic','magic','magic','magic','heal','heal','shield','heavy','slash','slash','bow','dagger','magic','heal','slash','heavy','bow','bow','dagger','dagger','magic','magic','heal','shield'];
 function weaponIndex(job){
- const i=WEAPON_JOBS.indexOf(job);if(i>=0)return i;
- const parent=LEGACY_THIRD_MAP[job];if(parent)return Math.max(0,WEAPON_JOBS.indexOf(parent));
- return ({모험가:18,검사:18,기사:0,광전사:3,궁수:4,사냥꾼:4,레인저:6,도적:8,암살자:8,로그:11,마법사:12,원소술사:13,흑마법사:15,사제:16,성직자:16,성전사:18})[job]??18;
+ const normalized=LEGACY_THIRD_MAP[job]||job,i=WEAPON_JOBS.indexOf(normalized);
+ return i>=0?i:20+Math.max(0,EARLY_WEAPON_JOBS.indexOf(normalized));
+}
+function weaponForJob(job){
+ const i=weaponIndex(job),early=i>=20;
+ return {id:i,name:WEAPON_NAMES[i],atlas:early?'earlyWeapons':'weapons',index:early?i-20:i,cols:early?4:5,rows:4,motion:WEAPON_MOTIONS[i],tier:early?(i===20?0:i<26?1:2):3};
+}
+function drawBattleWeapon(c,job,x,y,size=70){
+ const w=weaponForJob(job);atlasDraw(c,w.atlas,w.index,w.cols,w.rows,x,y,size,size);
 }
 function bossIndex(q){
  const m=/^named-(\d+)$/.exec(q.bossId||'');
  if(m&&+m[1]<25)return +m[1];
  return ({redfang:0,ashwing:11,dreadking:20})[q.bossId]??0;
 }
+const NORMAL_MONSTERS=['고블린 전사','고블린 궁수','산적 검사','산적 궁수','회색 늑대','멧돼지','동굴 박쥐','거대 거미','초록 슬라임','마력 정령','해골 병사','유령','움직이는 갑옷','오크 전사','오거','거대 게'];
+// Source alpha bounds keep the feet on the floor despite different transparent margins.
+const UNIT_BOUNDS={bosses:[[44,83,161,142],[288,59,164,168],[543,38,140,189],[781,54,173,172],[1050,71,165,155],[63,332,146,149],[288,295,172,185],[542,309,156,172],[771,295,196,185],[1035,321,178,160],[56,538,137,204],[283,555,193,184],[523,534,216,208],[774,535,214,207],[1032,551,189,191],[38,812,187,179],[286,810,181,181],[521,806,212,187],[781,808,201,185],[1030,820,191,174],[75,1042,152,179],[300,1060,170,162],[531,1049,177,173],[767,1053,198,169],[1042,1039,182,184]],normalMonsters:[[47,104,215,193],[354,88,197,209],[645,66,252,231],[980,65,225,232],[31,393,272,176],[344,373,269,193],[654,358,282,182],[970,392,259,180],[50,707,222,151],[379,614,183,260],[654,630,249,234],[973,614,254,286],[41,935,225,252],[316,940,274,247],[614,913,294,281],[952,991,291,199]]};
+function drawEncounterSprite(c,unit){const key=unit.named?'bosses':'normalMonsters',img=battleAssets[key],b=UNIT_BOUNDS[key][unit.index];if(!img||!b)return;const scale=unit.size/(img.naturalWidth/(unit.named?5:4)),w=b[2]*scale,h=b[3]*scale;c.drawImage(img,...b,-w/2,-h,w,h);}
+const ENCOUNTER_GUIDE=[
+ {name:'고블린 소굴 토벌',bg:0,mobs:[0,1]},
+ {name:'상단 호위',bg:1,mobs:[2,3]},
+ {name:'약초 채집',bg:0,mobs:[8,5]},
+ {name:'폐광 탐사',bg:2,mobs:[6,7]},
+ {name:'도적단 소탕',bg:1,mobs:[2,3]},
+ {name:'유적 조사',bg:3,mobs:[10,12]},
+ {name:'마력 이상 조사',bg:4,mobs:[9,11]},
+ {name:'실종자 수색',bg:0,mobs:[4,7]},
+ {name:'야수 추적',bg:0,mobs:[4,5]},
+ {name:'고대 성소 정화',bg:4,mobs:[11,10]},
+ {name:'상급 몬스터 토벌',bg:3,mobs:[13,14]},
+ {name:'보물선 잔해 탐색',bg:6,mobs:[15,10]},
+ {name:'철광석 운반',bg:2,mobs:[6,7],collection:true},
+ {name:'고대 금속 탐색',bg:3,mobs:[12,10],collection:true},
+ {name:'마수 뿔 수집',bg:0,mobs:[14,13],collection:true},
+ {name:'단단한 목재 확보',bg:0,mobs:[5,7],collection:true}
+];
+const BATTLE_GROUNDS=[{name:'숲',top:387},{name:'상단길',top:384},{name:'광산',top:386},{name:'폐허',top:380},{name:'성소',top:387},{name:'화산',top:383},{name:'해안',top:375}];
+function isNamedBattle(q){return q?.kind==='named'&&!!q.bossId&&NAMED_BOSSES.some(b=>b.id===q.bossId);}
+function encounterFor(q){return ENCOUNTER_GUIDE.find(g=>(q?.name||'').includes(g.name))||ENCOUNTER_GUIDE.find(g=>g.collection===!!q?.collection)||ENCOUNTER_GUIDE[0];}
 function backgroundIndex(q,mode){
- if(q?.bossId){const i=bossIndex(q);if([11,12,13,14,24].includes(i))return 5;if(i>=20&&i<=22)return 3;if([3,6,7].includes(i))return 4;return 0;}
- if(mode==='escort')return 1;if(mode==='ritual')return 4;
- if(/광|광석|철|수정/.test(q?.name||''))return 2;
- return mode==='explore'?3:0;
+ if(isNamedBattle(q)){const i=bossIndex(q);if([11,12,13,14,24].includes(i))return 5;if([16,17].includes(i))return 6;if(i>=20&&i<=22)return 3;if([3,6,7].includes(i))return 4;return 0;}
+ return encounterFor(q).bg;
+}
+function sceneEngaged(e,t){return isNamedBattle(e.quest)||['combat','escort'].includes(battleMode(e.quest))||Math.floor(t/7000)%2===1;}
+function battleFormation(e){
+ const ground=BATTLE_GROUNDS[backgroundIndex(e.quest)],members=e.memberIds.map(mercById).filter(Boolean);
+ const allies=members.map((m,i)=>{const front=['slash','heavy','thrust','dagger','shield'].includes(weaponForJob(m.job).motion);return {m,index:i,x:(front?350:160)+Math.floor(i/2)*95,y:Math.min(494,ground.top+(i%2)*76+Math.floor(i/2)*10)};});
+ const named=isNamedBattle(e.quest),guide=encounterFor(e.quest),count=named?1:Math.min(4,Math.max(2,e.quest.minMembers||1));
+ const enemies=Array.from({length:count},(_,i)=>{const index=named?bossIndex(e.quest):guide.mobs[i%guide.mobs.length];return {slot:i,named,index,name:named?(NAMED_BOSSES.find(b=>b.id===e.quest.bossId)?.name||e.quest.name):NORMAL_MONSTERS[index],x:named?795:[710,850,755,885][i],y:named?ground.top+86:ground.top+[10,45,90,104][i],size:named?([11,12,13,14,16,17,24].includes(index)?270:200):([5,7,12,13,14,15].includes(index)?114:100)};});
+ return {allies,enemies,ground};
+}
+function enemyBattlePose(enemy,t,engaged){
+ const p=((t+enemy.slot*670+1000)/3300)%1,ranged=!enemy.named&&[1,3,6,9,11].includes(enemy.index);
+ const travel=!engaged||reducedBattleMotion||ranged?0:smoothBattle((p-.2)/.13)*(1-smoothBattle((p-.44)/.2));
+ return {...enemy,x:enemy.x-travel*(enemy.named?90:enemy.x-520),y:enemy.y,attack:engaged&&p>=.32&&p<.48,p,ranged};
+}
+function battleTargetFor(index,t){
+ const e=activeWatchedExpedition();if(!e)return {x:735,y:395,bodyY:350};
+ const f=battleFormation(e),enemy=enemyBattlePose(f.enemies[index%f.enemies.length],t,sceneEngaged(e,t));return {...enemy,bodyY:enemy.y-enemy.size*.42};
+}
+function battleHomeFor(id,index){
+ const e=activeWatchedExpedition(),home=e&&battleFormation(e).allies.find(v=>v.m.id===id);return home||{x:155+index%2*150,y:395+Math.floor(index/2)*60};
+}
+function drawEncounterEnemy(c,enemy,t,engaged){
+ const p=enemyBattlePose(enemy,t,engaged),floating=!p.named&&[6,9,11].includes(p.index),lift=floating?14+(reducedBattleMotion?0:Math.sin(t/210+p.slot)*4):0;
+ c.fillStyle='#07151d50';c.beginPath();c.ellipse(p.x,p.y+3,p.size*.27,p.size*.07,0,0,Math.PI*2);c.fill();
+ const struck=battleEffects.some(f=>f.impact&&f.frame===1&&Math.abs(f.x-p.x)<70);
+ c.save();if(struck&&!reducedBattleMotion){c.translate(Math.sin(t/24)*4,0);c.filter='brightness(1.3)';}
+ c.translate(p.x,p.y-lift);if(p.attack&&!reducedBattleMotion)c.rotate(-.07*Math.sin((p.p-.32)/.16*Math.PI));
+ drawEncounterSprite(c,p);c.restore();
+ battleLabel(c,p.name,p.x,p.y+18,p.named?17:11,p.named?'#ffdda0':'#e4d7c0');
+ if(p.attack&&!reducedBattleMotion){
+  const e=activeWatchedExpedition(),allies=e&&battleFormation(e).allies,home=allies?.[p.slot%(allies?.length||1)];
+  if(home){const a=battlePose(home.m,home.x,home.y,t,home.index,'combat');c.strokeStyle='#efb1a1aa';c.lineWidth=3;c.beginPath();
+   if(p.ranged){const u=(p.p-.32)/.16,px=p.x+(a.x-p.x)*u,py=p.y-45+(a.y-p.y)*u;c.moveTo(px+18,py);c.lineTo(px-8,py);}
+   else c.arc(p.x-40,p.y-40,35,1.9,4.5);
+   c.stroke();if(p.ranged||Math.abs(p.x-a.x)<150)battleLabel(c,'방어',a.x,a.y-90,11,'#b6ddff');}
+ }
+}
+function drawOpposition(c,e,t,mode){for(const enemy of battleFormation(e).enemies)drawEncounterEnemy(c,enemy,t,sceneEngaged(e,t));}
+function renderBattleScene(c,e,t,mode){
+ const f=battleFormation(e),engaged=sceneEngaged(e,t),actionMode=engaged?'combat':mode;
+ // Populate effects before enemies render; draw characters from back to front by feet.
+ const units=f.allies.map(home=>({kind:'ally',home,y:battlePose(home.m,home.x,home.y,t,home.index,actionMode).y})).concat(f.enemies.map(enemy=>({kind:'enemy',enemy,y:enemy.y})));
+ units.sort((a,b)=>a.y-b.y);
+ for(const unit of units){if(unit.kind==='ally'){const h=unit.home;drawMercenaryFighter(c,h.m,h.x,h.y,t,h.index,actionMode);}else drawEncounterEnemy(c,unit.enemy,t,engaged);}
+ drawBattleEffects(c);
+ if(!['combat','escort'].includes(mode))battleLabel(c,engaged?'주변 몬스터와 교전 중':BATTLE_LABELS[mode]+' · 주변 경계',500,130,14,'#d8ebcf');
+}
+function encounterNames(q){return isNamedBattle(q)?NAMED_BOSSES.find(b=>b.id===q.bossId).name:encounterFor(q).mobs.map(i=>NORMAL_MONSTERS[i]).join(' · ');}
+function setupEncounterGuide(){
+ const section=document.createElement('section');section.className='panel quest-guide';section.innerHTML=`<details><summary>의뢰 종류·등장 몬스터 보기 <span class="small">기본 12종 · 대장간 수집 4종 · 네임드 25종</span></summary><div class="quest-guide-scroll" tabindex="0" aria-label="의뢰 종류와 등장 몬스터 목록"><table><thead><tr><th>의뢰</th><th>장소</th><th>일반 몬스터</th></tr></thead><tbody>${ENCOUNTER_GUIDE.map(g=>`<tr><td>${g.collection?'대장간 수집 · ':''}${g.name}</td><td>${BATTLE_GROUNDS[g.bg].name}</td><td>${g.mobs.map(i=>NORMAL_MONSTERS[i]).join(' · ')}</td></tr>`).join('')}</tbody></table><p class="hint">기본 의뢰는 개인·협동 파티로 생성됩니다. 수집 의뢰는 대장간 해금 후 등장합니다. 네임드는 아래 토벌 의뢰에서만 등장합니다.</p><p class="small">${NAMED_BOSSES.filter(b=>!b.legacy).map(b=>'네임드 토벌 · '+b.name).join('<br>')}</p></div></details>`;
+ document.getElementById('view-quests').prepend(section);
+ const parties=document.getElementById('party-list');parties.tabIndex=0;parties.setAttribute('aria-label','고정파티 목록 · 스크롤하여 더 보기');
 }
 function atlasDraw(c,key,index,cols,rows,x,y,w,h){
  const img=battleAssets[key];if(!img)return false;
@@ -3157,52 +3248,77 @@ function atlasDraw(c,key,index,cols,rows,x,y,w,h){
 }
 function drawBattleBackdrop(c,mode,q){
  c.fillStyle='#152621';c.fillRect(0,0,1000,560);
- atlasDraw(c,'backgrounds',backgroundIndex(q,mode),2,3,0,0,1000,560);
+ const bg=backgroundIndex(q,mode);if(bg===6)atlasDraw(c,'coast',0,1,1,0,0,1000,560);else atlasDraw(c,'backgrounds',bg,2,3,0,0,1000,560);
  const shade=c.createLinearGradient(0,0,0,560);shade.addColorStop(0,'#071014e8');shade.addColorStop(.24,'#07101420');shade.addColorStop(.76,'#07101400');shade.addColorStop(1,'#071014ce');c.fillStyle=shade;c.fillRect(0,0,1000,560);
 }
 let battleHitTargets=[],battleVisualTime=0,battleLastFrame=null;
 function battleLabel(c,text,x,y,size=15,color='#f6ecd4'){
  c.font=`600 ${size}px sans-serif`;c.textAlign='center';c.lineWidth=4;c.strokeStyle='#081219e6';c.strokeText(text,x,y);c.fillStyle=color;c.fillText(text,x,y);
 }
-function drawMercenaryFighter(c,m,x,y,t,index,mode){
- const phase=(t/1450+index*.23)%1,active=phase<.42,role=roleOf(m);
- const ranged=['single','speed','area','element','disrupt','heal','protect'].includes(role)&&!['검사','광전사','워로드','팔라딘'].includes(m.job);
- const combat=mode==='combat'||mode==='escort',lunge=combat&&active&&!ranged?Math.sin(phase/.42*Math.PI)*40:0;
- const bounce=Math.sin(t/220+index)*2,xp=x+lunge;
- c.fillStyle='#07121966';c.beginPath();c.ellipse(xp,y+4,35,10,0,0,Math.PI*2);c.fill();
- const img=spriteImages[spriteKeyForJob(m.job)];if(img){c.imageSmoothingEnabled=false;c.drawImage(img,xp-40,y-78+bounce,80,80);}
- c.save();c.translate(xp+23,y-35+bounce);c.rotate(active&&combat?Math.sin(phase/.42*Math.PI)*.55:0);atlasDraw(c,'weapons',weaponIndex(m.job),5,4,-16,-48,58,66);c.restore();
- if(active&&combat){
-  if(['heal','protect'].includes(role)){
-   c.strokeStyle='#96f3bd';c.lineWidth=3;c.beginPath();c.ellipse(xp,y,42+phase*20,12,0,0,Math.PI*2);c.stroke();battleLabel(c,'보호 · 회복',xp,y-97,13,'#bcffd8');
-  }else if(ranged){
-   const p=phase/.42,magic=['element','disrupt','area'].includes(role);c.strokeStyle=magic?'#b3b8ff':'#ffdc92';c.fillStyle=c.strokeStyle;c.lineWidth=magic?6:3;c.beginPath();c.moveTo(xp+45+p*(665-xp),y-45);c.lineTo(xp+65+p*(665-xp),y-45);c.stroke();
-  }else{c.strokeStyle='#fff0b8cc';c.lineWidth=4;c.beginPath();c.arc(xp+35,y-45,38,-1.4+phase*3,1.1+phase*3);c.stroke();}
- }
- if(mode==='gather'&&active)battleLabel(c,'수집 중',xp,y-99,13,'#ccf6ab');
- if(mode==='explore'&&active){c.fillStyle='#ffe8a577';c.beginPath();c.arc(xp+40,y-40,10+phase*20,0,Math.PI*2);c.fill();}
- if(mode==='ritual'){c.strokeStyle='#b1acff';c.beginPath();c.ellipse(xp,y,40,12,0,0,Math.PI*2);c.stroke();}
- battleLabel(c,m.name,xp,y+28,16);battleLabel(c,m.job,xp,y+48,12,'#e0dccb');
- battleHitTargets.push({id:m.id,x:xp-45,y:y-100,w:105,h:156});
+let battleEffects=[];
+let reducedBattleMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MOTION_LABELS={slash:'베기',heavy:'강타',thrust:'찌르기',dagger:'급습',throw:'투척',bow:'사격',magic:'시전',heal:'회복',shield:'수호'};
+function smoothBattle(v){v=clamp(v,0,1);return v*v*(3-2*v);}
+// Pure timing: wind-up, approach/release, contact, return, guard, idle.
+function battlePose(m,x,y,t,index,mode){
+ const type=weaponForJob(m.job).motion,p=((t+index*510)/2900)%1,combat=['combat','escort'].includes(mode);
+ const melee=['slash','heavy','thrust','dagger','shield'].includes(type);
+ const approach=smoothBattle((p-.17)/.13),returning=smoothBattle((p-.44)/.21),travel=melee&&combat?approach*(1-returning):0;
+ const wind=p<.17?Math.sin(p/.17*Math.PI):0,strike=p>=.3&&p<.44?Math.sin((p-.3)/.14*Math.PI):0;
+ const guard=combat&&p>=.75&&p<.84,stage=p<.17?'준비':p<.3?(melee?'접근':'방출'):p<.44?MOTION_LABELS[type]:p<.65?'복귀':guard?'방어':'대기';
+ const moving=reducedBattleMotion?0:travel,target=battleTargetFor(index,t);
+ return {type,p,combat,melee,wind,strike,guard,stage,target,x:x+(Math.max(x,target.x-80)-x)*moving,y:y+(target.y-y)*moving-(reducedBattleMotion?0:Math.sin(travel*Math.PI)*10),lean:reducedBattleMotion?0:(-wind*.11+strike*.18-(guard?.09:0)),squash:reducedBattleMotion?0:wind*.05-strike*.04,alpha:!reducedBattleMotion&&type==='dagger'&&travel>.1&&travel<.9?.65:1};
 }
-function drawOpposition(c,e,t,mode){
- const q=e.quest,pulse=Math.sin(t/320)*4;
- if(['gather','explore','ritual'].includes(mode)&&!q.bossId){
-  const labels={gather:['자원 확보','주변을 경계하며 재료를 수집합니다'],explore:['유적 탐사','단서를 찾으며 탐사 지역을 이동합니다'],ritual:['마력 안정화','동료를 보호하며 의식을 진행합니다']};
-  c.strokeStyle=mode==='ritual'?'#bcacff99':'#f2dba077';c.lineWidth=3;
-  for(let i=0;i<3;i++){c.beginPath();c.ellipse(760,380,48+i*23+pulse,16+i*7,0,0,Math.PI*2);c.stroke();}
-  battleLabel(c,labels[mode][0],760,465,22);battleLabel(c,labels[mode][1],760,492,13);return;
+function queueBattleFX(row,progress,x,y,size,alpha=1,angle=0,impact=false){
+ if(progress<0||progress>=1)return;
+ battleEffects.push({row,frame:Math.min(3,Math.floor(progress*4)),x,y,size,alpha:alpha*(progress>.78?1-(progress-.78)/.22:1),angle,impact});
+}
+function drawMercenaryFighter(c,m,x,y,t,index,mode){
+ const a=battlePose(m,x,y,t,index,mode),p=a.p,xp=a.x,yp=a.y,w=weaponForJob(m.job),target=a.target;
+ const magic=['magic','heal'].includes(a.type),bow=a.type==='bow',strike=a.strike;
+ c.fillStyle='#08121c65';c.beginPath();c.ellipse(xp,yp+5,35,10,0,0,Math.PI*2);c.fill();
+ const img=spriteImages[spriteKeyForJob(m.job)];
+ if(img){
+  if(!reducedBattleMotion&&a.melee&&a.combat&&p>.19&&p<.31){
+   for(let k=3;k>=1;k--){c.save();c.globalAlpha=.08*(4-k);c.drawImage(img,xp-40-k*15,yp-78,80,80);c.restore();}
+  }
+  c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();
  }
- const named=!!q.bossId;
- if(named){
-  c.fillStyle='#160c1b66';c.beginPath();c.ellipse(778,424,105,22,0,0,Math.PI*2);c.fill();
-  atlasDraw(c,'bosses',bossIndex(q),5,5,630,152+pulse,300,300);
-  battleLabel(c,NAMED_BOSSES.find(b=>b.id===q.bossId)?.name||q.name,780,480,22,'#ffdda0');
-  battleLabel(c,'네임드 토벌',780,505,13,'#e9c6bb');
- }else{
-  const n=Math.min(3,Math.max(2,q.minMembers||1));
-  for(let i=0;i<n;i++)atlasDraw(c,'bosses',[2,4,5][i],5,5,650+i*63,235+(i%2)*98+Math.sin(t/300+i)*4,138,138);
-  battleLabel(c,mode==='escort'?'습격을 막으며 호위 중':'적 무리와 교전 중',780,482,19);
+ c.save();c.translate(xp+24,yp-35);c.rotate(reducedBattleMotion?0:magic?-.3*a.wind:bow?-.2*a.wind:['thrust','dagger'].includes(a.type)?-.5+strike*.3:-a.wind*.8+strike*1.35);drawBattleWeapon(c,m.job,-18,-53,76);c.restore();
+ if(a.combat&&!reducedBattleMotion){
+  // The release and impact share one phase so projectiles actually reach the target.
+  if(a.melee){
+   queueBattleFX(a.type==='heavy'?1:0,(p-.3)/.2,xp+65,yp-42,a.type==='heavy'?132:112,.92,a.type==='thrust'?-.4:0);
+   queueBattleFX(1,(p-.36)/.22,target.x,target.bodyY,a.type==='heavy'?125:82,.85,0,true);
+  }else if(bow||a.type==='throw'){
+   if(p>=.25&&p<.44){const travel=(p-.25)/.19;battleEffects.push({projectile:a.type,x:xp+45+(target.x-xp-45)*travel,y:yp-46+(target.bodyY-yp+46)*travel,angle:Math.atan2(target.bodyY-yp+46,target.x-xp-45),job:m.job});}
+   queueBattleFX(1,(p-.44)/.2,target.x,target.bodyY,82,.85,0,true);
+  }else if(a.type==='magic'){
+   queueBattleFX(2,p/.23,xp+45,yp-82,70,.75);
+   if(p>=.25&&p<.44){const u=(p-.25)/.19;queueBattleFX(2,.25,xp+50+(target.x-xp-50)*u,yp-64+(target.bodyY-yp+64)*u,70,.95);}
+   queueBattleFX(2,(p-.44)/.23,target.x,target.bodyY,140,.95,0,true);
+  }else if(a.type==='heal'){
+   queueBattleFX(3,(p-.2)/.42,xp,yp-28,128,.9);
+   const e=activeWatchedExpedition(),ally=e?.memberIds.map(mercById).filter(Boolean).find(v=>v.id!==m.id);
+   if(ally){const j=e.memberIds.indexOf(ally.id),home=battleHomeFor(ally.id,j),b=battlePose(ally,home.x,home.y,t,j,mode);queueBattleFX(3,(p-.28)/.38,b.x,b.y-25,112,.8);}
+  }
+  if(a.guard){c.strokeStyle='#b6daffaa';c.lineWidth=3;c.beginPath();c.arc(xp+22,yp-40,35,-1.2,1.2);c.stroke();}
+ }
+ if(mode==='gather'&&!reducedBattleMotion)queueBattleFX(1,(p-.3)/.2,xp+48,yp-10,45,.5);
+ if(mode==='ritual'&&!reducedBattleMotion)queueBattleFX(2,p,xp,yp-70,95,.6);
+ if(mode==='explore'){c.fillStyle='#f9dc8544';c.beginPath();c.arc(xp+35,yp-40,12,0,Math.PI*2);c.fill();}
+ battleLabel(c,m.name,xp,yp+27,16);battleLabel(c,m.job,xp,yp+46,12,'#e0dccb');
+ if(a.combat&&p<.65)battleLabel(c,a.stage,xp,yp-98,12,magic?'#c6daff':'#ffdf9f');
+ battleHitTargets.push({id:m.id,x:xp-48,y:yp-106,w:112,h:159});
+}
+function drawBattleEffects(c){
+ for(const effect of battleEffects){
+  c.save();c.translate(effect.x,effect.y);c.rotate(effect.angle||0);
+  if(effect.projectile==='bow'){
+   c.strokeStyle='#fff0be';c.lineWidth=3;c.beginPath();c.moveTo(-36,0);c.lineTo(10,0);c.lineTo(2,-5);c.moveTo(10,0);c.lineTo(2,5);c.moveTo(-29,0);c.lineTo(-35,-5);c.moveTo(-29,0);c.lineTo(-35,5);c.stroke();
+  }else if(effect.projectile==='throw'){c.rotate(battleVisualTime/75);drawBattleWeapon(c,effect.job,-23,-23,46);}
+  else{c.globalAlpha=effect.alpha;atlasDraw(c,'combatFx',effect.row*4+effect.frame,4,4,-effect.size/2,-effect.size/2,effect.size,effect.size);}
+  c.restore();
  }
 }
 function drawBattleFrame(now=performance.now()){
@@ -3212,16 +3328,14 @@ function drawBattleFrame(now=performance.now()){
  if(canvas&&activeTab==='battle'){
   const box=canvas.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),w=Math.max(1,Math.round(box.width*dpr)),h=Math.max(1,Math.round(box.width*.56*dpr));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
-  const c=canvas.getContext('2d');c.setTransform(w/1000,0,0,h/560,0,0);c.imageSmoothingEnabled=true;c.clearRect(0,0,1000,560);battleHitTargets=[];
+  const c=canvas.getContext('2d');c.setTransform(w/1000,0,0,h/560,0,0);c.imageSmoothingEnabled=true;c.clearRect(0,0,1000,560);battleHitTargets=[];battleEffects=[];
   const e=activeWatchedExpedition();
   if(!e){drawBattleBackdrop(c,'explore');battleLabel(c,'현재 출발한 임무가 없습니다',500,270,28);battleLabel(c,'용병이 의뢰를 수주해 출발하면 관전이 시작됩니다.',500,311,16);}
   else{
    const mode=battleMode(e.quest),progress=clamp((state.gameMinute-e.startedAt)/Math.max(1,e.returnAt-e.startedAt),0,1);drawBattleBackdrop(c,mode,e.quest);
    c.textAlign='left';c.fillStyle='#f7e9c9';c.font='bold 24px sans-serif';c.fillText(e.quest.name,28,43,940);c.fillStyle='#d7e3e1';c.font='15px sans-serif';c.fillText(`${state.paused?'일시정지 · ':''}${BATTLE_LABELS[mode]} · ${Math.round(progress*100)}% · 남은 ${remainingText(e.returnAt)}`,28,72);
    roundRect17(c,28,88,944,8,4,'#ffffff30');if(progress>0)roundRect17(c,28,88,944*progress,8,4,'#86dfbf');
-   const members=e.memberIds.map(mercById).filter(Boolean),rows=Math.ceil(members.length/2),spacing=Math.min(135,280/Math.max(1,rows-1));
-   members.forEach((m,i)=>drawMercenaryFighter(c,m,155+(i%2)*150,230+Math.floor(i/2)*spacing,battleVisualTime,i,mode));
-   c.imageSmoothingEnabled=true;drawOpposition(c,e,battleVisualTime,mode);
+   renderBattleScene(c,e,battleVisualTime,mode);
    canvas.setAttribute('aria-label',e.quest.name+' '+BATTLE_LABELS[mode]+' 관전. 아래 참가자 버튼으로 용병 상세 확인');
   }
   if(Object.values(battleAssets).some(v=>v===null))battleLabel(c,'일부 이미지를 불러오지 못했습니다. 연결 후 새로고침해 주세요.',500,545,13,'#ffd397');
@@ -3230,7 +3344,8 @@ function drawBattleFrame(now=performance.now()){
 }
 function setupBattleTab(){
  tabNames.battle='전투 관전';const button=document.createElement('button');button.type='button';button.id='tab-battle';button.setAttribute('role','tab');button.setAttribute('aria-controls','view-battle');button.textContent='전투 관전';button.onclick=()=>switchTab('battle');document.getElementById('tab-quests').after(button);
- const view=document.createElement('div');view.id='view-battle';view.className='tab-view battle-layout';view.hidden=true;view.setAttribute('role','tabpanel');view.setAttribute('aria-labelledby','tab-battle');view.innerHTML='<section class="panel battle-stage"><div class="panel-head"><div><h2>실시간 임무 관전</h2><div class="panel-sub">동료들의 전투와 탐사를 지켜보세요. 용병을 누르면 상세 정보로 이동합니다.</div></div><span id="battle-scene-tag" class="tag">대기</span></div><div class="panel-body"><canvas id="battle-canvas" width="1000" height="560" aria-label="현재 관전할 임무 없음"></canvas><p class="hint">임무 진행을 보여주는 연출입니다. 결과는 참가 전력·직업·컨디션에 따라 귀환 시 결정됩니다.</p><div id="battle-roster" class="battle-roster" aria-label="관전 중인 용병"></div><div id="battle-detail" class="battle-detail"></div></div></section><aside class="panel battle-list-panel"><div class="panel-head"><h2>진행 중인 임무</h2></div><div id="battle-mission-list" class="panel-body battle-mission-list"></div></aside>';document.querySelector('.shell').append(view);
+ const view=document.createElement('div');view.id='view-battle';view.className='tab-view battle-layout';view.hidden=true;view.setAttribute('role','tabpanel');view.setAttribute('aria-labelledby','tab-battle');view.innerHTML='<section class="panel battle-stage"><div class="panel-head"><div><h2>실시간 임무 관전</h2><div class="panel-sub">동료들의 전투와 탐사를 지켜보세요. 용병을 누르면 상세 정보로 이동합니다.</div></div><span id="battle-scene-tag" class="tag">대기</span></div><div class="panel-body"><canvas id="battle-canvas" width="1000" height="560" aria-label="현재 관전할 임무 없음"></canvas><label class="battle-motion-toggle"><input id="battle-reduced-motion" type="checkbox"> 모션 줄이기</label><p class="hint">임무 진행을 보여주는 연출입니다. 결과는 참가 전력·직업·컨디션에 따라 귀환 시 결정됩니다.</p><div id="battle-roster" class="battle-roster" aria-label="관전 중인 용병"></div><div id="battle-detail" class="battle-detail"></div></div></section><aside class="panel battle-list-panel"><div class="panel-head"><h2>진행 중인 임무</h2></div><div id="battle-mission-list" class="panel-body battle-mission-list"></div></aside>';document.querySelector('.shell').append(view);
+ const motionToggle=document.getElementById('battle-reduced-motion');motionToggle.checked=reducedBattleMotion;motionToggle.onchange=()=>{reducedBattleMotion=motionToggle.checked;};
  const canvas=document.getElementById('battle-canvas');
  function targetAt(event){const b=canvas.getBoundingClientRect(),x=(event.clientX-b.left)*1000/b.width,y=(event.clientY-b.top)*560/b.height;return [...battleHitTargets].reverse().find(v=>x>=v.x&&x<=v.x+v.w&&y>=v.y&&y<=v.y+v.h);}
  canvas.onclick=event=>{const hit=targetAt(event);if(hit)setSelectedMerc(hit.id);};canvas.onpointermove=event=>{canvas.style.cursor=targetAt(event)?'pointer':'default';};
@@ -3240,15 +3355,15 @@ let battlePanelSignature='';
 const extrasV18=renderTabExtras;
 renderTabExtras=function(){
  extrasV18();if(activeTab!=='battle'||!document.getElementById('view-battle'))return;
- const e=activeWatchedExpedition(),signature=JSON.stringify([watchedExpeditionId,Math.floor(state.gameMinute),state.expeditions.map(x=>[x.id,x.quest.name,x.memberIds,x.successChance,x.returnAt])]);
+ const e=activeWatchedExpedition(),signature=JSON.stringify([watchedExpeditionId,Math.floor(state.gameMinute),state.expeditions.map(x=>[x.id,x.quest.name,x.memberIds,x.successChance,x.returnAt]),state.mercenaries.map(m=>[m.id,m.job])]);
  if(signature===battlePanelSignature)return;battlePanelSignature=signature;
  document.getElementById('battle-mission-list').innerHTML=state.expeditions.length?state.expeditions.map(x=>`<button type="button" class="card battle-mission ${x.id===e?.id?'selected':''}" onclick="watchExpedition(${x.id})"><b>${esc16(x.quest.name)}</b><span class="small">${BATTLE_LABELS[battleMode(x.quest)]} · ${esc16(memberNames(x.memberIds))}<br>성공률 ${Math.round(x.successChance*100)}% · 남은 ${remainingText(x.returnAt)}</span></button>`).join(''):'<p class="hint">현재 외부에서 진행 중인 임무가 없습니다.</p>';
  document.getElementById('battle-scene-tag').textContent=e?BATTLE_LABELS[battleMode(e.quest)]:'대기';
- document.getElementById('battle-roster').innerHTML=e?e.memberIds.map(mercById).filter(Boolean).map(m=>`<button type="button" class="battle-member" onclick="setSelectedMerc(${m.id})"><b>${esc16(m.name)}</b><span>${m.job} · ${WEAPON_NAMES[weaponIndex(m.job)]}</span></button>`).join(''):'';
- document.getElementById('battle-detail').innerHTML=e?`<div><b>${esc16(e.quest.name)}</b><p class="small">참가: ${esc16(memberNames(e.memberIds))}<br>출발 전투력 ${e.combinedPower} · 예상 성공률 ${Math.round(e.successChance*100)}%</p></div><div><b>예상 귀환</b><p class="small">${absoluteTimeLabel(e.returnAt)}<br>밤 00:00~06:00도 수행한 것으로 계산됩니다.</p></div>`:'<p class="hint">출발한 의뢰가 생기면 자동으로 첫 임무를 관전합니다.</p>';
+ document.getElementById('battle-roster').innerHTML=e?e.memberIds.map(mercById).filter(Boolean).map(m=>`<button type="button" class="battle-member" onclick="setSelectedMerc(${m.id})"><b>${esc16(m.name)}</b><span>${m.job} · ${weaponForJob(m.job).tier}차 · ${weaponForJob(m.job).name}</span></button>`).join(''):'';
+ document.getElementById('battle-detail').innerHTML=e?`<div><b>${esc16(e.quest.name)}</b><p class="small">참가: ${esc16(memberNames(e.memberIds))}<br>출현: ${esc16(encounterNames(e.quest))}<br>장소: ${BATTLE_GROUNDS[backgroundIndex(e.quest)].name}<br>출발 전투력 ${e.combinedPower} · 예상 성공률 ${Math.round(e.successChance*100)}%</p></div><div><b>예상 귀환</b><p class="small">${absoluteTimeLabel(e.returnAt)}<br>밤 00:00~06:00도 수행한 것으로 계산됩니다.</p></div>`:'<p class="hint">출발한 의뢰가 생기면 자동으로 첫 임무를 관전합니다.</p>';
 };
 const makeSaveV18=makeSave;
-makeSave=function(){const save=makeSaveV18();save.appVersion=18;return save;};
+makeSave=function(){const save=makeSaveV18();save.appVersion=19;return save;};
 setupBattleTab();
 for(const room of roomDefs){
  const surface=document.getElementById(room.key+'-view');if(!surface)continue;
@@ -3258,6 +3373,8 @@ for(const room of roomDefs){
   if(m&&Math.hypot(m.x-x,m.y-y)<32)setSelectedMerc(m.id);
  });
 }
+
+setupEncounterGuide();
 
 init();
 </script>
