@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v29 · 용병 초상화 로딩 수정</title>
+<title>용병 길드 v30 · 길드 시스템 확장</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -3349,6 +3349,89 @@ function drawMercenaryFighter(c,m,x,y,t,index,mode){
  battleLabel(c,m.job,xp,yp+46,12,'#e0dccb');
  battleHitTargets.push({id:m.id,x:xp-48,y:yp-106,w:112,h:159});
 }
+// v30: reputation unlocks, equipment slots, battle reports and editable fixed parties.
+const v30EquipmentSlots=['weapon','head','body','hands','feet','accessory'];
+const v30SlotLabels={weapon:'무기',head:'머리',body:'몸통',hands:'손',feet:'발',accessory:'장신구'};
+const v30EquipmentCatalog=[
+ {id:'iron-helm',slot:'head',name:'철제 투구',price:95,power:5,rank:1,desc:'머리 · 전투력 +5'},
+ {id:'chainmail',slot:'body',name:'사슬 갑옷',price:180,power:10,rank:1,desc:'몸통 · 전투력 +10'},
+ {id:'grip',slot:'hands',name:'전투 장갑',price:120,power:7,rank:1,desc:'손 · 전투력 +7'},
+ {id:'traveler-boots',slot:'feet',name:'여행자 장화',price:110,power:6,rank:1,desc:'발 · 전투력 +6'},
+ {id:'lucky-charm',slot:'accessory',name:'길드 문장',price:220,power:12,rank:2,desc:'장신구 · 전투력 +12 · 대장간 Lv.2'},
+ {id:'mithril-helm',slot:'head',name:'미스릴 투구',price:420,power:18,rank:3,repUnlock:45,desc:'머리 · 전투력 +18 · 평판 45'},
+ {id:'royal-coat',slot:'body',name:'귀족의 외투',price:620,power:26,rank:3,repUnlock:45,desc:'몸통 · 전투력 +26 · 평판 45'},
+ {id:'dragon-gauntlet',slot:'hands',name:'용린 건틀릿',price:780,power:32,rank:4,repUnlock:80,desc:'손 · 전투력 +32 · 평판 80'},
+ {id:'winged-boots',slot:'feet',name:'비상 장화',price:700,power:28,rank:4,repUnlock:80,desc:'발 · 전투력 +28 · 평판 80'},
+ {id:'noble-signet',slot:'accessory',name:'귀족 인장',price:900,power:36,rank:4,repUnlock:80,desc:'장신구 · 전투력 +36 · 평판 80'}
+];
+const v30PartyRoles=[['front','전열'],['damage','화력'],['support','지원'],['scout','정찰']];
+function v30ReputationStage(rep=state.reputation){if(rep>=80)return {level:4,name:'왕실 후원',next:null};if(rep>=45)return {level:3,name:'귀족 신뢰',next:80};if(rep>=20)return {level:2,name:'도시 명성',next:45};return {level:1,name:'신생 길드',next:20};}
+function v30EnsureEquipment(m){
+ const old=m.gear||{name:'초보자의 무기',power:3,rank:0,durability:100};m.equipment=m.equipment&&typeof m.equipment==='object'?m.equipment:{};
+ for(const slot of v30EquipmentSlots)m.equipment[slot]??=(slot==='weapon'?old:null);
+ m.gear=m.equipment.weapon||old;m.equipment.weapon=m.gear;
+}
+const v30EnsureNeedsBase=ensureNeeds;
+ensureNeeds=function(m){v30EnsureNeedsBase(m);v30EnsureEquipment(m);};
+const v30ComputePowerBase=computePower;
+computePower=function(m){v30EnsureEquipment(m);const nonWeapon=v30EquipmentSlots.filter(s=>s!=='weapon').reduce((n,s)=>n+Number(m.equipment?.[s]?.power||0),0);return v30ComputePowerBase(m)+nonWeapon;};
+function v30EquipmentLabel(m){v30EnsureEquipment(m);return v30EquipmentSlots.map(s=>`${v30SlotLabels[s]}: ${m.equipment[s]?.name||'없음'}`).join(' · ');}
+function buyEquipment(m,id){
+ v30EnsureEquipment(m);const item=v30EquipmentCatalog.find(x=>x.id===id),f=state.facilities.smithy,stage=v30ReputationStage();
+ if(!item||!f?.level||item.rank>f.level||(item.repUnlock||0)>state.reputation||m.gold<item.price)return false;
+ if(!payForService(m,'smithy',item.price,item.name+' 장착'))return false;
+ m.equipment[item.slot]={name:item.name,power:item.power,rank:item.rank,durability:100,slot:item.slot};if(item.slot==='weapon')m.gear=m.equipment.weapon;m.power=computePower(m);renderPanels();return true;
+}
+function v30NormalizeParty(p){
+ if(!p||typeof p!=='object')return p;p.memberIds=Array.isArray(p.memberIds)?p.memberIds.filter(id=>mercById(id)):[];p.leaderId=p.memberIds.includes(p.leaderId)?p.leaderId:p.memberIds[0]||null;p.roles=p.roles&&typeof p.roles==='object'?p.roles:{};
+ for(const id of p.memberIds){const m=mercById(id);p.roles[id]=v30PartyRoles.some(r=>r[0]===p.roles[id])?p.roles[id]:roleOf(m)==='front'?'front':roleOf(m)==='heal'?'support':roleOf(m)==='collect'?'scout':'damage';}return p;
+}
+function updatePartyName(id,name){const p=state.parties.find(x=>x.id===id);if(!p)return false;p.name=String(name||'원정대').replace(/[<>&"'`]/g,'').slice(0,32)||'원정대';renderPanels();saveGame(true);return true;}
+function setPartyLeader(id,memberId){const p=state.parties.find(x=>x.id===id);if(!p||!p.memberIds.includes(memberId))return false;p.leaderId=memberId;renderPanels();saveGame(true);return true;}
+function setPartyRole(id,memberId,role){const p=state.parties.find(x=>x.id===id);if(!p||!p.memberIds.includes(memberId)||!v30PartyRoles.some(r=>r[0]===role))return false;p.roles=p.roles||{};p.roles[memberId]=role;renderPanels();saveGame(true);return true;}
+const v30FormPartiesBase=formParties;
+formParties=function(){const n=v30FormPartiesBase();for(const p of state.parties)v30NormalizeParty(p);return n;};
+const v30TeamEffectBase=teamEffect;
+teamEffect=function(q,mercs){const out=v30TeamEffectBase(q,mercs),p=state.parties.find(x=>mercs.length===x.memberIds.length&&mercs.every(m=>x.memberIds.includes(m.id)));if(!p)return out;const roles=new Set(Object.values(p.roles||{}));if(roles.has('front'))out.chance+=.025;if(roles.has('damage'))out.chance+=.025;if(roles.has('support'))out.recovery+=4;if(roles.has('scout'))out.loot+=1;out.notes=(out.notes||[]).concat('고정파티 역할 배치');return out;};
+function v30RecruitRare(){
+ const before=state.mercenaries.length;if(v30ReputationStage().level<3||state.gold<500||state.mercenaries.length>=8+state.buildingLevel*3)return false;
+ if(!recruitMercenary()||state.mercenaries.length<=before)return false;state.gold=Math.max(0,state.gold-350);const m=state.mercenaries[state.mercenaries.length-1];m.rare=true;m.str+=rand(3,6);m.dex+=rand(3,6);m.int+=rand(3,6);m.luk+=rand(2,5);m.gold+=80;m.power=computePower(m);log(`✨ 희귀 용병 ${m.name}이 상위 상점에서 합류했습니다.`);renderPanels();saveGame(true);return true;
+}
+const v30AddQuestBase=addQuest;
+addQuest=function(silent=false){
+ const stage=v30ReputationStage();if(stage.level>=2&&state.quests.length<12&&Math.random()<.22){const q=makeContract(Math.random()<.5?'party':'solo');q.noble=true;q.name='귀족 의뢰 · '+q.name;q.reward=Math.round(q.reward*(stage.level>=4?2.2:1.8));q.minPower=Math.round(q.minPower*(stage.level>=4?1.55:1.3));q.expiresAt=Math.min(q.expiresAt,state.gameMinute+660);state.quests.push(q);if(!silent)renderPanels();return;}
+ return v30AddQuestBase(silent);
+};
+const v30BuyGoodBase=buyGood;
+buyGood=function(m,id){const item=goods.find(x=>x.id===id);if(item&&(item.repUnlock||0)>state.reputation){log(`🔒 ${item.name}은(는) 평판 ${item.repUnlock}부터 구매할 수 있습니다.`);return false;}return v30BuyGoodBase(m,id);};
+goods.push({id:'elixir',name:'상급 회복 물약',price:95,icon:'🧴',repUnlock:45,desc:'상위 상점 · 임무 출발 시 체력 +65'},{id:'ether',name:'상급 마나 물약',price:110,icon:'🔷',repUnlock:45,desc:'상위 상점 · 기력 +60'},{id:'campkit',name:'원정 야영 세트',price:150,icon:'⛺',repUnlock:80,desc:'상위 상점 · 외부 일정에서 휴식 가능'});
+state.equipmentStock??={};state.battleResults??=[];state.parties??=[];for(const p of state.parties)v30NormalizeParty(p);
+const v30CleanMercBase=cleanMercenary;
+cleanMercenary=function(m){const r=v30CleanMercBase(m);r.rare=m.rare===true;r.equipment={};for(const slot of v30EquipmentSlots){const e=m.equipment?.[slot]||(slot==='weapon'?m.gear:null);r.equipment[slot]=e?{name:saveText(e.name,80),power:saveNumber(e.power,0,1e6,0),rank:saveInteger(e.rank,0,10,0),durability:saveNumber(e.durability,0,100,100),slot}:null;}r.gear=r.equipment.weapon||r.gear;return r;};
+const v30ValidateBase=validateSave;
+validateSave=function(raw){const x=v30ValidateBase(raw),s=raw.state||{};x.battleResults=Array.isArray(s.battleResults)?s.battleResults.slice(0,40):[];x.parties=Array.isArray(s.parties)?s.parties.map(p=>v30NormalizeParty({...p})).filter(p=>p.memberIds.length):[];for(const q of x.quests){const src=(s.quests||[]).find(z=>z.id===q.id);if(src?.noble)q.noble=true;}for(const m of x.mercenaries)v30EnsureEquipment(m);return x;};
+const v30ApplyBase=applySavedState;
+applySavedState=function(clean){v30ApplyBase(clean);state.battleResults=Array.isArray(clean.battleResults)?clean.battleResults:[];state.parties=Array.isArray(clean.parties)?clean.parties:[];for(const m of state.mercenaries)v30EnsureEquipment(m);for(const p of state.parties)v30NormalizeParty(p);};
+const v30MakeSaveBase=makeSave;
+makeSave=function(){const save=v30MakeSaveBase();save.appVersion=30;save.state.battleResults=(state.battleResults||[]).slice(0,40);save.state.parties=(state.parties||[]).map(p=>v30NormalizeParty({...p,memberIds:[...(p.memberIds||[])],roles:{...(p.roles||{})}}));return save;};
+const v30SettleBase=settleExpedition;
+settleExpedition=function(e){
+ const before=e.memberIds.map(id=>{const m=mercById(id);return {id,name:m?.name||'알 수 없음',job:m?.job||'',power:e.powerById?.[id]||m?.power||0,hp:m?.hp||0,energy:m?.energy||0};});const ok=v30SettleBase(e);if(!ok)return false;const h=state.questHistory[0],total=before.reduce((n,x)=>n+x.power,0);state.battleResults=state.battleResults||[];state.battleResults.unshift({id:e.id,name:e.quest.name,status:h?.status||'완료',kind:e.quest.kind,noble:!!e.quest.noble,bossId:e.quest.bossId||null,minute:state.gameMinute,reward:h?.reward||0,minPower:e.quest.minPower,combinedPower:total,successChance:e.successChance,members:before.map(x=>({...x,contribution:total?Math.round(x.power/total*100):0})),encounterNames:typeof encounterNames==='function'?encounterNames(e.quest):''});state.battleResults=state.battleResults.slice(0,40);return true;
+};
+const renderTabExtrasV30=renderTabExtras;
+renderTabExtras=function(){
+ renderTabExtrasV30();
+ const stage=v30ReputationStage();
+ if(activeTab==='quests'){const host=document.getElementById('mission-list');if(host&&!document.getElementById('v30-rep-panel')){const el=document.createElement('section');el.id='v30-rep-panel';el.className='card';el.innerHTML=`<b>길드 평판 · ${stage.name} (단계 ${stage.level})</b><p class="small">${stage.next?`다음 단계까지 ${stage.next-state.reputation} 평판`:'최고 단계'} · 평판 20: 귀족 의뢰 · 평판 45: 희귀 용병·상위 상점 · 평판 80: 왕실 의뢰·최상위 장비</p>`;host.prepend(el);}}
+ if(activeTab==='mercs'){const pHost=document.getElementById('party-list');if(pHost){pHost.innerHTML='<p class="hint">고정파티는 의뢰와 시설 행동에서 지정 역할 보너스를 적용합니다.</p>'+state.parties.map(p=>{v30NormalizeParty(p);const members=p.memberIds.map(id=>{const m=mercById(id);const role=(p.roles||{})[id]||'damage';return `<div class="small" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span>${id===p.leaderId?'⭐ ':''}${esc16(m?.name||'알 수 없음')}</span><select onchange="setPartyRole(${p.id},${id},this.value)">${v30PartyRoles.map(r=>`<option value="${r[0]}" ${role===r[0]?'selected':''}>${r[1]}</option>`).join('')}</select></div>`;}).join('');return `<div class="card"><div class="row"><input value="${esc16(p.name)}" aria-label="파티 이름" onchange="updatePartyName(${p.id},this.value)" style="max-width:190px"><button onclick="dissolveParty(${p.id})" ${p.memberIds.some(id=>mercById(id)?.assignmentId)?'disabled':''}>파티 해체</button></div><label class="small">리더 <select onchange="setPartyLeader(${p.id},Number(this.value))">${p.memberIds.map(id=>`<option value="${id}" ${p.leaderId===id?'selected':''}>${esc16(mercById(id)?.name||'알 수 없음')}</option>`).join('')}</select></label><div style="margin-top:8px">${members}</div><p class="small">함께 수행 ${p.runs||0}회</p></div>`;}).join('');const recruit=document.createElement('div');recruit.className='card';recruit.innerHTML=`<b>상위 상점 용병 모집</b><p class="small">평판 45부터 희귀 용병을 모집할 수 있습니다. 비용 500G.</p><button onclick="v30RecruitRare()" ${stage.level<3||state.gold<500?'disabled':''}>${stage.level<3?'평판 45 필요':'희귀 용병 모집 · 500G'}</button>`;pHost.append(recruit);}}
+ if(activeTab==='smithy'){const host=document.getElementById('smithy-view');if(host&&!document.getElementById('v30-equipment-shop')){const el=document.createElement('section');el.id='v30-equipment-shop';el.className='card';el.innerHTML='<b>부위별 장비</b><div class="small" style="margin:6px 0 10px">선택 용병: '+esc16(getSelectedMerc()?.name||'없음')+'</div>'+v30EquipmentCatalog.map(i=>{const locked=(i.repUnlock||0)>state.reputation||i.rank>state.facilities.smithy.level;return `<div class="row" style="margin:6px 0"><span><b>${i.name}</b><br><span class="small">${i.desc}</span></span><button ${locked?'disabled':''} onclick="buyEquipment(getSelectedMerc(), '${i.id}')">${locked?'잠김':i.price+'G 장착'}</button></div>`;}).join('');host.querySelector('.panel-body')?.append(el);}}
+ if(activeTab==='shop'){const host=document.getElementById('shop-view');if(host&&!document.getElementById('v30-shop-unlocks')){const el=document.createElement('section');el.id='v30-shop-unlocks';el.className='card';el.innerHTML='<b>상위 상점 해금품</b><p class="small">평판 45 이상: 상급 물약 · 평판 80 이상: 원정 야영 세트</p>';host.querySelector('.panel-body')?.append(el);}}
+ if(activeTab==='battle'){const host=document.getElementById('battle-detail');if(host){const rows=(state.battleResults||[]).slice(0,8);let panel=document.getElementById('v30-battle-results');if(!panel){panel=document.createElement('section');panel.id='v30-battle-results';panel.className='card';panel.style.marginTop='12px';host.append(panel);}panel.innerHTML=`<b>최근 전투 결과 상세</b>${rows.length?rows.map(r=>`<div style="border-top:1px solid #ffffff18;padding:9px 0"><div class="row"><strong>${esc16(r.name)}</strong><span class="tag">${r.status}</span></div><div class="small">전력 ${r.combinedPower}/${r.minPower} · 성공률 ${Math.round((r.successChance||0)*100)}% · 보상 ${r.reward||0}G<br>참가: ${(r.members||[]).map(m=>`${esc16(m.name)} ${m.job} (${m.contribution||0}%)`).join(' · ')}${r.encounterNames?`<br>조우: ${esc16(r.encounterNames)}`:''}</div></div>`).join(''):'<p class="hint">귀환한 전투가 있으면 상세 결과가 기록됩니다.</p>'}`;}}
+};
+const renderSelectedMercenaryV30=renderSelectedMercenary;
+renderSelectedMercenary=function(){renderSelectedMercenaryV30();const m=getSelectedMerc();if(!m)return;v30EnsureEquipment(m);const panel=document.getElementById('selectedMercenaryPanel');if(panel&&!panel.querySelector('.v30-equipment-summary')){const box=document.createElement('div');box.className='card v30-equipment-summary';box.style.marginTop='12px';box.innerHTML=`<b>장비 슬롯</b><p class="small">${v30EquipmentLabel(m)}</p>`;panel.append(box);}};
+
+
 init();
 </script>
 </body>
