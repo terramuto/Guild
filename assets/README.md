@@ -46,3 +46,5 @@ Use case stylized-concept. Production transparent PNG fantasy pixel art weapon a
 
 
 v26에서는 전투 화면의 무기 휘두르기 도형과 임시 대기 실루엣을 제거하고, 직업별 전투 이미지를 원본 모습 그대로 표시합니다. [v26 전투 이미지 정리](V26.md)
+
+v27에서는 원본 전투 이미지를 유지한 채 부드러운 연속 모션을 적용했습니다. [v27 전투 모션 정리](V27.md)
