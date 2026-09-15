@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v21 · 36직업 전투 모션</title>
+<title>용병 길드 v22 · 직업별 전투 모션</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -1912,6 +1912,8 @@ function update(now=performance.now()){
   drawScene();requestAnimationFrame(update);
 }
 function drawScene(){
+  if(guildInterior.naturalWidth){ctx.drawImage(guildInterior,0,0,1080,680);}
+  else {
   ctx.fillStyle='#172724';ctx.fillRect(0,0,1080,680);
   ctx.fillStyle='#342f29';ctx.fillRect(40,60,1000,560);
   for(const r of roomDefs){ctx.fillStyle=r.color;ctx.fillRect(r.x,r.y,r.w,r.h);}
@@ -1920,7 +1922,8 @@ function drawScene(){
   ctx.strokeStyle='#ac8b50';ctx.lineWidth=2;ctx.strokeRect(70,280,940,100);
   ctx.fillStyle='#303d40';ctx.beginPath();ctx.arc(540,330,48,0,Math.PI*2);ctx.fill();
   ctx.font='bold 28px Georgia';ctx.fillStyle='#bd9a60';ctx.textAlign='center';ctx.fillText('G',540,340);
-  for(const f of furnishings){
+  }
+  if(!guildInterior.naturalWidth)for(const f of furnishings){
     ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(f.x+4,f.y+5,f.w,f.h);
     ctx.fillStyle=f.color;ctx.fillRect(f.x,f.y,f.w,f.h);
     ctx.strokeStyle='rgba(255,234,180,.20)';ctx.strokeRect(f.x+2,f.y+2,f.w-4,f.h-4);
@@ -1949,7 +1952,7 @@ function drawScene(){
     ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x,y+12,13,7,0,0,Math.PI*2);ctx.fill();
     if(m.id===state.selectedMercId){ctx.strokeStyle='#93e8d6';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y+10,21,12,0,0,Math.PI*2);ctx.stroke();}
     const img=spriteImages[spriteKeyForJob(m.job)],bob=m.moving&&!state.paused?Math.sin(state.gameMinute*12+m.id)*1.5:0;
-    ctx.save();ctx.translate(x,y+bob);ctx.scale(m.facing||1,1);if(img)ctx.drawImage(img,-21,-26,42,42);else{ctx.fillStyle='#e7b967';ctx.fillRect(-8,-15,16,24);}ctx.restore();
+    ctx.save();ctx.translate(x,y+bob);ctx.scale(m.facing||1,1);if(mercJobAtlas.naturalWidth){const idx=mercMotionRow(m.job),sw=mercJobAtlas.naturalWidth/6,sh=mercJobAtlas.naturalHeight/6;ctx.drawImage(mercJobAtlas,(idx%6)*sw,Math.floor(idx/6)*sh,sw,sh,-26,-34,52,52);}else if(img)ctx.drawImage(img,-21,-26,42,42);else{ctx.fillStyle='#e7b967';ctx.fillRect(-8,-15,16,24);}ctx.restore();
     ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillStyle='#101918';ctx.fillRect(x-34,y-43,68,16);ctx.fillStyle='#f2e9d5';ctx.fillText(m.name+' Lv.'+m.level,x,y-31);
     if(m.id===state.selectedMercId){ctx.fillStyle='#aee6d6';ctx.fillText(m.activity,x,y+32);}ctx.textAlign='left';
   }
@@ -3365,7 +3368,7 @@ renderTabExtras=function(){
  document.getElementById('battle-detail').innerHTML=e?`<div><b>${esc16(e.quest.name)}</b><p class="small">참가: ${esc16(memberNames(e.memberIds))}<br>출현: ${esc16(encounterNames(e.quest))}<br>장소: ${BATTLE_GROUNDS[backgroundIndex(e.quest)].name}<br>출발 전투력 ${e.combinedPower} · 예상 성공률 ${Math.round(e.successChance*100)}%</p></div><div><b>예상 귀환</b><p class="small">${absoluteTimeLabel(e.returnAt)}<br>밤 00:00~06:00도 수행한 것으로 계산됩니다.</p></div>`:'<p class="hint">출발한 의뢰가 생기면 자동으로 첫 임무를 관전합니다.</p>';
 };
 const makeSaveV18=makeSave;
-makeSave=function(){const save=makeSaveV18();save.appVersion=21;return save;};
+makeSave=function(){const save=makeSaveV18();save.appVersion=22;return save;};
 setupBattleTab();
 for(const room of roomDefs){
  const surface=document.getElementById(room.key+'-view');if(!surface)continue;
@@ -3378,10 +3381,16 @@ for(const room of roomDefs){
 
 setupEncounterGuide();
 
-// v21: every one of the 36 jobs gets a four-frame strip derived from the v20 source sheet.
+// v22: distinct character art for each job, animated with combat pose timing.
 const MERC_MOTION_URL='assets/mercenary-motion-v21.png';
+const MERC_JOB_ATLAS_URL='assets/mercenary-jobs-v22.png';
 const mercMotion=new Image();mercMotion.src=MERC_MOTION_URL;
+const mercJobAtlas=new Image();mercJobAtlas.src=MERC_JOB_ATLAS_URL;
+const GUILD_INTERIOR_URL='assets/guild-interior-v22.png';
+const guildInterior=new Image();guildInterior.src=GUILD_INTERIOR_URL;
 const mercMotionReady=mercMotion.decode().catch(()=>{});
+const mercJobAtlasReady=mercJobAtlas.decode().catch(()=>{});
+const guildInteriorReady=guildInterior.decode().catch(()=>{});
 function mercMotionRow(job){
  const normalized=LEGACY_THIRD_MAP[job]||job;
  const idx=WEAPON_JOBS.indexOf(normalized);
@@ -3393,20 +3402,24 @@ function mercMotionFrame(p){
  if(p<.17)return 0;if(p<.30)return 1;if(p<.44)return 2;if(p<.65)return 3;return 0;
 }
 function drawMercMotionBody(c,m,x,y,a){
- if(!mercMotion.naturalWidth)return false;
- const col=mercMotionFrame(a.p),row=mercMotionRow(m.job),sw=mercMotion.naturalWidth/4,sh=mercMotion.naturalHeight/36;
- const bodySize=92;
- c.save();c.globalAlpha=a.alpha;c.translate(a.x,a.y);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;
- c.drawImage(mercMotion,col*sw,row*sh,sw,sh,-bodySize/2,-bodySize,bodySize,bodySize);c.restore();return true;
+ if(!mercJobAtlas.naturalWidth)return false;
+ const idx=mercMotionRow(m.job),col=idx%6,row=Math.floor(idx/6),sw=mercJobAtlas.naturalWidth/6,sh=mercJobAtlas.naturalHeight/6;
+ const phase=mercMotionFrame(a.p),bodySize=104;
+ c.save();c.globalAlpha=a.alpha;c.translate(x,y);c.imageSmoothingEnabled=false;
+ // Each job has its own source character; the pose phase adds a readable strike/cast motion.
+ if(phase===1){c.translate(0,-2);c.rotate(a.lean*.35);c.scale(1.02,.98);}
+ else if(phase===2){c.translate(a.melee?6:2,-6);c.rotate(a.melee?-.10:-.04);c.scale(1.08,.94);}
+ else if(phase===3){c.translate(-2,1);c.rotate(a.lean*.7);c.scale(.98,1.03);}
+ c.drawImage(mercJobAtlas,col*sw,row*sh,sw,sh,-bodySize/2,-bodySize,bodySize,bodySize);c.restore();return true;
 }
 function drawMercenaryFighter(c,m,x,y,t,index,mode){
- const a=battlePose(m,x,y,t,index,mode),p=a.p,xp=a.x,yp=a.y,w=weaponForJob(m.job),animated=a.combat&&!reducedBattleMotion&&mercMotion.naturalWidth;
+ const a=battlePose(m,x,y,t,index,mode),p=a.p,xp=a.x,yp=a.y,w=weaponForJob(m.job),animated=a.combat&&!reducedBattleMotion&&mercJobAtlas.naturalWidth;
  const magic=['magic','heal'].includes(a.type),bow=a.type==='bow';
  c.fillStyle='#08121c65';c.beginPath();c.ellipse(xp,yp+5,35,10,0,0,Math.PI*2);c.fill();
  const img=spriteImages[spriteKeyForJob(m.job)];
  if(animated){
   drawMercMotionBody(c,m,xp,yp,a);
-  if(a.melee&&a.combat&&p>.19&&p<.31){for(let k=3;k>=1;k--){c.save();c.globalAlpha=.06*(4-k);c.drawImage(mercMotion,(mercMotionFrame(Math.max(0,p-k*.035))*mercMotion.naturalWidth/4),mercMotionRow(m.job)*mercMotion.naturalHeight/36,mercMotion.naturalWidth/4,mercMotion.naturalHeight/36,xp-46-k*15,yp-91,92,92);c.restore();}}
+  if(a.melee&&a.combat&&p>.19&&p<.31){for(let k=3;k>=1;k--){c.save();c.globalAlpha=.06*(4-k);drawMercMotionBody(c,m,xp-k*15,yp,a);c.restore();}}
  }else if(img){c.save();c.globalAlpha=a.alpha;c.translate(xp,yp);c.rotate(a.lean);c.scale(1+a.squash,1-a.squash);c.imageSmoothingEnabled=false;c.drawImage(img,-40,-78,80,80);c.restore();}
  c.save();c.translate(xp+24,yp-35);c.rotate(reducedBattleMotion?0:magic?-.3*a.wind:bow?-.2*a.wind:['thrust','dagger'].includes(a.type)?-.5+a.strike*.3:-a.wind*.8+a.strike*1.35);drawBattleWeapon(c,m.job,-18,-53,76);c.restore();
  if(a.combat&&!reducedBattleMotion){
