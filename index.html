@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>용병 길드 v31 · 개인 자금 분리</title>
+<title>용병 길드 v32 · 길드 자금 장부</title>
 <style>
   :root{
     --bg:#0f1117;
@@ -1085,7 +1085,7 @@ function expandBuilding(){
   const repNeed = (state.buildingLevel - 1) * 10;
   if(state.gold < cost){ log(`건물 확장 비용이 부족합니다. 필요 ${cost}G.`); return; }
   if(state.reputation < repNeed){ log(`길드 건물 확장에는 평판 ${repNeed} 이상이 필요합니다.`); return; }
-  state.gold -= cost;
+  changeGuildGold(-cost,'길드 건물 확장');
   state.buildingLevel++;
   log(`🏰 길드 건물을 Lv.${state.buildingLevel}로 확장했습니다.`);
   renderPanels();
@@ -2483,7 +2483,7 @@ addQuest=function(silent=false){
  const kind=state.quests.filter(q=>q.kind==='solo').length<3?'solo':Math.random()<.35?'party':'solo';state.quests.push(makeContract(kind));if(!silent)renderPanels();
 };
 function seedQuestBoard(){for(let i=0;i<4;i++)state.quests.push(makeContract('solo'));state.quests.push(makeContract('party'),makeContract('named','redfang'));}
-onNewDay=function(){const upkeep=Object.values(state.facilities).reduce((sum,f)=>sum+f.level*12,0);state.gold=Math.max(0,state.gold-upkeep);log(`🌅 Day ${state.day} · 시설 유지비 ${upkeep}G. 의뢰는 하루 중에도 자동으로 갱신됩니다.`);};
+onNewDay=function(){const upkeep=Object.values(state.facilities).reduce((sum,f)=>sum+f.level*12,0);changeGuildGold(-upkeep,'일일 시설 유지비');log(`🌅 Day ${state.day} · 시설 유지비 ${upkeep}G. 의뢰는 하루 중에도 자동으로 갱신됩니다.`);};
 receptionistApproves=function(m,q){return m.level>=q.minLevel&&projectedPower(m)>=q.memberPower;};
 function claimContract(m,q){
  if(!q||state.paused||m.assignmentId||m.service||m.mission||q.phase!=='recruiting'||state.gameMinute>=q.expiresAt||q.members.length>=q.maxMembers||!receptionistApproves(m,q))return false;
@@ -2527,7 +2527,7 @@ function settleExpedition(e){
  // One atomic party settlement: remove the authoritative record before any reward.
  state.expeditions=state.expeditions.filter(x=>x.id!==e.id);
  const success=Math.random()<e.successChance,q=e.quest,cut=success?Math.round(q.reward*.1):0,pool=success?q.reward-cut:0,n=e.memberIds.length;
- state.gold+=cut;state.reputation=Math.max(0,state.reputation+(success?grades.indexOf(q.grade)+1+(q.kind==='named'?3:0):-1));
+ changeGuildGold(cut,`의뢰 수수료 · ${q.name}`);state.reputation=Math.max(0,state.reputation+(success?grades.indexOf(q.grade)+1+(q.kind==='named'?3:0):-1));
  e.memberIds.forEach((id,index)=>{
   const m=mercById(id);m.missions++;if(success){m.gold+=Math.floor(pool/n)+(index<pool%n?1:0);m.victories++;m.xp+=QUEST_BALANCE[q.grade].xp+(q.kind==='party'?8:q.kind==='named'?25:0);}
   else{m.gold-=Math.min(m.gold,Math.min(60,Math.ceil(q.reward*.08/n)));m.failures++;m.xp+=12+grades.indexOf(q.grade)*4;}
@@ -2693,7 +2693,7 @@ function recruitMercenary(){
  if(state.mercenaries.length>=guildCapacity()||state.gold<150)return false;
  const id=Math.max(...state.mercenaries.map(m=>m.id))+1,names=['아린','루카','벨라','노엘','카일','미라','에단','유나'],index=state.mercenaries.length;
  const m={id,name:names[(id-9+names.length)%names.length]+(id>16?' '+id:''),job:'모험가',level:1,xp:0,gold:120,risk:.4,greed:.5,str:rand(6,10),dex:rand(6,10),int:rand(6,10),luk:rand(6,10),victories:0,failures:0,missions:0,titles:[],assignmentId:null,activity:'대기',status:'대기',visible:true,moving:false,path:[],arriveResolve:null,_idlePhase:0,facing:1};
- m.x=m.homeX=70+(index%16)*60;m.y=m.homeY=[250,270,370,390][Math.floor(index/16)%4];ensureNeeds(m);m.power=computePower(m);state.gold-=150;state.mercenaries.push(m);if(state.running)launchMercenary(m);log(`👤 ${m.name}이 길드에 합류했습니다. 수용 ${state.mercenaries.length}/${guildCapacity()}명 · 모집비 150G`);return true;
+ m.x=m.homeX=70+(index%16)*60;m.y=m.homeY=[250,270,370,390][Math.floor(index/16)%4];ensureNeeds(m);m.power=computePower(m);changeGuildGold(-150,`일반 용병 모집 · ${m.name}`);state.mercenaries.push(m);if(state.running)launchMercenary(m);log(`👤 ${m.name}이 길드에 합류했습니다. 수용 ${state.mercenaries.length}/${guildCapacity()}명 · 모집비 150G`);return true;
 }
 const expandBeforeCapacity=expandBuilding;
 expandBuilding=function(){expandBeforeCapacity();renderPanels();};
@@ -2747,7 +2747,7 @@ eatFood=function(m,id){
 };
 craftGear=function(id){
  const g=gearCatalog.find(g=>g.id===id);if(state.paused||!g||state.facilities.smithy.level<g.rank||state.gold<g.cost||state.crafting.length>=3)return false;
- state.gold-=g.cost;state.crafting.push({id,start:state.gameMinute,end:state.gameMinute+g.minutes,qualityChance:masterpieceChance()});recordFacility('smithy',null,g.name+' 제작 시작',-g.cost);renderPanels();return true;
+ changeGuildGold(-g.cost,`대장간 제작 · ${g.name}`);state.crafting.push({id,start:state.gameMinute,end:state.gameMinute+g.minutes,qualityChance:masterpieceChance()});recordFacility('smithy',null,g.name+' 제작 시작',-g.cost);renderPanels();return true;
 };
 buyGear=function(m,id){
  ensureNeeds(m);const g=gearCatalog.find(g=>g.id===id);if(!g||g.rank>state.facilities.smithy.level)return false;
@@ -2999,7 +2999,7 @@ const BOSS_NAMES=['고블린 킹','오크 워 로드','홉 고블린 제너럴',
 NAMED_BOSSES.splice(0,NAMED_BOSSES.length,...BOSS_NAMES.map((name,i)=>{const tier=Math.floor(i/5);return {id:'named-'+i,name,grade:'S',level:30+tier*5,memberPower:700+tier*180,power:3400+tier*1100,min:4,reward:12000+tier*6500,minutes:720+tier*180,boardLevel:5+tier,title:name+' 토벌자',bonus:10+tier*3,tags:i%2?['STR','DEX']:['INT','LUK']};}),...LEGACY_BOSSES);
 const makeV16Before=makeContract;
 makeContract=function(kind='solo',bossId=null){if(kind==='named'&&!bossId)bossId=pick(NAMED_BOSSES.filter(b=>!b.legacy&&b.boardLevel<=state.facilities.board.level))?.id;if(kind==='named'&&!bossId)kind='party';return makeV16Before(kind,bossId);};
-upgradeFacility=function(key){const f=state.facilities[key];if(!f||f.level>=state.buildingLevel)return false;const cost=facilityCost(f);if(state.gold<cost)return false;state.gold-=cost;f.level++;if(key==='inn')refreshBeds();log(`${f.name} ${f.level===1?'해금':'강화'} · Lv.${f.level} · ${cost}G`);saveGame(true);return true;};
+upgradeFacility=function(key){const f=state.facilities[key];if(!f||f.level>=state.buildingLevel)return false;const cost=facilityCost(f);if(state.gold<cost)return false;changeGuildGold(-cost,`${f.name} ${f.level===0?'해금':'강화'}`);f.level++;if(key==='inn')refreshBeds();log(`${f.name} ${f.level===1?'해금':'강화'} · Lv.${f.level} · ${cost}G`);saveGame(true);return true;};
 function formParties(){const free=state.mercenaries.filter(m=>!partyFor(m));let formed=0;while(free.length>=4){const leader=free.shift(),members=[leader];while(members.length<4){free.sort((a,b)=>((leader.relations?.[b.id]||0)+(members.some(m=>roleOf(m)===roleOf(b))?0:10))-((leader.relations?.[a.id]||0)+(members.some(m=>roleOf(m)===roleOf(a))?0:10)));members.push(free.shift());}state.parties.push({id:Math.max(0,...state.parties.map(p=>p.id))+1,name:leader.name+'의 원정대',memberIds:members.map(m=>m.id),runs:0});formed++;}if(formed)log(`동료 관계와 직업을 고려해 고정파티 ${formed}개가 결성되었습니다.`);return formed;}
 function dissolveParty(id){const p=state.parties.find(p=>p.id===id);if(!p||p.memberIds.some(id=>mercById(id)?.assignmentId))return false;state.parties=state.parties.filter(p=>p.id!==id);renderPanels();saveGame(true);return true;}
 const selectV16=selectQuest;
@@ -3352,6 +3352,8 @@ function drawMercenaryFighter(c,m,x,y,t,index,mode){
 // v30: reputation unlocks, equipment slots, battle reports and editable fixed parties.
 const v30EquipmentSlots=['weapon','head','body','hands','feet','accessory'];
 const v30RetirementAge=60,v30RetirementWarningAge=55,v30AgeCycleMinutes=1440*30;
+function recordTreasury(amount,reason){state.treasuryLedger??=[];state.treasuryLedger.unshift({minute:state.gameMinute,amount,balance:state.gold,reason:String(reason||'기타').slice(0,100)});state.treasuryLedger=state.treasuryLedger.slice(0,120);}
+function changeGuildGold(amount,reason){const before=state.gold;state.gold=Math.max(0,state.gold+amount);const actual=state.gold-before;if(actual)recordTreasury(actual,reason);return actual;}
 const v30SlotLabels={weapon:'무기',head:'머리',body:'몸통',hands:'손',feet:'발',accessory:'장신구'};
 const v30EquipmentCatalog=[
  {id:'iron-helm',slot:'head',name:'철제 투구',price:95,power:5,rank:1,desc:'머리 · 전투력 +5'},
@@ -3401,7 +3403,7 @@ const v30TeamEffectBase=teamEffect;
 teamEffect=function(q,mercs){const out=v30TeamEffectBase(q,mercs),p=state.parties.find(x=>mercs.length===x.memberIds.length&&mercs.every(m=>x.memberIds.includes(m.id)));if(!p)return out;const roles=new Set(Object.values(p.roles||{}));if(roles.has('front'))out.chance+=.025;if(roles.has('damage'))out.chance+=.025;if(roles.has('support'))out.recovery+=4;if(roles.has('scout'))out.loot+=1;out.notes=(out.notes||[]).concat('고정파티 역할 배치');return out;};
 function v30RecruitRare(){
  const before=state.mercenaries.length;if(v30ReputationStage().level<3||state.gold<500||state.mercenaries.length>=8+state.buildingLevel*3)return false;
- if(!recruitMercenary()||state.mercenaries.length<=before)return false;state.gold=Math.max(0,state.gold-350);const m=state.mercenaries[state.mercenaries.length-1];m.rare=true;m.str+=rand(3,6);m.dex+=rand(3,6);m.int+=rand(3,6);m.luk+=rand(2,5);m.gold+=80;m.power=computePower(m);log(`✨ 희귀 용병 ${m.name}이 상위 상점에서 합류했습니다.`);renderPanels();saveGame(true);return true;
+ if(!recruitMercenary()||state.mercenaries.length<=before)return false;const m=state.mercenaries[state.mercenaries.length-1];changeGuildGold(-350,`희귀 용병 추가 모집비 · ${m.name}`);m.rare=true;m.str+=rand(3,6);m.dex+=rand(3,6);m.int+=rand(3,6);m.luk+=rand(2,5);m.gold+=80;m.power=computePower(m);log(`✨ 희귀 용병 ${m.name}이 상위 상점에서 합류했습니다.`);renderPanels();saveGame(true);return true;
 }
 const v30AddQuestBase=addQuest;
 addQuest=function(silent=false){
@@ -3413,15 +3415,15 @@ buyGood=function(m,id){const item=goods.find(x=>x.id===id);if(item&&(item.repUnl
 // Mercenary purchases and services are paid only from personal wallets.
 payForService=function(m,key,price,text){if(state.facilities[key].level===0||m.gold<price)return false;m.gold-=price;recordFacility(key,m,text+' · 개인 지출',price);return true;};
 goods.push({id:'elixir',name:'상급 회복 물약',price:95,icon:'🧴',repUnlock:45,desc:'상위 상점 · 임무 출발 시 체력 +65'},{id:'ether',name:'상급 마나 물약',price:110,icon:'🔷',repUnlock:45,desc:'상위 상점 · 기력 +60'},{id:'campkit',name:'원정 야영 세트',price:150,icon:'⛺',repUnlock:80,desc:'상위 상점 · 외부 일정에서 휴식 가능'});
-state.equipmentStock??={};state.battleResults??=[];state.parties??=[];for(const p of state.parties)v30NormalizeParty(p);
+state.equipmentStock??={};state.battleResults??=[];state.treasuryLedger??=[];state.parties??=[];for(const p of state.parties)v30NormalizeParty(p);
 const v30CleanMercBase=cleanMercenary;
 cleanMercenary=function(m){const r=v30CleanMercBase(m);r.rare=m.rare===true;r.ageAnchor=saveNumber(m.ageAnchor,0,1e9,state.gameMinute);r.retired=m.retired===true;r.retirementPending=m.retirementPending===true;r.retirementWarned=m.retirementWarned===true;r.equipment={};for(const slot of v30EquipmentSlots){const e=m.equipment?.[slot]||(slot==='weapon'?m.gear:null);r.equipment[slot]=e?{name:saveText(e.name,80),power:saveNumber(e.power,0,1e6,0),rank:saveInteger(e.rank,0,10,0),durability:saveNumber(e.durability,0,100,100),slot}:null;}r.gear=r.equipment.weapon||r.gear;return r;};
 const v30ValidateBase=validateSave;
-validateSave=function(raw){const x=v30ValidateBase(raw),s=raw.state||{};x.battleResults=Array.isArray(s.battleResults)?s.battleResults.slice(0,40):[];x.retiredMercenaries=Array.isArray(s.retiredMercenaries)?s.retiredMercenaries.slice(0,64):[];x.parties=Array.isArray(s.parties)?s.parties.map(p=>v30NormalizeParty({...p})).filter(p=>p.memberIds.length):[];for(const q of x.quests){const src=(s.quests||[]).find(z=>z.id===q.id);if(src?.noble)q.noble=true;}for(const m of x.mercenaries)v30EnsureEquipment(m);return x;};
+validateSave=function(raw){const x=v30ValidateBase(raw),s=raw.state||{};x.battleResults=Array.isArray(s.battleResults)?s.battleResults.slice(0,40):[];x.retiredMercenaries=Array.isArray(s.retiredMercenaries)?s.retiredMercenaries.slice(0,64):[];x.treasuryLedger=Array.isArray(s.treasuryLedger)?s.treasuryLedger.slice(0,120).map(e=>({minute:saveNumber(e.minute,0,1e9,x.gameMinute),amount:saveNumber(e.amount,-1e12,1e12,0),balance:saveNumber(e.balance,0,1e12,x.gold),reason:saveText(e.reason,100,'기타')})):[];x.parties=Array.isArray(s.parties)?s.parties.map(p=>v30NormalizeParty({...p})).filter(p=>p.memberIds.length):[];for(const q of x.quests){const src=(s.quests||[]).find(z=>z.id===q.id);if(src?.noble)q.noble=true;}for(const m of x.mercenaries)v30EnsureEquipment(m);return x;};
 const v30ApplyBase=applySavedState;
-applySavedState=function(clean){v30ApplyBase(clean);state.battleResults=Array.isArray(clean.battleResults)?clean.battleResults:[];state.retiredMercenaries=Array.isArray(clean.retiredMercenaries)?clean.retiredMercenaries:[];state.parties=Array.isArray(clean.parties)?clean.parties:[];for(const m of state.mercenaries)v30EnsureEquipment(m);for(const p of state.parties)v30NormalizeParty(p);};
+applySavedState=function(clean){v30ApplyBase(clean);state.battleResults=Array.isArray(clean.battleResults)?clean.battleResults:[];state.retiredMercenaries=Array.isArray(clean.retiredMercenaries)?clean.retiredMercenaries:[];state.treasuryLedger=Array.isArray(clean.treasuryLedger)?clean.treasuryLedger:[];state.parties=Array.isArray(clean.parties)?clean.parties:[];for(const m of state.mercenaries)v30EnsureEquipment(m);for(const p of state.parties)v30NormalizeParty(p);};
 const v30MakeSaveBase=makeSave;
-makeSave=function(){const save=v30MakeSaveBase();save.appVersion=31;save.state.battleResults=(state.battleResults||[]).slice(0,40);save.state.retiredMercenaries=(state.retiredMercenaries||[]).slice(0,64);save.state.parties=(state.parties||[]).map(p=>v30NormalizeParty({...p,memberIds:[...(p.memberIds||[])],roles:{...(p.roles||{})}}));return save;};
+makeSave=function(){const save=v30MakeSaveBase();save.appVersion=32;save.state.battleResults=(state.battleResults||[]).slice(0,40);save.state.retiredMercenaries=(state.retiredMercenaries||[]).slice(0,64);save.state.treasuryLedger=(state.treasuryLedger||[]).slice(0,120);save.state.parties=(state.parties||[]).map(p=>v30NormalizeParty({...p,memberIds:[...(p.memberIds||[])],roles:{...(p.roles||{})}}));return save;};
 const v30SettleBase=settleExpedition;
 settleExpedition=function(e){
  const before=e.memberIds.map(id=>{const m=mercById(id);return {id,name:m?.name||'알 수 없음',job:m?.job||'',power:e.powerById?.[id]||m?.power||0,hp:m?.hp||0,energy:m?.energy||0};});const ok=v30SettleBase(e);if(!ok)return false;const h=state.questHistory[0],total=before.reduce((n,x)=>n+x.power,0);state.battleResults=state.battleResults||[];state.battleResults.unshift({id:e.id,name:e.quest.name,status:h?.status||'완료',kind:e.quest.kind,noble:!!e.quest.noble,bossId:e.quest.bossId||null,minute:state.gameMinute,reward:h?.reward||0,minPower:e.quest.minPower,combinedPower:total,successChance:e.successChance,members:before.map(x=>({...x,contribution:total?Math.round(x.power/total*100):0})),encounterNames:typeof encounterNames==='function'?encounterNames(e.quest):''});state.battleResults=state.battleResults.slice(0,40);return true;
@@ -3430,6 +3432,7 @@ const renderTabExtrasV30=renderTabExtras;
 renderTabExtras=function(){
  renderTabExtrasV30();
  const stage=v30ReputationStage();
+ if(activeTab==='guild'){const view=document.getElementById('view-guild');let panel=document.getElementById('v32-treasury-panel');if(view&&!panel){panel=document.createElement('section');panel.id='v32-treasury-panel';panel.className='panel';view.append(panel);}if(panel){const rows=(state.treasuryLedger||[]).slice(0,30),income=rows.filter(e=>e.amount>0).reduce((n,e)=>n+e.amount,0),expense=-rows.filter(e=>e.amount<0).reduce((n,e)=>n+e.amount,0);panel.innerHTML=`<div class="panel-head"><div><h2>💰 길드 자금 장부</h2><div class="panel-sub">용병 개인 소비는 포함되지 않습니다</div></div><span class="tag">현재 ${state.gold.toLocaleString()}G</span></div><div class="panel-body"><div class="kpi-grid"><div class="kpi"><div class="k">최근 수입</div><div class="v good">+${income.toLocaleString()}G</div></div><div class="kpi"><div class="k">최근 지출</div><div class="v bad">-${expense.toLocaleString()}G</div></div></div>${rows.length?rows.map(e=>`<div class="logline row"><span>${absoluteTimeLabel(e.minute)} · ${esc16(e.reason)}</span><b class="${e.amount>0?'good':'bad'}">${e.amount>0?'+':''}${e.amount.toLocaleString()}G · 잔액 ${e.balance.toLocaleString()}G</b></div>`).join(''):'<p class="hint">아직 기록된 길드 자금 변동이 없습니다. 기존 저장의 과거 변동은 복원되지 않으며, v32부터 기록됩니다.</p>'}</div>`;}}
  if(activeTab==='quests'){const host=document.getElementById('mission-list');if(host&&!document.getElementById('v30-rep-panel')){const el=document.createElement('section');el.id='v30-rep-panel';el.className='card';el.innerHTML=`<b>길드 평판 · ${stage.name} (단계 ${stage.level})</b><p class="small">${stage.next?`다음 단계까지 ${stage.next-state.reputation} 평판`:'최고 단계'} · 평판 20: 귀족 의뢰 · 평판 45: 희귀 용병·상위 상점 · 평판 80: 왕실 의뢰·최상위 장비</p>`;host.prepend(el);}}
  if(activeTab==='mercs'){const pHost=document.getElementById('party-list');if(pHost){pHost.innerHTML='<p class="hint">고정파티는 의뢰와 시설 행동에서 지정 역할 보너스를 적용합니다.</p>'+state.parties.map(p=>{v30NormalizeParty(p);const members=p.memberIds.map(id=>{const m=mercById(id);const role=(p.roles||{})[id]||'damage';return `<div class="small" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span>${id===p.leaderId?'⭐ ':''}${esc16(m?.name||'알 수 없음')}</span><select onchange="setPartyRole(${p.id},${id},this.value)">${v30PartyRoles.map(r=>`<option value="${r[0]}" ${role===r[0]?'selected':''}>${r[1]}</option>`).join('')}</select></div>`;}).join('');return `<div class="card"><div class="row"><input value="${esc16(p.name)}" aria-label="파티 이름" onchange="updatePartyName(${p.id},this.value)" style="max-width:190px"><button onclick="dissolveParty(${p.id})" ${p.memberIds.some(id=>mercById(id)?.assignmentId)?'disabled':''}>파티 해체</button></div><label class="small">리더 <select onchange="setPartyLeader(${p.id},Number(this.value))">${p.memberIds.map(id=>`<option value="${id}" ${p.leaderId===id?'selected':''}>${esc16(mercById(id)?.name||'알 수 없음')}</option>`).join('')}</select></label><div style="margin-top:8px">${members}</div><p class="small">함께 수행 ${p.runs||0}회</p></div>`;}).join('');const recruit=document.createElement('div');recruit.className='card';recruit.innerHTML=`<b>상위 상점 용병 모집</b><p class="small">평판 45부터 희귀 용병을 모집할 수 있습니다. 비용 500G.</p><button onclick="v30RecruitRare()" ${stage.level<3||state.gold<500?'disabled':''}>${stage.level<3?'평판 45 필요':'희귀 용병 모집 · 500G'}</button>`;pHost.append(recruit);const retired=(state.mercenaries||[]).filter(m=>m.retired);if(retired.length){const old=document.createElement('div');old.className='card';old.innerHTML='<b>은퇴한 용병</b>'+retired.map(m=>`<p class="small">${esc16(m.name)} · ${m.age}세 · ${m.job}</p>`).join('');pHost.append(old);}}}
  if(activeTab==='smithy'){const host=document.getElementById('smithy-view');if(host&&!document.getElementById('v30-equipment-shop')){const el=document.createElement('section');el.id='v30-equipment-shop';el.className='card';el.innerHTML='<b>부위별 장비</b><div class="small" style="margin:6px 0 10px">선택 용병: '+esc16(getSelectedMerc()?.name||'없음')+'</div>'+v30EquipmentCatalog.map(i=>{const locked=(i.repUnlock||0)>state.reputation||i.rank>state.facilities.smithy.level;return `<div class="row" style="margin:6px 0"><span><b>${i.name}</b><br><span class="small">${i.desc}</span></span><button ${locked?'disabled':''} onclick="buyEquipment(getSelectedMerc(), '${i.id}')">${locked?'잠김':i.price+'G 장착'}</button></div>`;}).join('');host.querySelector('.panel-body')?.append(el);}}
